@@ -1,0 +1,55 @@
+# Python cache and artifacts
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.pyc
+
+# Virtual environments
+.venv/
+env/
+venv/
+
+# Logs and temp files
+*.log
+*.pid
+*.seed
+*.pid.lock
+
+# Local environment and system files
+.env
+.DS_Store
+Thumbs.db
+
+# Docker and git-related
+.dockerignore
+.git
+.gitignore
+
+# Editor and IDE files
+.vscode/
+.idea/
+
+# Test and coverage outputs
+.pytest_cache/
+.mypy_cache/
+coverage/
+htmlcov/
+
+# Build artifacts
+build/
+dist/
+*.egg-info/
+pip-wheel-metadata/
+
+# Media/model files that aren't needed in build context
+*.mp4
+*.avi
+*.mov
+*.webm
+*.jpg
+*.png
+*.h5
+*.pt
+*.onnx
+*.tflite

@@ -1,131 +1,180 @@
 
-# ASL Translator (Capstone Project)
-Welcome to our ASL Translator project! This application aims to interpret American Sign Language (ASL) hand gestures captured via webcam using a machine learning model and display their translated meanings. It combines a React front-end, a Python FastAPI back-end, and a TensorFlow-based gesture recognition model.
+# ASL Translator - Team Development Guide
+
+This project is a web-based application that uses a webcam and a machine learning model to recognize dynamic American Sign Language (ASL) gestures and translate them into text in real-time.
+
+This README is intended to help our development team get set up and collaborate effectively. A user-facing version will be written later.
+
+---
 
 ## Project Overview
-**Tech Stack:**  
-- Frontend: React, React-Webcam, Bootstrap CSS  
-- Backend: FastAPI, JWT authentication  
-- Machine Learning: Python, TensorFlow, MediaPipe  
-- Tools: Git, GitHub, Docker, Kaggle API, WSL (Ubuntu)
 
-## Getting Started (For Team Members)
-These steps will help you get the project running on your machine. You’ll need WSL (Ubuntu), Python 3, and Git installed.
+We’re building a full-stack application with:
 
-### 🔐 1. Gain Access to the Repository
-1. Create a GitHub account at https://github.com  
-2. Send your GitHub username to Kareem  
-3. Kareem will add you as a collaborator  
-4. Accept the GitHub invitation (via email or GitHub notifications)
+- A React frontend that displays webcam footage and translated text.
+- A FastAPI backend that performs model inference and handles authentication.
+- A SQLite database to store user data and chat history.
 
-### 💾 2. Clone the Repository
-```bash
-cd ~
-git clone https://github.com/KareemSalem736/ASL-translator.git
-cd ASL-translator
+---
+
+## Tech Stack
+
+| Layer       | Tools / Libraries                        |
+|-------------|------------------------------------------|
+| Frontend    | React, React-Webcam, Bootstrap           |
+| Backend     | FastAPI (Python), TensorFlow or MediaPipe|
+| Database    | SQLite                                   |
+| Dev Tools   | Docker, Git, GitHub                      |
+| Auth        | JSON Web Tokens (JWT)                    |
+
+---
+
+## Folder Structure (Work in Progress)
+
+```
+
+/ASL-translator
+│
+├── frontend/            # React frontend code
+├── backend/             # FastAPI backend
+├── model/               # Trained ML model(s)
+├── data/                # Datasets (if applicable)
+├── .gitignore
+├── .dockerignore
+├── Dockerfile
+├── requirements.txt     # Backend Python dependencies
+└── README.md
+
 ````
 
-### 3. Set Up the ML Model Environment
+---
+
+## Getting Started
+
+### 1. Get Access to the Repository
+
+- Send your **GitHub username or email address** to Kareem.
+- You'll be added as a collaborator. Accept the invitation via email or GitHub notifications before proceeding.
+
+---
+
+### 2. Set Up SSH Access (Recommended)
+
+To securely connect to GitHub and avoid password prompts:
+
+**Generate an SSH key** (only once per machine):
 
 ```bash
-cd model
-python3 -m venv venv
-source venv/bin/activate
-pip install --upgrade pip
-pip install -r requirements.txt
-```
+ssh-keygen -t ed25519 -C "youremail@example.com"
+````
 
-### 4. Set Up Kaggle API Key
+* Press Enter to accept the default file location.
+* Set a passphrase if desired.
 
-1. Go to [https://www.kaggle.com/account](https://www.kaggle.com/account)
-2. Click "Create New API Token" to download `kaggle.json`
-3. Move it to the correct location:
+**Add your public key to GitHub:**
 
 ```bash
-mkdir -p ~/.kaggle
-mv ~/Downloads/kaggle.json ~/.kaggle/
-chmod 600 ~/.kaggle/kaggle.json
+cat ~/.ssh/id_ed25519.pub
 ```
 
-### 5. Download Dataset
+* Copy the output.
+* Go to GitHub → Settings → SSH and GPG Keys → New SSH Key.
+* Paste the key and save.
+
+**Test your setup:**
 
 ```bash
-python scripts/download_data.py
+ssh -T git@github.com
 ```
 
-### 6. Train the Model
+If successful, you’ll see a greeting message from GitHub.
+
+---
+
+### 3. Clone the Repository
 
 ```bash
-python scripts/train.py
+git clone git@github.com:YOUR-ORG/ASL-translator.git
+cd ASL-translator
 ```
 
-## Project Structure
-
-```
-ASL-translator/
-├── model/
-│   ├── data/               # Training data (ignored by Git)
-│   ├── models/             # Trained model files
-│   ├── notebooks/          # Prototyping (optional)
-│   ├── scripts/            # Training, preprocessing scripts
-│   ├── requirements.txt    # Python dependencies
-│   └── Dockerfile          # ML environment container (optional)
-├── README.md               # You are here!
-├── .gitignore              # Prevents unnecessary files from being tracked
-└── (frontend/, backend/)   # Will be added later
-```
-
-## Making Contributions (Git & GitHub Workflow)
-
-### A. Pull the Latest Changes
+If you're not using SSH, you can clone via HTTPS:
 
 ```bash
-git checkout main
-git pull origin main
+git clone https://github.com/YOUR-ORG/ASL-translator.git
 ```
 
-### B. Create a New Branch
+(You may be prompted for your GitHub username and a personal access token.)
+
+---
+
+### 4. Run the Backend (FastAPI) with Docker
+
+Ensure Docker Desktop is installed and running.
 
 ```bash
-git checkout -b your-feature-name
+docker build -t asl-translator .
+docker run -p 8000:8000 asl-translator
 ```
 
-### C. Make and Commit Your Changes
+Visit: `http://localhost:8000`
+
+---
+
+### 5. Run the Frontend (React)
+
+We’re running the frontend locally during development.
+
+```bash
+cd frontend
+npm install
+npm run dev
+```
+
+Visit: `http://localhost:5173`
+
+---
+
+## Git Workflow and Pull Requests
+
+Always work on your own branch and use pull requests for collaboration.
+
+**Create a new branch:**
+
+```bash
+git checkout -b feature/your-name-description
+```
+
+**Commit and push your changes:**
 
 ```bash
 git add .
-git commit -m "Add: Description of your changes"
+git commit -m "Describe your change"
+git push origin feature/your-name-description
 ```
 
-###  D. Push Your Branch to GitHub
+**Open a pull request:**
 
-```bash
-git push origin your-feature-name
+* Go to the GitHub repo.
+* Click "Compare & pull request".
+* Add a description, then submit.
+
+Do not push directly to `main`. Use branches and PRs so we can review and merge cleanly.
+
+---
+
+## Team Roles
+
+| Name           | Role                    |
+| -------------- | ----------------------- |
+| Kareem Salem   | Machine Learning Lead   |
+| Ryan Huston    | Team Lead / PM          |
+| Dustin Dees    | Database Developer Lead |
+| Emmanuel Abebe | React Developer Lead    |
+| Samuel Epstein | Python Developer Lead   |
+
+---
+
+Reach out in the group chat or tag someone in GitHub if you need help setting things up. Let’s keep the repo clean and organized as we build.
+
 ```
-
-### E. Open a Pull Request (PR)
-
-1. Visit the repo on GitHub
-2. Click "Compare & pull request"
-3. Fill in the title and description
-4. Assign a reviewer
-
->  Do not merge your own PR
-
-### F. After Merge
-
-```bash
-git checkout main
-git pull origin main
-```
-
-## 📬 Questions?
-
-If you're stuck or unsure:
-
-* Leave a comment on your PR for clarification
-    Or hit the Discord
-  We’re all learning!
-
-Let’s build something awesome!!
-

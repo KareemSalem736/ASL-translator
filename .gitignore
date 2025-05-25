@@ -1,0 +1,62 @@
+# Byte-compiled / optimized / DLL files
+__pycache__/
+*.py[cod]
+*.pyo
+*.pyd
+
+# Environment
+.env
+.venv/
+env/
+venv/
+
+# VS Code settings
+.vscode/
+
+# Docker
+*.log
+*.pid
+*.seed
+*.pid.lock
+*.db-journal
+docker-compose.override.yml
+*.tar
+
+# System files
+.DS_Store
+Thumbs.db
+
+# Python packaging
+*.egg
+*.egg-info/
+dist/
+build/
+pip-wheel-metadata/
+
+# Jupyter Notebook checkpoints (if used for testing/training)
+.ipynb_checkpoints/
+
+# SQLite or other local DBs
+*.sqlite3
+*.db
+
+# Virtual environment folders
+/.mypy_cache/
+/.pytest_cache/
+/coverage/
+/htmlcov/
+
+# Model and media files (adjust based on usage)
+*.h5
+*.tflite
+*.onnx
+*.pt
+*.mp4
+*.avi
+*.mov
+*.jpg
+*.png
+*.webm
+
+# IDEs
+.idea/
