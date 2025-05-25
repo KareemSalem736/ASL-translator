@@ -34,16 +34,17 @@ We’re building a full-stack application with:
 ```
 
 /ASL-translator
-│
-├── frontend/            # React frontend code
-├── backend/             # FastAPI backend
-├── model/               # Trained ML model(s)
-├── data/                # Datasets (if applicable)
-├── .gitignore
+├── backend/ # FastAPI app and model logic
+├── frontend/ # React app (Vite-based)
+│ ├── index.html
+│ ├── vite.config.js
+│ └── src/
 ├── .dockerignore
+├── .gitignore
 ├── Dockerfile
-├── requirements.txt     # Backend Python dependencies
-└── README.md
+├── LICENSE
+├── README.md
+└── requirements.txt # Backend Python dependencies
 
 ````
 
@@ -163,15 +164,18 @@ Do not push directly to `main`. Use branches and PRs so we can review and merge 
 
 ---
 
-## Team Roles
+### Frontend Setup Instructions (React + Vite)
+Navigate to the frontend folder:
 
-| Name           | Role                    |
-| -------------- | ----------------------- |
-| Kareem Salem   | Machine Learning Lead   |
-| Ryan Huston    | Team Lead / PM          |
-| Dustin Dees    | Database Developer Lead |
-| Emmanuel Abebe | React Developer Lead    |
-| Samuel Epstein | Python Developer Lead   |
+cd frontend
+Install dependencies:
+
+npm install
+Run the development server:
+
+npm run dev
+Open the app in your browser:
+Go to http://localhost:5173
 
 ---
 
