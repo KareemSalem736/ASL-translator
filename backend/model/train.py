@@ -5,6 +5,7 @@ import pandas as pd
 import numpy as np
 import tensorflow as tf
 from tensorflow.keras import layers, models
+from model.download_data import download_kaggle_data
 
 DATA_DIR = os.path.join(os.path.dirname(__file__), "dataset")
 TRAIN_FILE = os.path.join(DATA_DIR, "sign_mnist_train.csv")
@@ -34,6 +35,11 @@ def build_model():
     return model
 
 def train_model():
+    if not (os.path.exists(TRAIN_FILE) and os.path.exists(TEST_FILE)):
+        print("Dataset not found locally.")
+        download_kaggle_data()
+    else:
+        print("Dataset already exists. Skipping download")
     print("Loading data...")
     X_train, y_train = load_data(TRAIN_FILE)
     X_test, y_test = load_data(TEST_FILE)
