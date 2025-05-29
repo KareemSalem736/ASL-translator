@@ -9,7 +9,7 @@ const videoConstraints = {
 
 const WebcamFeed = () => {
   const webcamRef = useRef<Webcam>(null);
-  const [isActive, setIsActive] = useState(true);
+  const [isActive, setIsActive] = useState(false);
 
   const toggleWebcam = () => {
     if (isActive && webcamRef.current?.stream) {

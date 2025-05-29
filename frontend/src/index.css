@@ -12,3 +12,9 @@ body {
 .transition {
   transition: opacity 0.3s ease;
 }
+
+/* Enforce consistent height on h-75 and h-25 elements */
+div[class*="h-75"], div[class*="h-25"] {
+  min-height: 0;
+  height: 100%;
+}
