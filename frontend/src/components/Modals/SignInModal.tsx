@@ -1,7 +1,7 @@
-import Button from "./Button";
+import Button from "../Buttons/Button";
+import Form from "../Form/Form";
+import TextInput from "../Form/TextInput";
 import Modal from "./Modal";
-import Form from "./Form/From";
-import TextInput from "./Form/TextInput";
 
 interface SignInProps {
   open: boolean;

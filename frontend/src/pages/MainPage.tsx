@@ -1,10 +1,10 @@
 import { useState } from "react";
 import Footer from "../components/Layout/Footer";
 import Header from "../components/Layout/Header";
-import WebcamFeed from "../components/WebcamFeed";
-import SignInModal from "../components/SignInModal";
-import ProfileModal from "../components/ProfileModal"; // not yet implemented
-import SettingsModal from "../components/SettingsModal";
+import WebcamFeed from "../components/Webcam/WebcamFeed";
+import SignInModal from "../components/Modals/SignInModal";
+import SettingsModal from "../components/Modals/SettingsModal";
+// import ProfileModal from "../components/Modals/ProfileModal";
 
 const MainPage = () => {
   const [activeModal, setActiveModal] = useState<

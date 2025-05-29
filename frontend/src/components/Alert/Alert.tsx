@@ -2,7 +2,7 @@ interface AlartProps {
   error: any;
 }
 
-const Alart = ({ error }: AlartProps) => {
+const Alert = ({ error }: AlartProps) => {
   return (
     <span>
       {error && <div className="invalid-feedback d-block">{error}</div>}
@@ -10,4 +10,4 @@ const Alart = ({ error }: AlartProps) => {
   );
 };
 
-export default Alart;
+export default Alert;
