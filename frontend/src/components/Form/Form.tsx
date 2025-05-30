@@ -1,5 +1,6 @@
 import React, {
   useState,
+  useEffect,
   isValidElement,
   cloneElement,
   Children,
@@ -93,6 +94,10 @@ const Form = ({
       return element;
     });
   };
+
+  useEffect(() => {
+    setFormData(initialValues);
+  }, [initialValues]);
 
   return (
     <form
