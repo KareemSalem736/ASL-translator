@@ -1,10 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../Buttons/Button";
 import Form from "../Form/Form";
 import TextInput from "../Form/TextInput";
 import Modal from "./Modal";
 import AuthAlert from "../Alert/AuthAlert"; // Optional: To show server error
-import axios from "../../api/axiosConfig"; // Assuming you have this
 import { requestPasswordReset } from "../../api/authApi";
 
 interface ForgotPasswordModalProps {
@@ -48,6 +47,13 @@ const ForgotPasswordModal = ({
       );
     }
   };
+
+  useEffect(() => {
+    if (!open) {
+      setServerError("");
+      setSuccessMessage("");
+    }
+  }, [open]);
 
   return (
     <Modal open={open} onClose={onClose}>

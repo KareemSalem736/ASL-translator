@@ -142,7 +142,7 @@ const SignIn = ({
         style={{ cursor: "pointer" }}
       >
         Don’t have an account?
-        <div className="link-primary text-start">Signup</div>
+        <div className="link-primary text-start">Sign up</div>
       </div>
     </Modal>
   );

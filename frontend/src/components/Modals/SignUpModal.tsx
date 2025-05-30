@@ -1,9 +1,9 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Button from "../Buttons/Button";
 import Form from "../Form/Form";
 import TextInput from "../Form/TextInput";
 import Modal from "./Modal";
-import { loginUser, registerUser } from "../../api/authApi";
+import { registerUser } from "../../api/authApi";
 import AuthAlert from "../Alert/AuthAlert";
 import Divider from "../Layout/Divider";
 import {
@@ -20,6 +20,7 @@ interface SignUpModalProps {
 const SignUpModal = ({ open, onClose, onSignInClick }: SignUpModalProps) => {
   const [serverError, setServerError] = useState("");
   const [usePhone, setUsePhone] = useState(false);
+  const [successMessage, setSuccessMessage] = useState("");
 
   const DEFAULT_SIGNIN_VALUES = {
     email: "",
@@ -67,6 +68,7 @@ const SignUpModal = ({ open, onClose, onSignInClick }: SignUpModalProps) => {
   const handleSubmit = async ({ email, password }: typeof initialValues) => {
     try {
       setServerError("");
+      setSuccessMessage("");
 
       const payload = {
         email: usePhone ? normalizePhoneNumber(email) : email,
@@ -74,8 +76,7 @@ const SignUpModal = ({ open, onClose, onSignInClick }: SignUpModalProps) => {
       };
 
       const result = await registerUser(payload);
-      console.log("Registration successful:", result);
-      onClose();
+      setSuccessMessage(result.message || "Registration successful.");
     } catch (err: any) {
       console.error("Registration failed:", err.message);
       setServerError(err.message);
@@ -86,6 +87,13 @@ const SignUpModal = ({ open, onClose, onSignInClick }: SignUpModalProps) => {
     setInitialValues(DEFAULT_SIGNIN_VALUES);
     setUsePhone((prev) => !prev);
   };
+
+  useEffect(() => {
+    if (!open) {
+      setServerError("");
+      setSuccessMessage(""); // reset when closed
+    }
+  }, [open]);
 
   return (
     <Modal onClose={onClose} open={open}>
@@ -119,7 +127,7 @@ const SignUpModal = ({ open, onClose, onSignInClick }: SignUpModalProps) => {
           autoComplete="new-password"
         />
 
-        <AuthAlert error={serverError} />
+        <AuthAlert error={serverError} success={successMessage} />
       </Form>
 
       <Divider text="Or continue with" />
@@ -143,7 +151,7 @@ const SignUpModal = ({ open, onClose, onSignInClick }: SignUpModalProps) => {
         style={{ cursor: "pointer" }}
       >
         Already have an account?
-        <div className="link-primary text-start">Signup</div>
+        <div className="link-primary text-start">Sign in</div>
       </div>
     </Modal>
   );
