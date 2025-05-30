@@ -3,34 +3,28 @@ import Button from "../Buttons/Button";
 import Form from "../Form/Form";
 import TextInput from "../Form/TextInput";
 import Modal from "./Modal";
-import { loginUser } from "../../api/authApi";
+import { loginUser, registerUser } from "../../api/authApi";
 import AuthAlert from "../Alert/AuthAlert";
-import LinkAction from "../LinkActions/LinkAction";
 import Divider from "../Layout/Divider";
 import {
   formatPhoneInput,
   normalizePhoneNumber,
 } from "../../utils/FormatPhoneNumber";
 
-interface SignInProps {
+interface SignUpModalProps {
   open: boolean;
   onClose: () => void;
-  onSignupClick: () => void;
-  onForgotPasswordClick: () => void;
+  onSignInClick: () => void;
 }
 
-const SignIn = ({
-  open,
-  onClose,
-  onSignupClick,
-  onForgotPasswordClick,
-}: SignInProps) => {
+const SignUpModal = ({ open, onClose, onSignInClick }: SignUpModalProps) => {
   const [serverError, setServerError] = useState("");
   const [usePhone, setUsePhone] = useState(false);
 
   const DEFAULT_SIGNIN_VALUES = {
     email: "",
     password: "",
+    confirmPassword: "", // Add this
   };
 
   const [initialValues, setInitialValues] = useState(DEFAULT_SIGNIN_VALUES);
@@ -61,23 +55,29 @@ const SignIn = ({
       errors.password = "Password is required";
     }
 
+    if (!data.confirmPassword) {
+      errors.confirmPassword = "Confirm password is required";
+    } else if (data.confirmPassword !== data.password) {
+      errors.confirmPassword = "Passwords do not match";
+    }
+
     return errors;
   };
 
-  const handleSubmit = async (formData: typeof initialValues) => {
+  const handleSubmit = async ({ email, password }: typeof initialValues) => {
     try {
       setServerError("");
 
       const payload = {
-        email: usePhone ? normalizePhoneNumber(formData.email) : formData.email,
-        password: formData.password,
+        email: usePhone ? normalizePhoneNumber(email) : email,
+        password,
       };
 
-      const result = await loginUser(payload);
-      console.log("Login successful:", result);
+      const result = await registerUser(payload);
+      console.log("Registration successful:", result);
       onClose();
     } catch (err: any) {
-      console.error("Login failed:", err.message);
+      console.error("Registration failed:", err.message);
       setServerError(err.message);
     }
   };
@@ -93,14 +93,13 @@ const SignIn = ({
         onSubmit={handleSubmit}
         validate={validate}
         initialValues={initialValues}
-        submitBtnLabel="Sign In"
+        submitBtnLabel="Sign Up"
       >
-        <p className="h1 mb-3 fw-bold text-center pb-2">Sign In</p>
+        <p className="h1 mb-3 fw-bold text-center pb-2">Sign Up</p>
 
         <TextInput
           name="email"
           label={usePhone ? "Phone Number" : "Email"}
-          placeholder={usePhone ? "Phone Number" : "Email"}
           type={usePhone ? "tel" : "text"}
           autoComplete={usePhone ? "tel" : "email"}
           format={usePhone ? formatPhoneInput : undefined}
@@ -110,13 +109,15 @@ const SignIn = ({
           name="password"
           type="password"
           label="Password"
-          placeholder="Password"
           autoComplete="current-password"
         />
 
-        <div className="d-flex justify-content-end">
-          <LinkAction text="Forgot password?" onClick={onForgotPasswordClick} />
-        </div>
+        <TextInput
+          name="confirmPassword" // Fixed name
+          type="password"
+          label="Confirm Password" // Fixed label
+          autoComplete="new-password"
+        />
 
         <AuthAlert error={serverError} />
       </Form>
@@ -138,14 +139,14 @@ const SignIn = ({
 
       <div
         className="d-flex justify-content-center gap-2 my-3 px-3 text-muted"
-        onClick={onSignupClick}
+        onClick={onSignInClick}
         style={{ cursor: "pointer" }}
       >
-        Don’t have an account?
+        Already have an account?
         <div className="link-primary text-start">Signup</div>
       </div>
     </Modal>
   );
 };
 
-export default SignIn;
+export default SignUpModal;

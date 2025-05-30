@@ -44,3 +44,12 @@ export const logoutUser = async (): Promise<{ message: string }> => {
     throw new Error("Logout failed");
   }
 };
+
+export const requestPasswordReset = async (email: string): Promise<{ message: string }> => {
+  try {
+    const response = await axios.post('/auth/forgot-password', { email });
+    return response.data;
+  } catch (err: any) {
+    throw new Error(err.response?.data?.detail || "Failed to send password reset email");
+  }
+};

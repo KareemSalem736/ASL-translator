@@ -4,11 +4,13 @@ import Header from "../components/Layout/Header";
 import WebcamFeed from "../components/Webcam/WebcamFeed";
 import SignInModal from "../components/Modals/SignInModal";
 import SettingsModal from "../components/Modals/SettingsModal";
+import SignUpModal from "../components/Modals/SignUpModal";
+import ForgotPasswordModal from "../components/Modals/ForgotPasswordModal";
 // import ProfileModal from "../components/Modals/ProfileModal";
 
 const MainPage = () => {
   const [activeModal, setActiveModal] = useState<
-    null | "login" | "profile" | "settings"
+    null | "login" | "profile" | "settings" | "signup" | "forgotPassword"
   >(null);
 
   const closeModal = () => setActiveModal(null);
@@ -22,7 +24,25 @@ const MainPage = () => {
       />
 
       {/* Modals */}
-      <SignInModal open={activeModal === "login"} onClose={closeModal} />
+      <SignInModal
+        open={activeModal === "login"}
+        onClose={() => setActiveModal(null)}
+        onSignupClick={() => setActiveModal("signup")}
+        onForgotPasswordClick={() => setActiveModal("forgotPassword")}
+      />
+
+      <SignUpModal
+        open={activeModal === "signup"}
+        onClose={() => setActiveModal(null)}
+        onSignInClick={() => setActiveModal("login")}
+      />
+
+      <ForgotPasswordModal
+        open={activeModal === "forgotPassword"}
+        onClose={() => setActiveModal(null)}
+        onSignInClick={() => setActiveModal("login")}
+      />
+
       {/* <ProfileModal open={activeModal === "profile"} onClose={closeModal} /> */}
       <SettingsModal open={activeModal === "settings"} onClose={closeModal} />
 
