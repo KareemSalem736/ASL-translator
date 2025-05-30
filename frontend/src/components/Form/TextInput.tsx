@@ -10,9 +10,12 @@ interface TextInputProps {
   min?: string;
   max?: string;
   onChange?: (e: React.ChangeEvent<HTMLInputElement>) => void;
-  format?: (val: string) => string;
-  error?: string;
   autoComplete?: string;
+  format?: (val: string) => string;
+
+  // validation
+  error?: string;
+  successMessage?: string;
 }
 
 const TextInput = ({
@@ -24,9 +27,9 @@ const TextInput = ({
   max = "",
   value,
   onChange,
+  autoComplete,
   format,
   error,
-  autoComplete,
 }: TextInputProps) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -54,37 +57,42 @@ const TextInput = ({
     : type;
 
   return (
-    <div className="mb-3 form-floating position-relative">
-      <input
-        id={name}
-        name={name}
-        type={inputType}
-        min={min}
-        max={max}
-        placeholder={placeholder}
-        value={value ?? ""}
-        onChange={handleChange}
-        className={`form-control ${error ? "is-invalid" : ""}`}
-        autoComplete={autoComplete}
-      />
-      <label htmlFor={name} className="form-label">
-        {label}
-      </label>
-      {isPasswordType && (
-        <button
-          type="button"
-          onClick={() => setShowPassword(!showPassword)}
-          className="btn position-absolute top-50 end-0 translate-middle-y me-2 border-0 bg-white"
-          style={{ zIndex: 2 }}
-          tabIndex={-1}
-        >
-          {showPassword ? (
-            <i className="bi bi-eye-slash"></i>
-          ) : (
-            <i className="bi bi-eye"></i>
-          )}
-        </button>
-      )}
+    <div className="mb-3 position-relative">
+      <div className="form-floating">
+        <input
+          id={name}
+          name={name}
+          type={inputType}
+          min={min}
+          max={max}
+          placeholder={placeholder}
+          value={value ?? ""}
+          onChange={handleChange}
+          className={`form-control pe-5 ${error ? "is-invalid" : ""}`}
+          autoComplete={autoComplete}
+        />
+        <label htmlFor={name} className="form-label">
+          {label}
+        </label>
+
+        {isPasswordType && (
+          <button
+            type="button"
+            onClick={() => setShowPassword(!showPassword)}
+            className="btn position-absolute top-50 end-0 translate-middle-y me-2 border-0 bg-white"
+            style={{ zIndex: 2 }}
+            aria-label={showPassword ? "Hide password" : "Show password"}
+          >
+            {showPassword ? (
+              <i className="bi bi-eye-slash"></i>
+            ) : (
+              <i className="bi bi-eye"></i>
+            )}
+          </button>
+        )}
+      </div>
+
+      {/* Error shown below input, not inside floating div */}
       <InputAlert error={error} />
     </div>
   );

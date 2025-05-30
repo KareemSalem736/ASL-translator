@@ -103,7 +103,7 @@ const Form = ({
     <form
       noValidate
       onSubmit={handleSubmit}
-      className="d-flex flex-column justify-content-center text-center"
+      className="d-flex flex-column justify-content-center text-center needs-validation"
     >
       <div className="px-3">{injectProps(children)}</div>
       <div className="mt-3 px-3 d-flex gap-2 justify-content-center">

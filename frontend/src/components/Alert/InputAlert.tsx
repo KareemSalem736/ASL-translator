@@ -4,9 +4,9 @@ interface InputAlertProps {
 
 const InputAlert = ({ error }: InputAlertProps) => {
   return (
-    <span className="text-start">
-      {error && <div className="invalid-feedback d-block">{error}</div>}
-    </span>
+    <div className="text-start">
+      <div className="invalid-feedback d-block">{error}</div>
+    </div>
   );
 };
 

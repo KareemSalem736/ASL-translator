@@ -93,6 +93,7 @@ const SignIn = ({ open, onClose }: SignInProps) => {
         <TextInput
           name="email"
           label={usePhone ? "Phone Number" : "Email"}
+          placeholder={usePhone ? "Phone Number" : "Email"}
           type={usePhone ? "tel" : "text"}
           autoComplete={usePhone ? "tel" : "email"}
           format={usePhone ? formatPhoneInput : undefined}
@@ -102,6 +103,7 @@ const SignIn = ({ open, onClose }: SignInProps) => {
           name="password"
           type="password"
           label="Password"
+          placeholder="Password"
           autoComplete="current-password"
         />
 
