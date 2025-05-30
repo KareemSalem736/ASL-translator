@@ -1,4 +1,4 @@
-import Alart from "../Alart";
+import InputAlert from "../Alert/InputAlert";
 
 interface TextInputProps {
   name: string;
@@ -14,6 +14,7 @@ interface TextInputProps {
 
   format?: (val: string) => string; // helps format phone number
   error?: string;
+  autoComplete?: string;
 }
 
 const TextInput = ({
@@ -27,6 +28,7 @@ const TextInput = ({
   onChange,
   format,
   error,
+  autoComplete,
 }: TextInputProps) => {
   const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     const rawValue = e.target.value;
@@ -57,11 +59,12 @@ const TextInput = ({
         value={value ?? ""}
         onChange={handleChange}
         className={`form-control ${error ? "is-invalid" : ""}`}
+        autoComplete={autoComplete}
       />
-      <label htmlFor={name} className="form-label ">
+      <label htmlFor={name} className="form-label">
         {label}
       </label>
-      <Alart error={error} />
+      <InputAlert error={error} />
     </div>
   );
 };

@@ -96,12 +96,13 @@ const Form = ({
 
   return (
     <form
+      noValidate
       onSubmit={handleSubmit}
       className="d-flex flex-column justify-content-center text-center"
     >
       <div className="px-3">{injectProps(children)}</div>
-      <div className="mt-3 d-flex gap-2 justify-content-center">
-        <Button type="submit" className="btn-primary w-75">
+      <div className="mt-3 px-3 d-flex gap-2 justify-content-center">
+        <Button type="submit" className="btn-primary w-100">
           {submitBtnLabel}
         </Button>
         {actionButtons}

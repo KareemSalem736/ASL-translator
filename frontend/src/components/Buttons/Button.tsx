@@ -24,7 +24,7 @@ const Button = ({
   target,
   rel,
 }: ButtonProps) => {
-  const baseClass = `btn ${className} fw-bold rounded-pill`;
+  const baseClass = `btn ${className} fw-bold `;
 
   if (to) {
     // React Router Link
