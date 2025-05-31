@@ -6,7 +6,8 @@ import { detectGesture } from "../../utils/gestureRecognition";
 export const useMediaPipeHands = (
   getVideo: () => HTMLVideoElement | null,
   onLandmarks?: (landmarks: number[]) => void,
-  getCanvas?: () => HTMLCanvasElement | null
+  getCanvas?: () => HTMLCanvasElement | null,
+  onGesture?: (gesture: string) => void
 ) => {
   const internalCanvasRef = useRef<HTMLCanvasElement>(null);
   const handsRef = useRef<Hands | null>(null);
@@ -21,7 +22,7 @@ export const useMediaPipeHands = (
     hands.setOptions({
       maxNumHands: 1,
       modelComplexity: 1,
-      minDetectionConfidence: 0.7,
+      minDetectionConfidence: 0.,
       minTrackingConfidence: 0.7,
     });
 
@@ -36,22 +37,30 @@ export const useMediaPipeHands = (
       canvas.height = video.videoHeight;
       ctx.clearRect(0, 0, canvas.width, canvas.height);
 
-      results.multiHandLandmarks?.forEach((landmarks) => {
-        drawConnectors(ctx, landmarks, HAND_CONNECTIONS, {
-          color: "#00FF00",
-          lineWidth: 4,
-        });
-        drawLandmarks(ctx, landmarks, {
-          color: "#FF0000",
-          radius: 3,
-        });
+      // ✅ Only handle first detected hand
+      const firstHand = results.multiHandLandmarks?.[0];
+      if (!firstHand) return;
 
-        const flat = landmarks.flatMap((p) => [p.x, p.y, p.z]);
-        onLandmarks?.(flat);
-
-        const gestureName = detectGesture(landmarks);
-        if (gestureName) console.log("Detected gesture:", gestureName);
+      // ✅ Draw hand
+      drawConnectors(ctx, firstHand, HAND_CONNECTIONS, {
+        color: "#00FF00",
+        lineWidth: 4,
       });
+      drawLandmarks(ctx, firstHand, {
+        color: "#FF0000",
+        radius: 3,
+      });
+
+      // ✅ Flatten landmark array for TensorFlow model or logging
+      const flat = firstHand.flatMap((p) => [p.x, p.y, p.z]);
+      onLandmarks?.(flat);
+
+      // ✅ Run gesture detection using fingerpose
+      const gestureName = detectGesture(firstHand);
+      if (gestureName) {
+        console.log("Detected gesture:", gestureName);
+        onGesture?.(gestureName);
+      }
     });
 
     handsRef.current = hands;
@@ -64,12 +73,12 @@ export const useMediaPipeHands = (
       animationRef.current = requestAnimationFrame(detectLoop);
     };
 
-    detectLoop(); // start loop without calling initialize
+    detectLoop();
 
     return () => {
       cancelAnimationFrame(animationRef.current);
     };
-  }, [getVideo, onLandmarks, getCanvas]);
+  }, [getVideo, onLandmarks, getCanvas, onGesture]);
 
   return internalCanvasRef;
 };
