@@ -1,5 +1,4 @@
 import { useEffect, useState } from "react";
-import Button from "../Buttons/Button";
 import Form from "../Form/Form";
 import TextInput from "../Form/TextInput";
 import Modal from "./Modal";
@@ -10,6 +9,8 @@ import {
   formatPhoneInput,
   normalizePhoneNumber,
 } from "../../utils/FormatPhoneNumber";
+import GoogleSignInButton from "../Buttons/GoogleSignInButton";
+import UsePhoneButton from "../Buttons/EmailPhoneToggleButton";
 
 interface SignUpModalProps {
   open: boolean;
@@ -130,28 +131,22 @@ const SignUpModal = ({ open, onClose, onSignInClick }: SignUpModalProps) => {
         <AuthAlert error={serverError} success={successMessage} />
       </Form>
 
-      <Divider text="Or continue with" />
-
-      <div className="d-flex flex-column px-3 gap-3">
-        <Button
-          className="w-100 border p-3"
-          onClick={() => alert("not yet implemented")}
+      <div className="d-flex justify-content-center gap-2 my-3 px-3 text-muted">
+        Already have an account?
+        <div
+          className="link-primary text-start"
+          onClick={onSignInClick}
+          style={{ cursor: "pointer" }}
         >
-          G-mail
-        </Button>
-
-        <Button className="w-100 border p-3" onClick={toggleInputMode}>
-          {usePhone ? "Use Email" : "Use Phone Number"}
-        </Button>
+          Sign in
+        </div>
       </div>
 
-      <div
-        className="d-flex justify-content-center gap-2 my-3 px-3 text-muted"
-        onClick={onSignInClick}
-        style={{ cursor: "pointer" }}
-      >
-        Already have an account?
-        <div className="link-primary text-start">Sign in</div>
+      <Divider text="OR" />
+
+      <div className="d-flex flex-column px-3 gap-3">
+        <GoogleSignInButton />
+        <UsePhoneButton toggleFun={toggleInputMode} toggleBoolean={usePhone} />
       </div>
     </Modal>
   );
