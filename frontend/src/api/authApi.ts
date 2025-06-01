@@ -53,3 +53,21 @@ export const requestPasswordReset = async (email: string): Promise<{ message: st
     throw new Error(err.response?.data?.detail || "Failed to send password reset email");
   }
 };
+
+
+export const handleCredentialResponse = async (response: any) => {
+  const idToken = response.credential;
+
+  try {
+    const res = await axios.post("http://localhost:8000/auth/google", {
+      id_token: idToken,
+    });
+
+    console.log("Backend response:", res.data);
+
+    // You could store user info or token in context here
+    // e.g., localStorage.setItem("token", res.data.access_token);
+  } catch (error: any) {
+    console.error("Google Sign-In error:", error.response?.data || error.message);
+  }
+};
