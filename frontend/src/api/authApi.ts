@@ -1,35 +1,47 @@
 // src/api/authApi.ts
-import axios from './axiosConfig';
+import axiosInstance from './axiosConfig';
 
-export interface RegisterData {
-  email: string;
-  password: string;
-}
+let accessToken: string | null = null;
+export const getAccessToken = () => accessToken;
+export const setAccessToken = (token: string) => {
+  accessToken = token;
+};
 
-export interface LoginData {
-  email: string;
+
+export type USER = 
+  | { email: string; phone?: never }
+  | { phone: string; email?: never };
+
+
+export interface AuthRequest {
+  user: USER;
   password: string;
 }
 
 export interface AuthResponse {
+  user?: USER;
   message: string;
-  user?: {
-    email: string;
-  };
+  access_token?: string; // for Google OAuth and regular login
 }
 
-export const registerUser = async (data: RegisterData): Promise<AuthResponse> => {
+interface GoogleCredentialResponse {
+  credential: string;
+}
+
+
+export const registerUser = async (data: AuthRequest): Promise<AuthResponse> => {
   try {
-    const response = await axios.post('/auth/register', data);
+    const response = await axiosInstance.post('/auth/register', data);
     return response.data;
   } catch (err: any) {
     throw new Error(err.response?.data?.detail || "Registration failed");
   }
 };
 
-export const loginUser = async (data: LoginData): Promise<AuthResponse> => {
+export const loginUser = async (data: AuthRequest): Promise<AuthResponse> => {
   try {
-    const response = await axios.post('/auth/login', data);
+    const response = await axiosInstance.post('/auth/login', data);
+    setAccessToken(response.data.access_token || '');
     return response.data;
   } catch (err: any) {
     throw new Error(err.response?.data?.detail || "Login failed");
@@ -38,16 +50,17 @@ export const loginUser = async (data: LoginData): Promise<AuthResponse> => {
 
 export const logoutUser = async (): Promise<{ message: string }> => {
   try {
-    const response = await axios.post('/auth/logout');
+    const response = await axiosInstance.post('/auth/logout');
+    clearAuthData();
     return response.data;
   } catch (err: any) {
     throw new Error("Logout failed");
   }
 };
 
-export const requestPasswordReset = async (email: string): Promise<{ message: string }> => {
+export const requestPasswordReset = async (user: USER): Promise<{ message: string }> => {
   try {
-    const response = await axios.post('/auth/forgot-password', { email });
+    const response = await axiosInstance.post('/auth/forgot-password', { user });
     return response.data;
   } catch (err: any) {
     throw new Error(err.response?.data?.detail || "Failed to send password reset email");
@@ -55,19 +68,49 @@ export const requestPasswordReset = async (email: string): Promise<{ message: st
 };
 
 
-export const handleCredentialResponse = async (response: any) => {
+export const handleCredentialResponse = async (response: GoogleCredentialResponse): Promise<AuthResponse> => {
   const idToken = response.credential;
 
   try {
-    const res = await axios.post("http://localhost:8000/auth/google", {
+    const res = await axiosInstance.post<AuthResponse>('/auth/google', {
       id_token: idToken,
     });
 
-    console.log("Backend response:", res.data);
+    // Cookie is automatically set by backend (httpOnly)
+    // No need to store access_token manually
 
-    // You could store user info or token in context here
-    // e.g., localStorage.setItem("token", res.data.access_token);
+    // For storeing lightweight user data such as UI preferances and settings (dont store access_token or credential information)
+    const { user, access_token } = res.data;
+    
+    if (accessToken) {
+      setAccessToken(accessToken);
+    }
+    
+    if (user) {
+      localStorage.setItem('user', JSON.stringify(user));
+    }
+
+    return res.data;
   } catch (error: any) {
-    console.error("Google Sign-In error:", error.response?.data || error.message);
+    const msg = error.response?.data?.detail || 'Google sign-in failed';
+    console.error('Google Sign-In error:', msg);
+    throw new Error(msg);
   }
+};
+
+export const refreshAccessToken = async (): Promise<string> => {
+  try {
+    const res = await axiosInstance.post('/auth/refresh');
+    setAccessToken(res.data.access_token);
+    return res.data.access_token;
+  } catch {
+    clearAuthData();
+    throw new Error("Session expired. Please log in again.");
+  }
+};
+
+
+export const clearAuthData = () => {
+  accessToken = null;
+  localStorage.removeItem('user');
 };

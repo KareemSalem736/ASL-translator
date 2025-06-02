@@ -24,32 +24,32 @@ const SignUpModal = ({ open, onClose, onSignInClick }: SignUpModalProps) => {
   const [successMessage, setSuccessMessage] = useState("");
 
   const DEFAULT_SIGNIN_VALUES = {
-    email: "",
+    identifier: "",
     password: "",
-    confirmPassword: "", // Add this
+    confirmPassword: "",
   };
 
   const [initialValues, setInitialValues] = useState(DEFAULT_SIGNIN_VALUES);
 
   const validate = (data: typeof initialValues) => {
     const errors: { [key: string]: string } = {};
-    const value = data.email.trim();
+    const value = data.identifier.trim();
 
     if (!value) {
-      errors.email = usePhone
+      errors.identifier = usePhone
         ? "Phone number is required"
         : "Email is required";
     } else if (usePhone) {
       const raw = normalizePhoneNumber(value);
       if (!/^\d+$/.test(raw)) {
-        errors.email = "Phone number must contain only numbers";
+        errors.identifier = "Phone number must contain only numbers";
       } else if (raw.length !== 10) {
-        errors.email = "Phone number must be exactly 10 digits";
+        errors.identifier = "Phone number must be exactly 10 digits";
       }
     } else {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(value)) {
-        errors.email = "Invalid email format";
+        errors.identifier = "Invalid email format";
       }
     }
 
@@ -66,15 +66,19 @@ const SignUpModal = ({ open, onClose, onSignInClick }: SignUpModalProps) => {
     return errors;
   };
 
-  const handleSubmit = async ({ email, password }: typeof initialValues) => {
+  const handleSubmit = async ({
+    identifier,
+    password,
+  }: typeof initialValues) => {
     try {
       setServerError("");
       setSuccessMessage("");
 
-      const payload = {
-        email: usePhone ? normalizePhoneNumber(email) : email,
-        password,
-      };
+      const user = usePhone
+        ? { phone: normalizePhoneNumber(identifier) }
+        : { email: identifier };
+
+      const payload = { user, password };
 
       const result = await registerUser(payload);
       setSuccessMessage(result.message || "Registration successful.");
@@ -107,7 +111,7 @@ const SignUpModal = ({ open, onClose, onSignInClick }: SignUpModalProps) => {
         <p className="h1 mb-3 fw-bold text-center pb-2">Sign Up</p>
 
         <TextInput
-          name="email"
+          name="identifier"
           label={usePhone ? "Phone Number" : "Email"}
           type={usePhone ? "tel" : "text"}
           autoComplete={usePhone ? "tel" : "email"}
@@ -122,9 +126,9 @@ const SignUpModal = ({ open, onClose, onSignInClick }: SignUpModalProps) => {
         />
 
         <TextInput
-          name="confirmPassword" // Fixed name
+          name="confirmPassword"
           type="password"
-          label="Confirm Password" // Fixed label
+          label="Confirm Password"
           autoComplete="new-password"
         />
 

@@ -30,7 +30,7 @@ const SignIn = ({
   const [usePhone, setUsePhone] = useState(false);
 
   const DEFAULT_SIGNIN_VALUES = {
-    email: "",
+    identifier: "",
     password: "",
   };
 
@@ -38,23 +38,23 @@ const SignIn = ({
 
   const validate = (data: typeof initialValues) => {
     const errors: { [key: string]: string } = {};
-    const value = data.email.trim();
+    const value = data.identifier.trim();
 
     if (!value) {
-      errors.email = usePhone
+      errors.identifier = usePhone
         ? "Phone number is required"
         : "Email is required";
     } else if (usePhone) {
       const raw = normalizePhoneNumber(value);
       if (!/^\d+$/.test(raw)) {
-        errors.email = "Phone number must contain only numbers";
+        errors.identifier = "Phone number must contain only numbers";
       } else if (raw.length !== 10) {
-        errors.email = "Phone number must be exactly 10 digits";
+        errors.identifier = "Phone number must be exactly 10 digits";
       }
     } else {
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(value)) {
-        errors.email = "Invalid email format";
+        errors.identifier = "Invalid email format";
       }
     }
 
@@ -65,14 +65,18 @@ const SignIn = ({
     return errors;
   };
 
-  const handleSubmit = async (formData: typeof initialValues) => {
+  const handleSubmit = async ({
+    identifier,
+    password,
+  }: typeof initialValues) => {
     try {
       setServerError("");
 
-      const payload = {
-        email: usePhone ? normalizePhoneNumber(formData.email) : formData.email,
-        password: formData.password,
-      };
+      const user = usePhone
+        ? { phone: normalizePhoneNumber(identifier) }
+        : { email: identifier };
+
+      const payload = { user, password };
 
       const result = await loginUser(payload);
       console.log("Login successful:", result);
@@ -99,7 +103,7 @@ const SignIn = ({
         <p className="h1 mb-3 fw-bold text-center pb-2">Sign In</p>
 
         <TextInput
-          name="email"
+          name="identifier"
           label={usePhone ? "Phone Number" : "Email"}
           placeholder={usePhone ? "Phone Number" : "Email"}
           type={usePhone ? "tel" : "text"}
