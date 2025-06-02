@@ -1,6 +1,6 @@
 import os
-import cv2
 import csv
+import cv2
 import numpy as np
 from tqdm import tqdm
 import mediapipe as mp
@@ -8,7 +8,8 @@ import mediapipe as mp
 # Dataset to train off of
 DATASET_DIR = "asl_alphabet_train"
 
-# Location of landmarks file and label_classes files. These need to be alongside the fastapi backend.
+# Location of landmarks file and label_classes files.
+# These need to be alongside the fastapi backend.
 OUTPUT_CSV = "asl_landmarks.csv"
 LABEL_CLASSES_FILE = "label_classes.npy"
 
