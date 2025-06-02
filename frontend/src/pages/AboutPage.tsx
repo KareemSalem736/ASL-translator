@@ -2,13 +2,16 @@ import Button from "../components/Buttons/Button";
 
 const About = () => {
   return (
-    <div className=" container mt-5">
-      <Button className="bi bi-arrow-left fw-bold btn-primary" to="/">
+    <main className=" container mt-5">
+      <Button
+        className="bi bi-arrow-left fw-bold rounded-pill btn-primary m-3"
+        to="/"
+      >
         {" "}
-        back
+        Go back
       </Button>
-      <section className="m-3 mt-5">
-        <h1 className="fw-bold">About</h1>
+      <section className="m-3 mt-3">
+        <p className="fw-bold display-1">About Us</p>
 
         <article className="mb-3">
           <p>
@@ -36,7 +39,7 @@ const About = () => {
           <a href="https://github.com/KareemSalem736/ASL-translator/">github</a>
         </p>
       </section>
-    </div>
+    </main>
   );
 };
 
