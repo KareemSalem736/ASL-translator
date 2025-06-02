@@ -1,89 +1,14 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-  <title>ASL Landmark Viewer</title>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/hands/hands.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/drawing_utils/drawing_utils.min.js"></script>
-  <script src="https://cdn.jsdelivr.net/npm/@mediapipe/camera_utils/camera_utils.min.js"></script>
-</head>
-<body>
-  <h1>Hand Landmark Overlay</h1>
-  <h2 id="prediction">Prediction: -</h2>
-  <video class="input_video" style="display: none;"></video>
-  <canvas class="output_canvas" width="640px" height="480px"></canvas>
-
-  <script>
-    const videoElement = document.querySelector('.input_video');
-    const canvasElement = document.querySelector('.output_canvas');
-    const canvasCtx = canvasElement.getContext('2d');
-
-    const hands = new Hands({
-      locateFile: (file) => `https://cdn.jsdelivr.net/npm/@mediapipe/hands/${file}`
-    });
-
-    hands.setOptions({
-      maxNumHands: 1,
-      modelComplexity: 1,
-      minDetectionConfidence: 0.7,
-      minTrackingConfidence: 0.7
-    });
-
-    let lastSent = 0;
-
-    hands.onResults((results) => {
-      canvasCtx.save();
-      canvasCtx.clearRect(0, 0, canvasElement.width, canvasElement.height);
-      canvasCtx.drawImage(results.image, 0, 0, canvasElement.width, canvasElement.height);
-
-      let enableDrawingLandmarks = true;
-
-      if (results.multiHandLandmarks && enableDrawingLandmarks) {
-        for (const landmarks of results.multiHandLandmarks) {
-          drawConnectors(canvasCtx, landmarks, HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 3 });
-          drawLandmarks(canvasCtx, landmarks, { color: '#FF0000', radius: 4 });
-        }
-      }
-      canvasCtx.restore();
-
-      if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
-        const landmarks = results.multiHandLandmarks[0].flatMap(lm => [lm.x, lm.y, lm.z]);
-
-        // interval between being able to send data
-        const interval = 1000;
-
-        if (Date.now() - lastSent > interval) {
-          lastSent = Date.now();
-          // Send landmark data to backend. If opening on a computer other than the one
-          // hosting the backend, change this to that computers local ip.
-          fetch("http://192.168.2.197:8000/predict", {
-            method: "POST",
-            headers: {
-              "Content-Type": "application/json"
-            },
-            body: JSON.stringify({ landmarks })
-          })
-          .then(res => res.json())
-          .then(data => {
-            if (data.confidence * 100 > 80) {
-              console.log("Predicted:", data.prediction, "Confidence:", data.confidence);
-              document.getElementById("prediction").textContent = `Prediction: ${data.prediction} (${Math.round(data.confidence * 100)}%)`;
-            } else {
-              document.getElementById("prediction").textContent = `Prediction: Unknown`;
-            }
-          })
-          .catch(err => console.error("Prediction failed:", err));
-        }
-      }
-    });
-
-    const camera = new Camera(videoElement, {
-      onFrame: async () => {
-        await hands.send({ image: videoElement });
-      },
-      width: 640,
-      height: 480
-    });
-    camera.start();
-  </script>
-</body>
+  <head>
+    <meta charset="UTF-8" />
+    <link rel="icon" type="image/svg+xml" href="/logo2.svg" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>ASL Translator</title>
+  </head>
+  <body>
+    <div id="root"></div>
+    <script src="https://accounts.google.com/gsi/client" async defer></script>
+    <script type="module" src="/src/main.tsx"></script>
+  </body>
 </html>
