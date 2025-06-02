@@ -82,8 +82,8 @@ export const handleCredentialResponse = async (response: GoogleCredentialRespons
     // For storeing lightweight user data such as UI preferances and settings (dont store access_token or credential information)
     const { user, access_token } = res.data;
     
-    if (accessToken) {
-      setAccessToken(accessToken);
+    if (access_token) {
+      setAccessToken(access_token);
     }
     
     if (user) {
