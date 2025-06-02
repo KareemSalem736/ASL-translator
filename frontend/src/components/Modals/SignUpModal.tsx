@@ -11,6 +11,7 @@ import {
 } from "../../utils/formatters/FormatPhoneNumber";
 import GoogleSignInButton from "../Buttons/GoogleSignInButton";
 import UsePhoneButton from "../Buttons/EmailPhoneToggleButton";
+import { validateSignUp } from "../../utils/validation";
 
 interface SignUpModalProps {
   open: boolean;
@@ -23,47 +24,16 @@ const SignUpModal = ({ open, onClose, onSignInClick }: SignUpModalProps) => {
   const [usePhone, setUsePhone] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
 
-  const DEFAULT_SIGNIN_VALUES = {
+  const DEFAULT_SIGNUP_VALUES = {
     identifier: "",
     password: "",
     confirmPassword: "",
   };
 
-  const [initialValues, setInitialValues] = useState(DEFAULT_SIGNIN_VALUES);
+  const [initialValues, setInitialValues] = useState(DEFAULT_SIGNUP_VALUES);
 
   const validate = (data: typeof initialValues) => {
-    const errors: { [key: string]: string } = {};
-    const value = data.identifier.trim();
-
-    if (!value) {
-      errors.identifier = usePhone
-        ? "Phone number is required"
-        : "Email is required";
-    } else if (usePhone) {
-      const raw = normalizePhoneNumber(value);
-      if (!/^\d+$/.test(raw)) {
-        errors.identifier = "Phone number must contain only numbers";
-      } else if (raw.length !== 10) {
-        errors.identifier = "Phone number must be exactly 10 digits";
-      }
-    } else {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(value)) {
-        errors.identifier = "Invalid email format";
-      }
-    }
-
-    if (!data.password) {
-      errors.password = "Password is required";
-    }
-
-    if (!data.confirmPassword) {
-      errors.confirmPassword = "Confirm password is required";
-    } else if (data.confirmPassword !== data.password) {
-      errors.confirmPassword = "Passwords do not match";
-    }
-
-    return errors;
+    return validateSignUp({ ...data, usePhone });
   };
 
   const handleSubmit = async ({
@@ -89,7 +59,7 @@ const SignUpModal = ({ open, onClose, onSignInClick }: SignUpModalProps) => {
   };
 
   const toggleInputMode = () => {
-    setInitialValues(DEFAULT_SIGNIN_VALUES);
+    setInitialValues(DEFAULT_SIGNUP_VALUES);
     setUsePhone((prev) => !prev);
   };
 

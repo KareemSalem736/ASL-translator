@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import Form from "../Form/Form";
 import TextInput from "../Form/TextInput";
 import Modal from "./Modal";
@@ -28,6 +28,7 @@ const SignIn = ({
   onForgotPasswordClick,
 }: SignInProps) => {
   const [serverError, setServerError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
   const [usePhone, setUsePhone] = useState(false);
 
   const DEFAULT_SIGNIN_VALUES = {
@@ -47,6 +48,7 @@ const SignIn = ({
   }: typeof initialValues) => {
     try {
       setServerError("");
+      setSuccessMessage("");
 
       const user = usePhone
         ? { phone: normalizePhoneNumber(identifier) }
@@ -55,7 +57,8 @@ const SignIn = ({
       const payload = { user, password };
 
       const result = await loginUser(payload);
-      console.log("Login successful:", result);
+      console.log("Login successful:", result); // remove later
+      setSuccessMessage(result.message || "Login successful.");
       onClose();
     } catch (err: any) {
       console.error("Login failed:", err.message);
@@ -67,6 +70,13 @@ const SignIn = ({
     setInitialValues(DEFAULT_SIGNIN_VALUES);
     setUsePhone((prev) => !prev);
   };
+
+  useEffect(() => {
+    if (!open) {
+      setServerError("");
+      setSuccessMessage("");
+    }
+  }, [open]);
 
   return (
     <Modal onClose={onClose} open={open}>
@@ -99,7 +109,7 @@ const SignIn = ({
           <LinkAction text="Forgot password?" onClick={onForgotPasswordClick} />
         </div>
 
-        <AuthAlert error={serverError} />
+        <AuthAlert error={serverError} success={successMessage} />
       </Form>
 
       <div className="d-flex justify-content-center gap-2 my-3 px-3 text-muted">
