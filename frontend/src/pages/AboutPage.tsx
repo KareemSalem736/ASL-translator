@@ -3,10 +3,7 @@ import Button from "../components/Buttons/Button";
 const About = () => {
   return (
     <main className=" container mt-5">
-      <Button
-        className="bi bi-arrow-left fw-bold rounded-pill btn-primary m-3"
-        to="/"
-      >
+      <Button className="bi bi-arrow-left fw-bold btn-primary m-3" to="/">
         {" "}
         Go back
       </Button>

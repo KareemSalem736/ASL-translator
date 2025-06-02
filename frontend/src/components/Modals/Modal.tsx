@@ -1,4 +1,5 @@
 import type { ReactNode } from "react";
+import Button from "../Buttons/Button";
 
 interface ModalProps {
   title?: ReactNode;
@@ -28,13 +29,13 @@ const Modal = ({ title, children, onClose, open }: ModalProps) => {
             <div className="modal-body">
               <div className="d-flex justify-content-between pb-3">
                 <h5 className="modal-title fw-bold fs-3">{title}</h5>
-                <button
-                  type="button"
-                  className="btn btn-close fs-4 rounded-pill"
+                <Button
+                  className="btn btn-close fs-4"
                   data-bs-dismiss="modal"
                   aria-label="Close"
                   onClick={onClose}
-                ></button>
+                  children={undefined}
+                ></Button>
               </div>
               {children}
             </div>

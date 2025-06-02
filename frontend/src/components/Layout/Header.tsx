@@ -14,17 +14,17 @@ const Header = ({
   return (
     <header className="bg-white" style={{ height: "64px" }}>
       <div className="d-flex justify-content-end align-items-center h-100 px-4 gap-2">
-        <Button className="border rounded-pill" onClick={onLoginClick}>
+        <Button className="border" onClick={onLoginClick}>
           <p className="m-0 fs-5">LogIn</p>
         </Button>
-        <Button className="border rounded-pill" onClick={onProfileClick}>
+        <Button className="border" onClick={onProfileClick}>
           <i className="bi bi-person-fill fs-4"></i>
         </Button>
-        <Button className="border rounded-pill" onClick={onSettingsClick}>
+        <Button className="border" onClick={onSettingsClick}>
           <i className="bi bi-gear-fill fs-4"></i>
         </Button>
         <Button
-          className="border rounded-pill"
+          className="border"
           href="https://github.com/KareemSalem736/ASL-translator/"
           target="_blank"
         >
