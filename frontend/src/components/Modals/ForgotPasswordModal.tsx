@@ -4,7 +4,7 @@ import Form from "../Form/Form";
 import TextInput from "../Form/TextInput";
 import Modal from "./Modal";
 import AuthAlert from "../Alert/AuthAlert"; // Optional: To show server error
-import { requestPasswordReset } from "../../api/authApi";
+import { requestPasswordReset, type USER } from "../../api/authApi";
 
 interface ForgotPasswordModalProps {
   open: boolean;
@@ -34,12 +34,12 @@ const ForgotPasswordModal = ({
     return errors;
   };
 
-  const handleSubmit = async (data: { email: string }) => {
+  const handleSubmit = async (data: USER) => {
     setServerError("");
     setSuccessMessage("");
 
     try {
-      const res = await requestPasswordReset(data.email.trim());
+      const res = await requestPasswordReset(data);
       setSuccessMessage(res.message || "Recovery email sent.");
     } catch (err: any) {
       setServerError(
