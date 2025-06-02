@@ -8,7 +8,7 @@ import Divider from "../Layout/Divider";
 import {
   formatPhoneInput,
   normalizePhoneNumber,
-} from "../../utils/FormatPhoneNumber";
+} from "../../utils/formatters/FormatPhoneNumber";
 import GoogleSignInButton from "../Buttons/GoogleSignInButton";
 import UsePhoneButton from "../Buttons/EmailPhoneToggleButton";
 

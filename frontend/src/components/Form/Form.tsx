@@ -44,22 +44,31 @@ const Form = ({
       finalValue = value;
     }
 
-    setFormData((prev) => ({
-      ...prev,
+    const newFormData = {
+      ...formData,
       [name]: finalValue,
+    };
+
+    setFormData(newFormData);
+
+    // Re-validate only the changed field
+    const newErrors = validate(newFormData);
+    setErrors((prevErrors) => ({
+      ...prevErrors,
+      [name]: newErrors[name] ?? "",
     }));
   };
 
   const handleSubmit = (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    if (validate) {
-      const validationErrors = validate(formData);
-      if (Object.keys(validationErrors).length > 0) {
-        setErrors(validationErrors);
-        return; // Prevent submit
-      }
+    const validationErrors = validate(formData);
+
+    setErrors(validationErrors);
+
+    if (Object.keys(validationErrors).length > 0) {
+      return;
     }
-    setErrors({});
+
     onSubmit(formData);
   };
 
@@ -81,6 +90,8 @@ const Form = ({
           checked: element.props.type === "checkbox" ? value : undefined,
           onChange: handleChange,
           error: errors[name],
+          successMessage:
+            !errors[name] && formData[name] ? "Looks good!" : undefined,
         });
       }
 

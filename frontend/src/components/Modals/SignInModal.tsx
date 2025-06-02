@@ -9,9 +9,10 @@ import Divider from "../Layout/Divider";
 import {
   formatPhoneInput,
   normalizePhoneNumber,
-} from "../../utils/FormatPhoneNumber";
+} from "../../utils/formatters/FormatPhoneNumber";
 import GoogleSignInButton from "../Buttons/GoogleSignInButton";
 import EmailPhoneToggleButton from "../Buttons/EmailPhoneToggleButton";
+import { validateSignIn } from "../../utils/validation";
 
 interface SignInProps {
   open: boolean;
@@ -37,32 +38,7 @@ const SignIn = ({
   const [initialValues, setInitialValues] = useState(DEFAULT_SIGNIN_VALUES);
 
   const validate = (data: typeof initialValues) => {
-    const errors: { [key: string]: string } = {};
-    const value = data.identifier.trim();
-
-    if (!value) {
-      errors.identifier = usePhone
-        ? "Phone number is required"
-        : "Email is required";
-    } else if (usePhone) {
-      const raw = normalizePhoneNumber(value);
-      if (!/^\d+$/.test(raw)) {
-        errors.identifier = "Phone number must contain only numbers";
-      } else if (raw.length !== 10) {
-        errors.identifier = "Phone number must be exactly 10 digits";
-      }
-    } else {
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(value)) {
-        errors.identifier = "Invalid email format";
-      }
-    }
-
-    if (!data.password) {
-      errors.password = "Password is required";
-    }
-
-    return errors;
+    return validateSignIn({ ...data, usePhone });
   };
 
   const handleSubmit = async ({

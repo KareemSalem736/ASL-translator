@@ -3,11 +3,11 @@ import axios from 'axios';
 import { getAccessToken, refreshAccessToken } from './authApi';
 
 const axiosInstance = axios.create({
-  baseURL: import.meta.env.VITE_API_BASE_URL,
+  baseURL: import.meta.env.VITE_API_BASE_URL,  // route url in .env file
   headers: {
     'Content-Type': 'application/json',
   },
-  withCredentials: true, // If you're using cookies for auth
+  withCredentials: true, // If using cookies for auth
 });
 
 

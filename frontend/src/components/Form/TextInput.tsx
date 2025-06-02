@@ -30,6 +30,7 @@ const TextInput = ({
   autoComplete,
   format,
   error,
+  successMessage,
 }: TextInputProps) => {
   const [showPassword, setShowPassword] = useState(false);
 
@@ -68,7 +69,10 @@ const TextInput = ({
           placeholder={placeholder}
           value={value ?? ""}
           onChange={handleChange}
-          className={`form-control pe-5 ${error ? "is-invalid" : ""}`}
+          // className={`form-control pe-5 ${error ? "is-invalid" : ""}`}
+          className={`form-control pe-5 ${
+            error ? "is-invalid" : successMessage ? "is-valid" : ""
+          }`}
           autoComplete={autoComplete}
         />
         <label htmlFor={name} className="form-label">
@@ -93,7 +97,7 @@ const TextInput = ({
       </div>
 
       {/* Error shown below input, not inside floating div */}
-      <InputAlert error={error} />
+      <InputAlert error={error} success={successMessage} />
     </div>
   );
 };
