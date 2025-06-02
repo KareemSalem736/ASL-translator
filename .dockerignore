@@ -53,3 +53,6 @@ pip-wheel-metadata/
 *.pt
 *.onnx
 *.tflite
+
+backend/model/asl_alphabet_train/
+frontend/node_modules/
