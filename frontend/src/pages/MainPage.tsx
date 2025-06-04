@@ -1,19 +1,57 @@
-import { useState } from "react";
+// src/pages/MainPage.tsx
+import React, { useCallback, useRef, useState } from "react";
 import Footer from "../components/Layout/Footer";
 import Header from "../components/Layout/Header";
 import WebcamFeed from "../components/Webcam/WebcamFeed";
+import VideoControls from "../components/Webcam/VideoControls";
 import SignInModal from "../components/Modals/SignInModal";
 import SettingsModal from "../components/Modals/SettingsModal";
 import SignUpModal from "../components/Modals/SignUpModal";
 import ForgotPasswordModal from "../components/Modals/ForgotPasswordModal";
-// import ProfileModal from "../components/Modals/ProfileModal";
+import type { PredictionResponse } from "../api/predictionAPI";
 
-const MainPage = () => {
+const MainPage: React.FC = () => {
   const [activeModal, setActiveModal] = useState<
     null | "login" | "profile" | "settings" | "signup" | "forgotPassword"
   >(null);
-
   const closeModal = () => setActiveModal(null);
+
+  // ─── Lifted state for all controls ───
+  const [webcamActive, setWebcamActive] = useState(false);
+  const [mirrored, setMirrored] = useState(true);
+  const [showLandmarks, setShowLandmarks] = useState(true);
+  const [isFullscreen, setIsFullscreen] = useState(false);
+
+  // ◉ NEW: Toggle whether “prediction” should be shown or suppressed
+  const [showPrediction, setShowPrediction] = useState(true);
+
+  // ─── Video ref in case you want to grab the <video> element ───
+  const videoRef = useRef<HTMLVideoElement>(null);
+
+  // ─── Translation text & model stats ───
+  const [translatedText, setTranslatedText] = useState("");
+  const [modelStats, setModelStats] = useState<Omit<
+    PredictionResponse,
+    "prediction"
+  > | null>(null);
+
+  // ─── The actual callback that runs when a prediction comes back ───
+  const handlePredictionResult = useCallback((res: PredictionResponse) => {
+    setTranslatedText((prev) => prev + res.prediction);
+    const { prediction, ...rest } = res;
+    setModelStats(rest);
+  }, []);
+
+  // ◉ Wrapped callback: only invoke the “real” handler when showPrediction===true
+  const onPrediction = useCallback(
+    (res: PredictionResponse) => {
+      if (showPrediction) {
+        handlePredictionResult(res);
+      }
+      // if showPrediction===false, do nothing (i.e. suppress)
+    },
+    [showPrediction, handlePredictionResult]
+  );
 
   return (
     <div className="d-flex flex-column vh-100 flex-row-sm container">
@@ -26,33 +64,53 @@ const MainPage = () => {
       {/* Modals */}
       <SignInModal
         open={activeModal === "login"}
-        onClose={() => setActiveModal(null)}
+        onClose={closeModal}
         onSignupClick={() => setActiveModal("signup")}
         onForgotPasswordClick={() => setActiveModal("forgotPassword")}
       />
-
       <SignUpModal
         open={activeModal === "signup"}
-        onClose={() => setActiveModal(null)}
+        onClose={closeModal}
         onSignInClick={() => setActiveModal("login")}
       />
-
       <ForgotPasswordModal
         open={activeModal === "forgotPassword"}
-        onClose={() => setActiveModal(null)}
+        onClose={closeModal}
         onSignInClick={() => setActiveModal("login")}
       />
-
-      {/* <ProfileModal open={activeModal === "profile"} onClose={closeModal} /> */}
       <SettingsModal open={activeModal === "settings"} onClose={closeModal} />
 
       <main className="flex-grow-1 pb-3">
-        {/* Row 1: WebcamFeed and Prediction History */}
         <div className="row h-75 mb-3">
-          {/* WebcamFeed */}
           <div className="col-md-8 col-sm-12 d-flex flex-column h-100">
-            <div className="d-flex justify-content-center align-items-center bg-light h-100 shadow rounded-4">
-              <WebcamFeed />
+            <div
+              className={`position-relative bg-light h-100 shadow rounded-4 overflow-hidden ${
+                isFullscreen ? "fullscreen-override" : ""
+              }`}
+            >
+              {/* ─── The SINGLE <WebcamFeed> ─── */}
+              <WebcamFeed
+                ref={videoRef}
+                isActive={webcamActive}
+                mirrored={mirrored}
+                showLandmarks={showLandmarks}
+                showPrediction={showPrediction} // ← NEW
+                onPredictionResult={onPrediction} // ← use wrapped callback
+              />
+
+              {/* ─── Overlayed controls (pass all setters + new showPrediction) ─── */}
+              <VideoControls
+                webcamActive={webcamActive}
+                setWebcamActive={setWebcamActive}
+                mirrored={mirrored}
+                setMirrored={setMirrored}
+                showLandmarks={showLandmarks}
+                setShowLandmarks={setShowLandmarks}
+                isFullscreen={isFullscreen}
+                setIsFullscreen={setIsFullscreen}
+                showPrediction={showPrediction} // ← new
+                setShowPrediction={setShowPrediction} // ← new
+              />
             </div>
           </div>
 
@@ -64,19 +122,54 @@ const MainPage = () => {
           </div>
         </div>
 
-        {/* Row 2: Translated Output and Model Stats */}
+        {/* Translated output / model stats */}
         <div className="row h-25">
-          {/* Translated Output */}
           <div className="col-8 d-flex flex-column h-100">
             <div className="d-flex justify-content-center align-items-center bg-white h-100 shadow rounded-4">
-              <p className="m-auto">Translated output (editable)</p>
+              <p className="m-auto">
+                Predicted translation: [
+                {translatedText || "waiting for server response..."}]
+              </p>
             </div>
           </div>
-
-          {/* Model Stats */}
           <div className="col-4 d-flex flex-column h-100">
-            <div className="d-flex justify-content-center align-items-center bg-white h-100 shadow rounded-4">
-              <p className="m-auto">Model Stats</p>
+            <div className="d-flex justify-content-center align-items-center bg-white h-100 shadow rounded-4 p-3">
+              {modelStats ? (
+                <div className="w-100">
+                  {modelStats.accuracy !== undefined && (
+                    <p>
+                      <strong>Accuracy:</strong>{" "}
+                      {(modelStats.accuracy * 100).toFixed(1)}%
+                    </p>
+                  )}
+                  <p>
+                    <strong>Confidence:</strong>{" "}
+                    {(modelStats.confidence * 100).toFixed(1)}%
+                  </p>
+                  {modelStats.inferenceTimeMs !== undefined && (
+                    <p>
+                      <strong>Inference Time:</strong>{" "}
+                      {modelStats.inferenceTimeMs} ms
+                    </p>
+                  )}
+                  {modelStats.probabilities && (
+                    <div>
+                      <strong>Probabilities:</strong>
+                      <ul className="list-unstyled mb-0">
+                        {Object.entries(modelStats.probabilities).map(
+                          ([label, prob]) => (
+                            <li key={label}>
+                              {label}: {(prob * 100).toFixed(1)}%
+                            </li>
+                          )
+                        )}
+                      </ul>
+                    </div>
+                  )}
+                </div>
+              ) : (
+                <p className="m-auto">Model Stats</p>
+              )}
             </div>
           </div>
         </div>
@@ -88,26 +181,3 @@ const MainPage = () => {
 };
 
 export default MainPage;
-
-{
-  /* <main className="flex-grow-1 container-md w-100">
-<div className="row h-100">
-  <div className="col-8 d-flex flex-column h-100">
-    <div className="d-flex justify-content-center align-items-center  mb-3 bg-light h-75 shadow rounded-4">
-      <WebcamFeed />
-    </div>
-    <div className="d-flex justify-content-center align-items-center  bg-white mt-auto h-25 shadow rounded-4">
-      <p className="m-auto">Translated output (editable)</p>
-    </div>
-  </div>
-  <div className="col-4 d-flex flex-column h-100">
-    <div className="d-flex justify-content-center align-items-center  mb-3 bg-light h-75 shadow rounded-4">
-      <p className="m-auto">Prediction History</p>
-    </div>
-    <div className="d-flex justify-content-center align-items-center  bg-white mt-auto h-25 shadow rounded-4">
-      <p className="m-auto">Modal Stats</p>
-    </div>
-  </div>
-</div>
-</main> */
-}

@@ -12,6 +12,12 @@ const GoogleSignInButton = () => {
   const tokenClient = useRef<any>(null);
 
   useEffect(() => {
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    if (!clientId) {
+      console.warn("Missing VITE_GOOGLE_CLIENT_ID"); // remove before production
+      return;
+    }
+
     tokenClient.current = window.google.accounts.oauth2.initTokenClient({
       client_id: "YOUR_GOOGLE_CLIENT_ID",
       scope: "openid email profile",
