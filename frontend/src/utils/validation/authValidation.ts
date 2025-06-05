@@ -10,6 +10,33 @@ export interface AuthSignUpData extends AuthSignInData {
   confirmPassword: string;
 }
 
+export const validateForgotPassword    = (data: { identifier: string }, usePhone: boolean) => {
+    const errors: { [key: string]: string } = {};
+    const raw = data.identifier.trim();
+
+    if (!raw) {
+      errors.identifier = usePhone
+        ? "Phone number is required"
+        : "Email is required";
+    } else if (usePhone) {
+      // Normalize and then ensure it’s digits-only & length exactly 10
+      const normalized = normalizePhoneNumber(raw);
+      if (!/^\d+$/.test(normalized)) {
+        errors.identifier = "Phone number must contain only digits";
+      } else if (normalized.length !== 10) {
+        errors.identifier = "Phone number must be exactly 10 digits";
+      }
+    } else {
+      // Validate as email
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(raw)) {
+        errors.identifier = "Invalid email format";
+      }
+    }
+
+    return errors;
+  };
+
 export const validateSignIn = (data: AuthSignInData) => {
   const errors: Record<string, string> = {};
   const value = data.identifier.trim();
