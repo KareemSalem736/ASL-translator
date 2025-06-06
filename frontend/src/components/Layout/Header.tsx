@@ -13,7 +13,7 @@ const Header = ({
 }: HeaderProps) => {
   return (
     <header className="bg-white" style={{ height: "64px" }}>
-      <div className="d-flex justify-content-end align-items-center h-100 px-4 gap-2">
+      <div className="d-flex justify-content-end align-items-center h-100 gap-2">
         <Button className="border" onClick={onLoginClick}>
           <p className="m-0 fs-5">LogIn</p>
         </Button>
