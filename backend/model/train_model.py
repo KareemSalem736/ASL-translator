@@ -1,3 +1,6 @@
+"""
+Train model using asl_landmark data and apply to label classes.
+"""
 import pandas as pd
 import numpy as np
 import tensorflow as tf
@@ -47,6 +50,6 @@ if not os.path.exists("landmark_model.keras"):
 
     # Save
     model.save("landmark_model.keras")
-    print("✅ Model trained and saved.")
+    print("Model trained and saved.")
 else:
     print("landmark_model.keras exists, skipping creation.")

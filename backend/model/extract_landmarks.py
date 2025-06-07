@@ -1,3 +1,7 @@
+"""
+Create landmark data for all files in asl_alphabet_train folder and create
+label classes for each folder.
+"""
 import os
 import csv
 import cv2
@@ -18,8 +22,10 @@ mp_hands = mp.solutions.hands
 hands = mp_hands.Hands(static_image_mode=True, max_num_hands=1)
 
 
-# Extract landmark data from an image.
 def extract_landmarks(image_path):
+    """
+    Extract landmarks from an image and save them as numpy arrays.
+    """
     image = cv2.imread(image_path)
     if image is None:
         return None
@@ -36,6 +42,10 @@ def extract_landmarks(image_path):
 
 
 def compile_landmarks():
+    """
+    Iterate through asl_alphabet_train folder, extract label data and images and
+    compile landmark data into numpy arrays.
+    """
     if os.path.exists(OUTPUT_CSV) & os.path.exists(LABEL_CLASSES_FILE):
         print("Dataset already exists. Skipping compilation.")
         return
@@ -67,10 +77,10 @@ def compile_landmarks():
         for row in data_rows:
             writer.writerow(row)
 
-    # Save gesture classes in order
+    # Save gesture classes and save to numpy array.
     gesture_classes = sorted(list(set(gesture_classes)))
     np.save(LABEL_CLASSES_FILE, np.array(gesture_classes))
 
-    print(f"✅ Finished! Saved {len(data_rows)} samples.")
+    print(f"Finished! Saved {len(data_rows)} samples.")
     print(f"→ Landmark CSV: {OUTPUT_CSV}")
     print(f"→ Class labels: {LABEL_CLASSES_FILE}")

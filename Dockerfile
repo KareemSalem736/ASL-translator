@@ -8,6 +8,9 @@ RUN npm install
 
 FROM python:3.11-slim
 
+ENV BACKEND_URL=http://localhost:8000/api
+ENV FRONTEND_URL=http://localhost:5173
+
 # No install recommends helps cut down on unnecessary package installs.
 RUN apt-get update && apt-get install -y supervisor && apt-get install -y npm --no-install-recommends
 
@@ -19,10 +22,11 @@ WORKDIR /app
 
 # Copy the current directory contents into the container
 COPY backend ./backend
-#COPY frontend ./frontend
 COPY --from=builder /frontend-build ./frontend
 COPY requirements.txt .
+COPY update_environment.py .
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY docker/entrypoint.sh .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
@@ -32,5 +36,7 @@ RUN npm install
 EXPOSE 8000
 EXPOSE 5173
 
+WORKDIR /app
+
 # Set the default command
-CMD ["/usr/bin/supervisord"]
+ENTRYPOINT ["/app/entrypoint.sh"]

@@ -1,9 +1,9 @@
 // src/hooks/useHandTracking.ts
 import { useEffect, useRef } from "react";
 import type Webcam from "react-webcam";
-import { Hands } from "@mediapipe/hands";
+import { Hands, HAND_CONNECTIONS } from "@mediapipe/hands";
 import { Camera } from "@mediapipe/camera_utils";
-import { drawLandmarks } from "@mediapipe/drawing_utils";
+import { drawLandmarks, drawConnectors } from "@mediapipe/drawing_utils";
 import HandPredictorWorker from "../workers/handPredictor.worker.ts?worker";
 import type { PredictionResponse } from "../api/predictionAPI";
 
@@ -106,6 +106,7 @@ export function useHandTracking({
       // If we detected any hands, optionally draw landmarks + optionally post to worker
       if (results.multiHandLandmarks && results.multiHandLandmarks.length > 0) {
         if (showLandmarksRef.current) {
+          drawConnectors(ctx, results.multiHandLandmarks[0], HAND_CONNECTIONS, { color: '#00FF00', lineWidth: 3 })
           drawLandmarks(ctx, results.multiHandLandmarks[0], landmarkOptions);
         }
 

@@ -1,13 +1,18 @@
-# backend/model/download_data.py
-
+"""
+Connect to kaggle api and download dataset for training model
+"""
 import os
 from kaggle.api.kaggle_api_extended import KaggleApi
 
+# Dataset to download and destination for storage.
 DATASET = "datamunge/sign-language-mnist"
 DEST = os.path.join(os.path.dirname(__file__), "dataset")
 
 
 def download_kaggle_data():
+    """
+    Connect to kaggle api and initiate download of dataset.
+    """
     api = KaggleApi()
     api.authenticate()
 

@@ -34,17 +34,17 @@ We’re building a full-stack application with:
 ```
 
 /ASL-translator
-├── backend/ # FastAPI app and model logic
-├── frontend/ # React app (Vite-based)
-│ ├── index.html
-│ ├── vite.config.js
-│ └── src/
+├── backend/ # FastAPI app and model logic (Please see branch README for more detail)
+├── docker/ # Folder containing additional files for building Dockerfile
+├── frontend/ # React app (Vite-based) (Please see branch README for more detail)
 ├── .dockerignore
 ├── .gitignore
+├── docker-compose.yml
 ├── Dockerfile
 ├── LICENSE
 ├── README.md
-└── requirements.txt # Backend Python dependencies
+├── requirements.txt # Backend Python dependencies
+└── update_environment.py
 
 ````
 
@@ -59,40 +59,7 @@ We’re building a full-stack application with:
 
 ---
 
-### 2. Set Up SSH Access (Recommended)
-
-To securely connect to GitHub and avoid password prompts:
-
-**Generate an SSH key** (only once per machine):
-
-```bash
-ssh-keygen -t ed25519 -C "youremail@example.com"
-````
-
-* Press Enter to accept the default file location.
-* Set a passphrase if desired.
-
-**Add your public key to GitHub:**
-
-```bash
-cat ~/.ssh/id_ed25519.pub
-```
-
-* Copy the output.
-* Go to GitHub → Settings → SSH and GPG Keys → New SSH Key.
-* Paste the key and save.
-
-**Test your setup:**
-
-```bash
-ssh -T git@github.com
-```
-
-If successful, you’ll see a greeting message from GitHub.
-
----
-
-### 3. Clone the Repository
+### 2. Clone the Repository
 
 ```bash
 git clone git@github.com:YOUR-ORG/ASL-translator.git
@@ -109,30 +76,37 @@ git clone https://github.com/YOUR-ORG/ASL-translator.git
 
 ---
 
-### 4. Run the Backend (FastAPI) with Docker
+### (Optional for Development) 3. Install NPM and Python Dependencies
+
+Run install commands to get dependencies for development environment.
+
+```bash
+pip install -r requirements
+cd frontend
+npm install
+```
+
+If planning to use a nonstandard endpoint, use update_environment.py to update config options.
+```bash
+python update_environment.py
+```
+
+### 4. Run the Application with Docker
 
 Ensure Docker Desktop is installed and running.
 
 ```bash
-docker build -t asl-translator .
-docker run -p 8000:8000 asl-translator
+docker build -t asl-translator:latest .
 ```
 
-Visit: `http://localhost:8000`
-
----
-
-### 5. Run the Frontend (React)
-
-We’re running the frontend locally during development.
+You may optionally update the environment variables BACKEND_URL and
+FRONTEND_URL in the docker-compose.yml file if you'd like to use different endpoints
 
 ```bash
-cd frontend
-npm install
-npm run dev
+docker run -p 5173:5173 -p 8000:8000 asl-translator:latest
 ```
 
-Visit: `http://localhost:5173`
+Visit the Frontend at: `http://localhost:5173`
 
 ---
 

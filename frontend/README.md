@@ -52,7 +52,7 @@ This repository contains the front-end application built with Vite, React, and T
    - Copy the example file:
 
      ```bash
-     cp .env .env.local
+     cp .env ..env.local
      ```
 
    - Open `.env.local` (created above) and fill in each variable. See the next section for descriptions.
