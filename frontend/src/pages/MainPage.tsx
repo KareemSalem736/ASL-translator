@@ -1,4 +1,7 @@
-// src/pages/MainPage.tsx
+// This component defines a MainPage for the ASL Live Translator app.
+// It includes a header, footer, webcam feed, video controls, and modals for user authentication and settings.
+// This page is the main interface for users to interact with the application.
+
 import React, { useCallback, useRef, useState } from "react";
 import Footer from "../components/Layout/Footer";
 import Header from "../components/Layout/Header";
@@ -11,6 +14,8 @@ import ForgotPasswordModal from "../components/Modals/ForgotPasswordModal";
 import type { PredictionResponse } from "../api/predictionAPI";
 
 const MainPage: React.FC = () => {
+  // ─── Lifted state for modals ───
+  // This state controls which modal is currently active/open.
   const [activeModal, setActiveModal] = useState<
     null | "login" | "profile" | "settings" | "signup" | "forgotPassword"
   >(null);

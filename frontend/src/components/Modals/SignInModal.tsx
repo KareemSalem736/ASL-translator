@@ -1,3 +1,8 @@
+// Render the sign-in modal
+// It includes a form with email/phone input, password input, and buttons for Google sign-in and toggling input mode
+// It also includes links for forgot password and sign-up actions
+// The form validates inputs using `validateSignIn` and displays any server-side errors or success messages
+
 import { useEffect, useState } from "react";
 import Form from "../Form/Form";
 import TextInput from "../Form/TextInput";
@@ -21,6 +26,12 @@ interface SignInProps {
   onForgotPasswordClick: () => void;
 }
 
+// Default values for the sign-in form inputs
+const DEFAULT_SIGNIN_VALUES = {
+  identifier: "", // This will be either email or phone based on `usePhone`
+  password: "",
+};
+
 const SignIn = ({
   open,
   onClose,
@@ -30,18 +41,14 @@ const SignIn = ({
   const [serverError, setServerError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [usePhone, setUsePhone] = useState(false);
+  const [initialValues, setInitialValues] = useState(DEFAULT_SIGNIN_VALUES); // Default values for the form inputs (from types/defualtvalues.d.ts)
 
-  const DEFAULT_SIGNIN_VALUES = {
-    identifier: "",
-    password: "",
-  };
-
-  const [initialValues, setInitialValues] = useState(DEFAULT_SIGNIN_VALUES);
-
-  const validate = (data: typeof initialValues) => {
-    return validateSignIn({ ...data, usePhone });
-  };
-
+  // Handle form submission
+  // We receive `identifier` as either email or phone based on `usePhone`.
+  // If `usePhone` is true, we normalize the phone number before sending.
+  // If `usePhone` is false, we send the email as is.
+  // The `password` is always sent as is.
+  // The `loginUser` function is expected to return a success message or throw an error.
   const handleSubmit = async ({
     identifier,
     password,
@@ -66,11 +73,14 @@ const SignIn = ({
     }
   };
 
+  // Toggle between email and phone input modes
+  // Resets the form to default values when toggling
   const toggleInputMode = () => {
     setInitialValues(DEFAULT_SIGNIN_VALUES);
     setUsePhone((prev) => !prev);
   };
 
+  // Reset form values when toggling between email and phone
   useEffect(() => {
     if (!open) {
       setServerError("");
@@ -78,11 +88,21 @@ const SignIn = ({
     }
   }, [open]);
 
+  // Set initial values based on the input mode
+  useEffect(() => {
+    setInitialValues({
+      identifier: usePhone ? "" : "", // Default to empty string for both email and phone
+      password: "",
+    });
+  }, [usePhone]);
+
+  if (!open) return null;
+
   return (
     <Modal onClose={onClose} open={open}>
       <Form
         onSubmit={handleSubmit}
-        validate={validate}
+        validate={(values) => validateSignIn({ ...values, usePhone })}
         initialValues={initialValues}
         submitBtnLabel="Sign In"
       >

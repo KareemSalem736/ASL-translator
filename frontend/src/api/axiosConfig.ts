@@ -1,4 +1,7 @@
-// src/api/axiosConfig.ts
+
+// This file configures Axios for API requests in the frontend application.
+// It sets up a single Axios instance with interceptors for logging requests/responses,
+// handling authentication tokens, and refreshing access tokens on 401 errors.
 
 import axios from "axios";
 import {

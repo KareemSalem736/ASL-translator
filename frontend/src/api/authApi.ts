@@ -1,4 +1,5 @@
-// src/api/authApi.ts
+// This file contains the authentication API functions for user registration, login, logout, password reset, and Google sign-in.
+// It uses Axios for HTTP requests and manages the access token in memory.
 
 import axiosInstance from './axiosConfig';
 
@@ -22,7 +23,6 @@ export const clearAuthData = () => {
 };
 
 // ─── Type definitions ───
-
 export type USER =
   | { email: string; phone?: never }
   | { phone: string; email?: never };

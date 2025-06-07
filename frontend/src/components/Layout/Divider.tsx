@@ -1,3 +1,6 @@
+// This component renders a horizontal divider with an optional text label in the middle.
+// The divider is styled with Bootstrap classes and includes padding for spacing.
+
 interface DividerProps {
   text?: string;
 }

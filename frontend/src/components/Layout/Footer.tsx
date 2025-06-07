@@ -1,3 +1,5 @@
+// This Footer component renders a footer with two buttons: "About Us" and "How to?".
+// The "About Us" button links to the "/about" page, and the "How to?" button links to the "/instructions" page.
 import Button from "../Buttons/Button";
 
 const Footer = () => {

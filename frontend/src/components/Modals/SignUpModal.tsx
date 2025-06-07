@@ -1,3 +1,10 @@
+// Render the sign-up modal
+// It includes a form for user registration, an alert for server messages,
+// and buttons for Google sign-in and toggling between email/phone input modes.
+// The form validates inputs using `validateSignUp` and submits data to the API.
+// It also provides a link to the sign-in modal.
+// The modal is styled with Bootstrap classes and includes a backdrop.
+
 import { useEffect, useState } from "react";
 import Form from "../Form/Form";
 import TextInput from "../Form/TextInput";
@@ -19,23 +26,24 @@ interface SignUpModalProps {
   onSignInClick: () => void;
 }
 
+// Default values for the sign-up form inputs
+const DEFAULT_SIGNUP_VALUES = {
+  identifier: "",
+  password: "",
+  confirmPassword: "",
+};
+
 const SignUpModal = ({ open, onClose, onSignInClick }: SignUpModalProps) => {
   const [serverError, setServerError] = useState("");
   const [usePhone, setUsePhone] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
+  const [initialValues, setInitialValues] = useState(DEFAULT_SIGNUP_VALUES); // Default values for the form inputs (from types/defaultValues.d.ts)
 
-  const DEFAULT_SIGNUP_VALUES = {
-    identifier: "",
-    password: "",
-    confirmPassword: "",
-  };
-
-  const [initialValues, setInitialValues] = useState(DEFAULT_SIGNUP_VALUES);
-
-  const validate = (data: typeof initialValues) => {
-    return validateSignUp({ ...data, usePhone });
-  };
-
+  // Handle form submission
+  // We receive `identifier` as either email or phone based on `usePhone`.
+  // If `usePhone` is true, we normalize the phone number before sending.
+  // If `usePhone` is false, we send the email as is.
+  // The `registerUser` function is expected to return a success message or throw an error.
   const handleSubmit = async ({
     identifier,
     password,
@@ -58,15 +66,19 @@ const SignUpModal = ({ open, onClose, onSignInClick }: SignUpModalProps) => {
     }
   };
 
+  // Toggle between email and phone input modes
   const toggleInputMode = () => {
     setInitialValues(DEFAULT_SIGNUP_VALUES);
     setUsePhone((prev) => !prev);
   };
 
+  // Reset server error and success message when the modal closes
+  // This ensures that messages do not persist when the modal is reopened
+  // Also reset the initial values to default
   useEffect(() => {
     if (!open) {
       setServerError("");
-      setSuccessMessage(""); // reset when closed
+      setSuccessMessage("");
     }
   }, [open]);
 
@@ -74,7 +86,7 @@ const SignUpModal = ({ open, onClose, onSignInClick }: SignUpModalProps) => {
     <Modal onClose={onClose} open={open}>
       <Form
         onSubmit={handleSubmit}
-        validate={validate}
+        validate={(values) => validateSignUp({ ...values, usePhone })}
         initialValues={initialValues}
         submitBtnLabel="Sign Up"
       >
