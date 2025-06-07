@@ -103,7 +103,12 @@ You may optionally update the environment variables BACKEND_URL and
 FRONTEND_URL in the docker-compose.yml file if you'd like to use different endpoints
 
 ```bash
-docker run -p 5173:5173 -p 8000:8000 asl-translator:latest
+docker compose up
+```
+
+** On first run of docker compose up, the image will be automatically built. If updates are made to the program, please use the following command to update the image.
+```bash
+docker compose up --build
 ```
 
 Visit the Frontend at: `http://localhost:5173`

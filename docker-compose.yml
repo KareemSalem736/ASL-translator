@@ -1,0 +1,12 @@
+services:
+  asl-translator:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    restart: unless-stopped
+    environment:
+      FRONTEND_URL: http://localhost:5173
+      BACKEND_URL: http://localhost:8000/api
+    ports:
+      - 5173:5173
+      - 8000:8000

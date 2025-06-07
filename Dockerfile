@@ -26,7 +26,7 @@ COPY --from=builder /frontend-build ./frontend
 COPY requirements.txt .
 COPY update_environment.py .
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
-COPY docker/entrypoint.sh .
+COPY --chmod=755 docker/entrypoint.sh .
 
 RUN pip install --no-cache-dir -r requirements.txt
 
