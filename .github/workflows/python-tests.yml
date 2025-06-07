@@ -1,0 +1,41 @@
+# GitHub Actions workflow to run backend unit tests automatically
+# Triggered on push or pull request to any file under the 'backend/' directory
+# This sets up a virtual environment in GitHub's cloud runner, installs dependencies, and runs pytest
+
+name: Run Backend Tests
+
+on: 
+  push:
+    paths:
+      - 'backend/**'
+  pull_request:
+    paths:
+      - 'backend/**'
+
+jobs:
+  test:
+    # 🧠 This specifies the cloud environment GitHub uses to run the tests (not your local machine)
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout Repository
+        uses: actions/checkout@v3  # Downloads the repo into the runner
+
+      - name: Set up Python
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.11'
+
+      - name: Install dependencies
+        run: |
+          cd backend
+          python -m venv venv
+          source venv/bin/activate
+          pip install -r requirements.txt
+          pip install pytest httpx[http2] pytest-asyncio
+
+      - name: Run tests with pytest
+        run: |
+          cd backend
+          source venv/bin/activate
+          pytest
