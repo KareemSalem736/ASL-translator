@@ -1,19 +1,21 @@
-// src/components/Webcam/VideoControls.tsx
-import React from "react";
+// This component renders a control bar for the webcam video feed.
+// It includes buttons to start/stop the webcam, toggle mirroring, show/hide landmarks,
+// toggle fullscreen mode, and enable/disable predictions (API calls).
+// Each button has an icon and a click handler to toggle the respective state.
+
 import Button from "../Buttons/Button";
 
 interface VideoControlsProps {
-  webcamActive: boolean;
+  webcamActive: boolean; // Whether the webcam is currently active
   setWebcamActive: (b: boolean) => void;
-  mirrored: boolean;
+  mirrored: boolean; // Whether the video feed is mirrored
   setMirrored: (b: boolean) => void;
-  showLandmarks: boolean;
+  showLandmarks: boolean; // Whether to show landmarks on the video feed
   setShowLandmarks: (b: boolean) => void;
-  isFullscreen: boolean;
+  isFullscreen: boolean; // Whether the video feed is in fullscreen mode
   setIsFullscreen: (b: boolean) => void;
-
-  showPrediction: boolean; // ← NEW
-  setShowPrediction: (b: boolean) => void; // ← NEW
+  showPrediction: boolean; // Whether make API calls to backend for predictions
+  setShowPrediction: (b: boolean) => void;
 }
 
 const VideoControls: React.FC<VideoControlsProps> = ({
@@ -46,7 +48,7 @@ const VideoControls: React.FC<VideoControlsProps> = ({
       </Button>
 
       {/* Toggle Mirror */}
-      {/* <Button
+      <Button
         className=" border-0 btn-sm btn-outline-light"
         onClick={() => setMirrored(!mirrored)}
       >
@@ -58,7 +60,7 @@ const VideoControls: React.FC<VideoControlsProps> = ({
         ) : (
           <i className="bi bi-eye" style={{ fontSize: "1.25rem" }} />
         )}
-      </Button> */}
+      </Button>
 
       {/* Toggle Landmarks */}
       <Button
@@ -73,7 +75,7 @@ const VideoControls: React.FC<VideoControlsProps> = ({
       </Button>
 
       {/* ◉ Toggle Prediction (API calls) */}
-      {/* <Button
+      <Button
         className=" border-0 btn-sm btn-outline-light"
         onClick={() => setShowPrediction(!showPrediction)}
       >
@@ -90,10 +92,10 @@ const VideoControls: React.FC<VideoControlsProps> = ({
             style={{ fontSize: "1.25rem" }}
           />
         )}
-      </Button> */}
+      </Button>
 
       {/* Toggle Fullscreen */}
-      {/* <Button
+      <Button
         className=" border-0 btn-sm btn-outline-light"
         onClick={() => setIsFullscreen(!isFullscreen)}
       >
@@ -105,7 +107,7 @@ const VideoControls: React.FC<VideoControlsProps> = ({
         ) : (
           <i className="bi bi-fullscreen" style={{ fontSize: "1.25rem" }} />
         )}
-      </Button> */}
+      </Button>
     </div>
   );
 };

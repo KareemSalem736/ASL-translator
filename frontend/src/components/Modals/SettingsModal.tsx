@@ -1,3 +1,9 @@
+// This component renders a settings modal with options for dark mode and clearing translation history.
+// The `open` prop controls the visibility of the modal, and `onClose` is a callback function to close it.
+// The modal includes two buttons: one for toggling dark mode and another for clearing translation history.
+// You can add functionality to these buttons later as needed.
+// The modal is styled with Bootstrap classes and includes a close button.
+
 import Button from "../Buttons/Button";
 import Modal from "./Modal";
 
@@ -7,6 +13,7 @@ interface SettingsProps {
 }
 
 const Settings = ({ open, onClose }: SettingsProps) => {
+  if (!open) return null;
   return (
     <Modal onClose={onClose} open={open} title="Settings">
       <div className="d-flex flex-column gap-2">

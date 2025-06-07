@@ -1,3 +1,6 @@
+// This component defines an InstructionsPage that provides a simple guide for users of the ASL Live Translator app.
+// It includes a button to navigate back to the home page and a section for instructions.
+
 import Button from "../components/Buttons/Button";
 
 const InstructionsPage = () => {

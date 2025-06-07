@@ -11,7 +11,6 @@ This repository contains the front-end application built with Vite, React, and T
   - Axios for HTTP requests
   - Bootstrap 5 for styling
   - ESLint for linting
-
 - **High-level architecture**:
 
   - The React app runs on Vite’s development server (default port 5173).
@@ -40,13 +39,11 @@ This repository contains the front-end application built with Vite, React, and T
    git clone https://github.com/your-org/frontend.git
    cd frontend
    ```
-
 2. **Install dependencies**
 
    ```bash
    npm install
    ```
-
 3. **Set up environment variables**
 
    - Copy the example file:
@@ -54,7 +51,6 @@ This repository contains the front-end application built with Vite, React, and T
      ```bash
      cp .env .env.local
      ```
-
    - Open `.env.local` (created above) and fill in each variable. See the next section for descriptions.
 
 ---
@@ -85,17 +81,14 @@ VITE_ENABLE_LOGGING=true
    - The base URL for the backend API.
    - Example: `http://localhost:8000/api` (in development).
    - In production, your CI/CD pipeline or hosting provider should set `VITE_API_URL` to the production API (e.g. `https://api.example.com`).
-
 2. **`VITE_GOOGLE_CLIENT_ID`**
 
    - Your Google OAuth Client ID to enable “Sign in with Google.”
    - The backend must verify the Google ID token and return a JWT or set an HttpOnly cookie.
-
 3. **`VITE_FRONTEND_URL`**
 
    - The origin of this front end—used if your backend needs to build OAuth redirect URIs.
    - Typically `http://localhost:5173` in development; change for staging/production.
-
 4. **`VITE_ENV` & `VITE_ENABLE_LOGGING`**
 
    - Custom flags you can read in your code (e.g. enable verbose logging in dev).
@@ -129,7 +122,6 @@ npm run lint
   ```bash
   PORT=4000 npm run dev
   ```
-
 - **Changing the API proxy (if needed)**:
   By default, we rely on `axios`’s `baseURL` (`VITE_API_URL`). If you want to proxy `/api` → `http://localhost:8000/api`, add to `vite.config.ts`:
 
@@ -166,7 +158,6 @@ npm run lint
 
    - Runs `tsc -b` (compiles TypeScript) and then `vite build`.
    - Generates a `dist/` folder containing static assets (HTML, JS, CSS).
-
 2. **Environment variables for production**
 
    - In your hosting/CI environment (e.g., Netlify, Vercel, AWS Amplify), set:
@@ -174,9 +165,7 @@ npm run lint
      - `VITE_API_URL=https://api.yourdomain.com/api`
      - `VITE_GOOGLE_CLIENT_ID=<your-production-google-client-id>`
      - `VITE_FRONTEND_URL=https://app.yourdomain.com`
-
    - The production build will automatically bake these into the static site.
-
 3. **Deploy instructions** (example for Netlify/Vercel)
 
    - **Netlify**:
@@ -185,13 +174,11 @@ npm run lint
      2. Build command: `npm run build`.
      3. Publish directory: `dist/`.
      4. Under “Environment variables,” set the `VITE_*` keys.
-
    - **Vercel**:
 
      1. `vercel --prod` in the repo root OR connect via dashboard.
      2. Framework preset: “Vite.”
      3. Set environment variables under “Project Settings → Environment Variables.”
-
    - **Manual (e.g., S3 + CloudFront)**:
 
      1. Run `npm run build`.
@@ -257,14 +244,14 @@ export default axiosInstance;
 
 ### 7.2 Authentication Endpoints
 
-| Endpoint                     | Method | Description                                                                                       |
-| ---------------------------- | ------ | ------------------------------------------------------------------------------------------------- |
-| `POST /auth/register`        | POST   | Register a new user. Body: `{ user: { email: string } or { phone: string }, password: string }`   |
+| Endpoint                       | Method | Description                                                                                           |
+| ------------------------------ | ------ | ----------------------------------------------------------------------------------------------------- |
+| `POST /auth/register`        | POST   | Register a new user. Body:`{ user: { email: string } or { phone: string }, password: string }`      |
 | `POST /auth/login`           | POST   | Login existing user. Body: same as register. Returns `AuthResponse` with optional `access_token`. |
-| `POST /auth/google`          | POST   | Google Sign-In. Body: `{ id_token: string }`. Backend verifies and returns `access_token`.        |
-| `POST /auth/logout`          | POST   | Invalidate session on server. Clears in-memory token and any HttpOnly cookie.                     |
-| `POST /auth/forgot-password` | POST   | Request password reset. Body: `{ user: { email or phone } }`.                                     |
-| `POST /auth/refresh`         | POST   | Refresh the access token. Backend reads HttpOnly cookie and returns a fresh `{ access_token }`.   |
+| `POST /auth/google`          | POST   | Google Sign-In. Body:`{ id_token: string }`. Backend verifies and returns `access_token`.         |
+| `POST /auth/logout`          | POST   | Invalidate session on server. Clears in-memory token and any HttpOnly cookie.                         |
+| `POST /auth/forgot-password` | POST   | Request password reset. Body:`{ user: { email or phone } }`.                                        |
+| `POST /auth/refresh`         | POST   | Refresh the access token. Backend reads HttpOnly cookie and returns a fresh `{ access_token }`.     |
 
 #### Type Definitions & Helpers
 
@@ -300,7 +287,6 @@ export interface AuthResponse {
     localStorage.removeItem("user");
   };
   ```
-
 - **Registration & Login**
 
   ```ts
@@ -320,7 +306,6 @@ export interface AuthResponse {
     return res.data;
   };
   ```
-
 - **Google Sign-In**
 
   ```ts
@@ -341,7 +326,6 @@ export interface AuthResponse {
     return res.data;
   };
   ```
-
 - **Logout & Refresh**
 
   ```ts
@@ -416,7 +400,7 @@ Below is a high-level overview of the most important folders and files:
 ├── public/                     # Static assets (images, logos)
 │   ├── logo1.svg
 │   ├── logo2.svg
-│   └── vite.svg
+│   └── robots.txt		# For SEO, and web-crawlers
 ├── README.md                   # ← This file
 ├── src/
 │   ├── api/                    # Axios configs & API modules
@@ -450,7 +434,6 @@ Below is a high-level overview of the most important folders and files:
   ```
 
   Runs Vite in development mode with HMR. Visit `http://localhost:5173`.
-
 - **Build for Production**
 
   ```bash
@@ -459,7 +442,6 @@ Below is a high-level overview of the most important folders and files:
 
   - Compiles TypeScript (`tsc -b`).
   - Bundles and minifies via Vite into `dist/`.
-
 - **Preview Production Build Locally**
 
   ```bash
@@ -467,7 +449,6 @@ Below is a high-level overview of the most important folders and files:
   ```
 
   Serves the contents of `dist/` on a local port (usually 4173) so you can verify the build.
-
 - **Run Linter**
 
   ```bash
@@ -490,7 +471,6 @@ Currently, there are no unit or integration tests configured out of the box. If 
      "test": "vitest"
    }
    ```
-
 3. Follow conventions:
 
    - Unit tests: place files under `src/__tests__/` or name them `*.spec.tsx`.
@@ -508,7 +488,6 @@ Currently, there are no unit or integration tests configured out of the box. If 
     ```bash
     npm run lint -- --fix
     ```
-
 - **Prettier (optional)**
 
   - If you want consistent code formatting, install `prettier` and add a `.prettierrc` file.
@@ -519,7 +498,6 @@ Currently, there are no unit or integration tests configured out of the box. If 
       "format": "prettier --write \"src/**/*.{ts,tsx,css,scss,md}\""
     }
     ```
-
 - **Git hooks (optional)**
 
   - You can integrate Husky + lint-staged to run `npm run lint -- --fix` on each commit.
@@ -571,10 +549,8 @@ Currently, there are no unit or integration tests configured out of the box. If 
            - name: Build
              run: npm run build
      ```
-
    - When merging into `develop`, you could set up an Action to deploy to a staging environment (e.g., Netlify’s “Deploy to Preview” or AWS S3 bucket).
    - When merging into `main`, deploy the `dist/` folder to production (Netlify, Vercel, S3, etc.).
-
 2. **Environment Variables in CI**
 
    - In GitHub Actions → Settings → Secrets:
@@ -592,17 +568,14 @@ Currently, there are no unit or integration tests configured out of the box. If 
   - Ensure your backend is running on `http://localhost:8000/api` (or whatever `VITE_API_URL` you set).
   - Verify `.env.local` has the correct `VITE_API_URL`.
   - If using a proxy in `vite.config.ts`, ensure the proxy target is correct.
-
 - **CORS errors**
 
   - The backend must allow cross-origin requests from `http://localhost:5173`.
   - If you use Vite’s proxy (`/api → http://localhost:8000`), you can avoid CORS altogether.
-
 - **401 Unauthorized / Token Expired**
 
   - The Axios interceptor automatically attempts to refresh the access token using `POST /auth/refresh`.
   - Ensure the backend sets an HttpOnly refresh cookie on `POST /auth/login` or `POST /auth/google`.
-
 - **Build errors (TypeScript)**
 
   - Run `npm run build` locally to see the full error stack.
@@ -631,4 +604,4 @@ Currently, there are no unit or integration tests configured out of the box. If 
 
 Refer to root README.md file
 
-<sub>Last updated: June 4, 2025</sub>
+`<sub>`Last updated: June 4, 2025`</sub>`

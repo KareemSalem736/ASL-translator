@@ -1,3 +1,7 @@
+// This component renders the About Us page with information about the project and team members.
+// It includes a back button to navigate to the home page, a description of the project,
+// a list of team members, and a link to the remote repository on GitHub.
+
 import Button from "../components/Buttons/Button";
 
 const About = () => {

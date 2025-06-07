@@ -1,4 +1,4 @@
-// src/workers/handPredictor.worker.ts
+// This file is a Web Worker that handles hand prediction using an API.
 import { getHandPrediction, type PredictionResponse } from "../api/predictionAPI";
 
 // Runtime type guard to validate PredictionResponse shape

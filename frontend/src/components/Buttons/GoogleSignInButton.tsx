@@ -1,7 +1,24 @@
+// The button will trigger the Google sign-in flow when clicked
+// It uses the Google API to request an access token
+// and handles the response using the provided callback function
+// Ensure you replace "YOUR_GOOGLE_CLIENT_ID" with your actual Google client ID
+// and that the Google API script is loaded in your HTML file
+// You can also add error handling for the token request if needed
+// Note: Make sure to include the Google API script in your HTML file
+// Example: <script src="https://apis.google.com/js/api.js"></script>
+// Also, ensure that the Google API is initialized before this component is used
+// You can also add loading states or other UI enhancements as needed
+
 import { useEffect, useRef } from "react";
 import { handleCredentialResponse } from "../../api/authApi";
 import Button from "./Button";
 
+// Declare the global window object to include the google property
+// This is necessary for TypeScript to recognize the google object
+// and avoid type errors when accessing window.google.accounts.oauth2.initTokenClient
+// You can also define a more specific type for google if needed
+// For example, you can define the type of google.accounts.oauth2.initTokenClient
+// and other methods you use from the Google API
 declare global {
   interface Window {
     google: any;
@@ -12,9 +29,10 @@ const GoogleSignInButton = () => {
   const tokenClient = useRef<any>(null);
 
   useEffect(() => {
-    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID;
+    const clientId = import.meta.env.VITE_GOOGLE_CLIENT_ID; // Ensure this is set in your .env file
+    // Check if the client ID is available
     if (!clientId) {
-      console.warn("Missing VITE_GOOGLE_CLIENT_ID"); // remove before production
+      console.warn("Missing VITE_GOOGLE_CLIENT_ID"); // remove for production
       return;
     }
 

@@ -10,6 +10,7 @@ export interface AuthSignUpData extends AuthSignInData {
   confirmPassword: string;
 }
 
+// Validates the input for the forgot password form.
 export const validateForgotPassword    = (data: { identifier: string }, usePhone: boolean) => {
     const errors: { [key: string]: string } = {};
     const raw = data.identifier.trim();

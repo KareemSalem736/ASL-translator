@@ -1,3 +1,9 @@
+// ─── Header Component ───
+// This component renders the header with buttons for login, profile, settings, and GitHub link.
+// It accepts three callback functions as props: onLoginClick, onProfileClick, and onSettingsClick.
+// The header has a fixed height of 64px and a white background.
+// The GitHub button opens the repository in a new tab.
+
 import Button from "../Buttons/Button";
 
 interface HeaderProps {

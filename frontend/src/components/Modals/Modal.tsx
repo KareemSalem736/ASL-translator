@@ -1,12 +1,23 @@
+// ─── Modal Component ───
+// This file defines a reusable modal component that can be used throughout the application.
+// The modal can be opened or closed based on the `open` prop.
+// It accepts a title, children (content), an onClose function, and an open boolean prop.
+// This modal is styled with Bootstrap classes and includes a backdrop.
+
 import type { ReactNode } from "react";
 import Button from "../Buttons/Button";
 
 interface ModalProps {
-  title?: ReactNode;
-  children: ReactNode;
+  title?: ReactNode; // Title of the modal, can be a string or any ReactNode (optional)
+  children: ReactNode; // Content to be displayed inside the modal
   onClose: () => void;
   open: boolean;
 }
+
+// Modal component that displays a modal dialog with a title and content
+// It includes a close button that triggers the onClose function when clicked.
+// The modal is only rendered when the `open` prop is true.
+// The modal is styled with Bootstrap classes and includes a backdrop.
 
 const Modal = ({ title, children, onClose, open }: ModalProps) => {
   if (!open) return null;

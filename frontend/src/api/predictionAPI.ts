@@ -1,14 +1,19 @@
 import axiosInstance from "./axiosConfig";
 
 export interface PredictionResponse {
-  prediction: string;
-  confidence: number;
-  accuracy?: number;
-  probabilities?: Record<string, number>;
-  inferenceTimeMs?: number;
+  prediction: string;   // The predicted text or label  
+  confidence: number;     // Confidence score (0 to 1)
+  // Optional fields that backend might return
+  // These are not always present, so they are optional
+  // You can adjust these based on your backend response structure
+  // e.g. accuracy, probabilities, inference time
+  accuracy?: number;          // Accuracy score (0 to 1) how well the model performed as a whole
+  probabilities?: Record<string, number>;   // Probabilities for each letter < letter: probability >                        
+  inferenceTimeMs?: number;                             // Inference time in milliseconds shows how long the model took to make a prediction
   // …any other fields your backend returns
 }
 
+// Default response object to return in case of errors
 export const DEFAULT_PREDICTIONRESPONSE = {
   prediction: "",
   confidence: 0,

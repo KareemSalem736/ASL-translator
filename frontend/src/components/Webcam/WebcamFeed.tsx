@@ -1,4 +1,8 @@
-// src/components/Webcam/WebcamFeed.tsx
+// This component renders a webcam feed with a canvas overlay for hand tracking.
+// It uses the `useHandTracking` hook to handle the hand tracking logic.
+// The webcam feed is only active when `isActive` is true, and it uses the `Webcam` component from `react-webcam`.
+// The canvas is used to draw landmarks and predictions on top of the webcam feed.
+
 import { forwardRef, useRef } from "react";
 import type Webcam from "react-webcam"; // type‐only
 import WebcamDefault from "react-webcam"; // actual component
@@ -26,13 +30,18 @@ const WebcamFeed = forwardRef<HTMLVideoElement, WebcamFeedProps>(
       onPredictionResult,
       isActive,
       showLandmarks = true,
-      showPrediction, // ← NEW
+      showPrediction,
     },
-    forwardedVideoRef
+    forwardedVideoRef // unused, but kept for compatibility
   ) => {
     const webcamComponentRef = useRef<Webcam | null>(null);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
 
+    // ─── Use the custom hook for hand tracking ───
+    // This hook handles the hand tracking logic, including setting up the MediaPipe Hands model,
+    // drawing landmarks, and sending predictions to the backend.
+    // It takes care of the video component reference, canvas reference, and other parameters.
+    // The hook will automatically start and stop the camera based on the `isActive` prop.
     useHandTracking({
       videoComponentRef: webcamComponentRef,
       canvasRef,
@@ -40,8 +49,8 @@ const WebcamFeed = forwardRef<HTMLVideoElement, WebcamFeedProps>(
       isActive,
       width,
       height,
-      showLandmarks, // ← pass‐through
-      showPrediction, // ← pass‐through
+      showLandmarks,
+      showPrediction,
     });
 
     return (
@@ -51,6 +60,8 @@ const WebcamFeed = forwardRef<HTMLVideoElement, WebcamFeedProps>(
         }`}
         style={{ width: "100%", height: "100%" }}
       >
+        {/* The webcam feed is rendered here */}
+        {/* The `videoConstraints` prop is used to set the width, height, and facing mode of the webcam */}
         {isActive && (
           <WebcamDefault
             audio={false}
@@ -61,6 +72,7 @@ const WebcamFeed = forwardRef<HTMLVideoElement, WebcamFeedProps>(
           />
         )}
 
+        {/* The canvas is used to draw landmarks and predictions on top of the webcam feed */}
         <canvas
           ref={canvasRef}
           width={width}

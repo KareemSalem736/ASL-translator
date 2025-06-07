@@ -1,8 +1,10 @@
+// This component is a reusable button that can be used for various purposes, including internal navigation with React Router or external links. It supports different styles and click handlers.
+
 import type { CSSProperties, ReactNode } from "react";
 import { Link } from "react-router-dom";
 
 export interface ButtonProps {
-  children: ReactNode;
+  children: ReactNode; // Button content, can be text or JSX elements
   className?: string;
   style?: CSSProperties;
   type?: "button" | "submit";

@@ -1,4 +1,6 @@
-// src/components/ForgotPasswordModal.tsx
+// This file defines the ForgotPasswordModal component
+// which allows users to request a password reset link by entering their email or phone number.
+// It includes form validation, server error handling, and success messages.
 
 import { useEffect, useState } from "react";
 import Button from "../Buttons/Button";
@@ -73,6 +75,7 @@ const ForgotPasswordModal = ({
     }
   };
 
+  if (!open) return null;
   return (
     <Modal open={open} onClose={onClose}>
       {/* Toggle between Email / Phone */}
@@ -95,6 +98,7 @@ const ForgotPasswordModal = ({
           format={usePhone ? formatPhoneInput : undefined}
         />
 
+        {/* Display server error or success message */}
         <AuthAlert error={serverError} success={successMessage} />
 
         <div className="d-flex justify-content-center mb-3">
