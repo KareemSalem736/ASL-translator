@@ -13,6 +13,7 @@ export interface ButtonProps {
   href?: string; // for external links
   target?: string; // optional, for external links
   rel?: string; // optional, e.g., "noopener noreferrer"
+  [key: string]: any; // allows arbitrary props like aria-label
 }
 
 const Button = ({
@@ -25,13 +26,14 @@ const Button = ({
   href,
   target,
   rel,
+  ...rest // capture any extra props
 }: ButtonProps) => {
   const baseClass = `btn ${className} fw-bold rounded-pill`;
 
   if (to) {
     // React Router Link
     return (
-      <Link to={to} className={baseClass} style={style}>
+      <Link to={to} className={baseClass} style={style} {...rest}>
         {children}
       </Link>
     );
@@ -46,6 +48,7 @@ const Button = ({
         style={style}
         target={target}
         rel={rel}
+        {...rest}
       >
         {children}
       </a>
@@ -54,7 +57,7 @@ const Button = ({
 
   // Standard Button
   return (
-    <button style={style} type={type} className={baseClass} onClick={onClick}>
+    <button style={style} type={type} className={baseClass} onClick={onClick} {...rest}>
       {children}
     </button>
   );
