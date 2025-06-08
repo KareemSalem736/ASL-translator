@@ -18,6 +18,7 @@ import {
 import GoogleSignInButton from "../Buttons/GoogleSignInButton";
 import EmailPhoneToggleButton from "../Buttons/EmailPhoneToggleButton";
 import { validateSignIn } from "../../utils/validation";
+import type { AuthRequest } from "../../api/authApi";
 
 interface SignInProps {
   open: boolean;
@@ -61,7 +62,7 @@ const SignIn = ({
         ? { phone: normalizePhoneNumber(identifier) }
         : { email: identifier };
 
-      const payload = { user, password };
+      const payload = { user, password } as AuthRequest;
 
       const result = await loginUser(payload);
       console.log("Login successful:", result); // remove later

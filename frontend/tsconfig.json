@@ -5,7 +5,7 @@
     "target": "ESNext",
     "esModuleInterop": true,
     "moduleResolution": "node",
-    "types": ["jest", "@testing-library/jest-dom"]
+    "types": ["jest", "node", "@testing-library/jest-dom"]
   },
   "files": [],
   "references": [
