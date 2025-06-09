@@ -3,12 +3,19 @@ __pycache__/
 *.py[cod]
 *.pyo
 *.pyd
+*.pyc
 
 # Environment
 .env
 .venv/
 env/
 venv/
+lib/
+bin/
+lib64/
+pyvenv.cfg
+share/
+
 
 # VS Code settings
 .vscode/
