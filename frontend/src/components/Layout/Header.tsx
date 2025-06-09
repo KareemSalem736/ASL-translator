@@ -20,19 +20,20 @@ const Header = ({
   return (
     <header className="bg-white" style={{ height: "64px" }}>
       <div className="d-flex justify-content-end align-items-center h-100 gap-2">
-        <Button className="border" onClick={onLoginClick}>
+        <Button className="border" onClick={onLoginClick} aria-label="Login">
           <p className="m-0 fs-5">LogIn</p>
         </Button>
-        <Button className="border" onClick={onProfileClick}>
+        <Button className="border" onClick={onProfileClick} aria-label="Profile">
           <i className="bi bi-person-fill fs-4"></i>
         </Button>
-        <Button className="border" onClick={onSettingsClick}>
+        <Button className="border" onClick={onSettingsClick} aria-label="Settings">
           <i className="bi bi-gear-fill fs-4"></i>
         </Button>
         <Button
           className="border"
           href="https://github.com/KareemSalem736/ASL-translator/"
           target="_blank"
+          aria-label="GitHub"
         >
           <i className="bi bi-github fs-4"></i>
         </Button>

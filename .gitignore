@@ -64,3 +64,4 @@ pip-wheel-metadata/
 # Node modules
 frontend/node_modules/
 package-lock.json
+frontend/coverage
