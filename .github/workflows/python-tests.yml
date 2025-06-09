@@ -14,12 +14,11 @@ on:
 
 jobs:
   test:
-    # 🧠 This specifies the cloud environment GitHub uses to run the tests (not your local machine)
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3  # Downloads the repo into the runner
+        uses: actions/checkout@v3
 
       - name: Set up Python
         uses: actions/setup-python@v5
@@ -27,15 +26,14 @@ jobs:
           python-version: '3.11'
 
       - name: Install dependencies
+        working-directory: backend
         run: |
-          cd backend
           python -m venv venv
-          source venv/bin/activate
-          pip install -r requirements.txt
-          pip install pytest httpx[http2] pytest-asyncio
+          ./venv/bin/pip install -r ../requirements.txt
+          ./venv/bin/pip install pytest httpx pytest-asyncio
 
       - name: Run tests with pytest
+        working-directory: backend
         run: |
-          cd backend
-          source venv/bin/activate
-          pytest
+          ./venv/bin/python -m pytest
+
