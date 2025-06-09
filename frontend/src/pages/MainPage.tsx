@@ -130,11 +130,20 @@ const MainPage: React.FC = () => {
         {/* Translated output / model stats */}
         <div className="row h-25">
           <div className="col-8 d-flex flex-column h-100">
-            <div className="d-flex justify-content-center align-items-center bg-white h-100 shadow rounded-4">
-              <p className="m-auto">
-                Predicted translation: [
-                {translatedText || "waiting for server response..."}]
-              </p>
+            <div className="bg-white shadow rounded-4 p-0 overflow-auto flex-grow-1 d-flex flex-column">
+              {/* Sticky header */}
+              <div className="position-sticky top-0 bg-white border-bottom py-2 px-4">
+                <span className="fw-bold text-primary">Translated Output:</span>
+              </div>
+
+              {/* Scrollable content */}
+              <div className="p-4 pt-2 text-break">
+                {translatedText ? (
+                  translatedText
+                ) : (
+                  <span className="text-muted">No predictions yet.</span>
+                )}
+              </div>
             </div>
           </div>
           <div className="col-4 d-flex flex-column h-100">

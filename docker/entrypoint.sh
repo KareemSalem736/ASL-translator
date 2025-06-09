@@ -1,3 +1,3 @@
 #!/bin/sh
-python update_environment.py ${FRONTEND_URL} ${BACKEND_URL}
+python3 update_environment.py ${FRONTEND_URL} ${BACKEND_URL}
 /usr/bin/supervisord
