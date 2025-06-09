@@ -3,10 +3,12 @@
 Unit tests for FastAPI routes defined in main.py.
 Mocks TensorFlow model prediction and label classes.
 """
-
+import sys
 import pytest
-from httpx import AsyncClient
+from httpx import AsyncClient, ASGITransport
 from unittest.mock import patch
+from unittest.mock import MagicMock
+sys.modules["tensorflow"] = MagicMock()
 from backend.main import app
 
 
@@ -21,7 +23,8 @@ async def test_predict_success(mock_model):
     # Mock model prediction output
     mock_model.predict.return_value = [[0.1, 0.8, 0.1]]  # Class 'B'
 
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         response = await ac.post("/predict", json={"landmarks": [0.0] * 63})
 
     assert response.status_code == 200
@@ -37,7 +40,8 @@ async def test_predict_invalid_input():
     Sends malformed input and expects a 422 validation error.
     """
 
-    async with AsyncClient(app=app, base_url="http://test") as ac:
+    transport = ASGITransport(app=app)
+    async with AsyncClient(transport=transport, base_url="http://test") as ac:
         response = await ac.post("/predict", json={"invalid_key": [1.0, 2.0]})
 
     assert response.status_code == 422

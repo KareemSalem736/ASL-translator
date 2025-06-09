@@ -51,9 +51,15 @@ def test_extract_landmarks_success(mock_imread, mock_cvtcolor, mock_hands):
 
     # Mock landmark return value
     landmark = MagicMock(x=0.1, y=0.2, z=0.3)
+
+    # Mock a hand with a `.landmark` property that's a list of landmarks
+    mock_hand = MagicMock()
+    mock_hand.landmark = [landmark]
+
     result_mock = MagicMock()
-    result_mock.multi_hand_landmarks = [[landmark]]
+    result_mock.multi_hand_landmarks = [mock_hand]
     mock_hands.process.return_value = result_mock
+
 
     landmarks = extract_landmarks("dummy/path.jpg")
     assert landmarks == [0.1, 0.2, 0.3]
