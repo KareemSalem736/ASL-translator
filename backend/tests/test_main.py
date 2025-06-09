@@ -15,6 +15,7 @@ from backend.main import app
 @pytest.mark.asyncio
 @patch("backend.main.model")
 @patch("backend.main.label_classes", ["A", "B", "C"])
+
 async def test_predict_success(mock_model):
     """
     Sends a valid landmark list and verifies the response structure and values.
@@ -25,7 +26,7 @@ async def test_predict_success(mock_model):
 
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
-        response = await ac.post("/predict", json={"landmarks": [0.0] * 63})
+        response = await ac.post("/api/predict", json={"landmarks": [0.0] * 63})
 
     assert response.status_code == 200
     json_data = response.json()
@@ -42,6 +43,6 @@ async def test_predict_invalid_input():
 
     transport = ASGITransport(app=app)
     async with AsyncClient(transport=transport, base_url="http://test") as ac:
-        response = await ac.post("/predict", json={"invalid_key": [1.0, 2.0]})
+        response = await ac.post("/api/predict", json={"invalid_key": [1.0, 2.0]})
 
     assert response.status_code == 422
