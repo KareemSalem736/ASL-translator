@@ -1,4 +1,3 @@
-
 # ASL Translator - Team Development Guide
 
 This project is a web-based application that uses a webcam and a machine learning model to recognize dynamic American Sign Language (ASL) gestures and translate them into text in real-time.
@@ -19,13 +18,13 @@ We’re building a full-stack application with:
 
 ## Tech Stack
 
-| Layer       | Tools / Libraries                        |
-|-------------|------------------------------------------|
-| Frontend    | React, React-Webcam, Bootstrap           |
-| Backend     | FastAPI (Python), TensorFlow or MediaPipe|
-| Database    | SQLite                                   |
-| Dev Tools   | Docker, Git, GitHub                      |
-| Auth        | JSON Web Tokens (JWT)                    |
+| Layer     | Tools / Libraries                         |
+| --------- | ----------------------------------------- |
+| Frontend  | React, React-Webcam, Bootstrap            |
+| Backend   | FastAPI (Python), TensorFlow or MediaPipe |
+| Database  | SQLite                                    |
+| Dev Tools | Docker, Git, GitHub                       |
+| Auth      | JSON Web Tokens (JWT)                     |
 
 ---
 
@@ -46,7 +45,7 @@ We’re building a full-stack application with:
 ├── requirements.txt # Backend Python dependencies
 └── update_environment.py
 
-````
+```
 
 ---
 
@@ -87,6 +86,7 @@ npm install
 ```
 
 If planning to use a nonstandard endpoint, use update_environment.py to update config options.
+
 ```bash
 python update_environment.py
 ```
@@ -106,12 +106,13 @@ FRONTEND_URL in the docker-compose.yml file if you'd like to use different endpo
 docker compose up
 ```
 
-** On first run of docker compose up, the image will be automatically built. If updates are made to the program, please use the following command to update the image.
+\*\* On first run of docker compose up, the image will be automatically built. If updates are made to the program, please use the following command to update the image.
+
 ```bash
 docker compose up --build
 ```
 
-Visit the Frontend at: `http://localhost:5173`
+Visit the Frontend at: [http://localhost:5173](http://localhost:5173)
 
 ---
 
@@ -135,29 +136,37 @@ git push origin feature/your-name-description
 
 **Open a pull request:**
 
-* Go to the GitHub repo.
-* Click "Compare & pull request".
-* Add a description, then submit.
+- Go to the GitHub repo.
+- Click "Compare & pull request".
+- Add a description, then submit.
 
 Do not push directly to `main`. Use branches and PRs so we can review and merge cleanly.
 
 ---
 
 ### Frontend Setup Instructions (React + Vite)
+
 Navigate to the frontend folder:
 
+```bash
 cd frontend
+```
+
 Install dependencies:
 
+```bash
 npm install
+```
+
 Run the development server:
 
+```bash
 npm run dev
+```
+
 Open the app in your browser:
-Go to http://localhost:5173
+Go to [http://localhost:5173](http://localhost:5173)
 
 ---
 
 Reach out in the group chat or tag someone in GitHub if you need help setting things up. Let’s keep the repo clean and organized as we build.
-
-```
