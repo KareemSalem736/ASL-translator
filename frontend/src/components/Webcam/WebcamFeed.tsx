@@ -58,7 +58,11 @@ const WebcamFeed = forwardRef<HTMLVideoElement, WebcamFeedProps>(
         className={`position-relative w-100 h-100 rounded-4 p-0 m-0 overflow-hidden ${
           isActive ? "" : "bg-dark"
         }`}
-        style={{ width: "100%", height: "100%" }}
+        style={{
+          width: "100%",
+          height: "100%",
+          transform: mirrored ? "scaleX(-1)" : "none",
+        }}
       >
         {/* The webcam feed is rendered here */}
         {/* The `videoConstraints` prop is used to set the width, height, and facing mode of the webcam */}
