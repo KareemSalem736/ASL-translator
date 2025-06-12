@@ -23,10 +23,18 @@ const Header = ({
         <Button className="border" onClick={onLoginClick} aria-label="Login">
           <p className="m-0 fs-5">LogIn</p>
         </Button>
-        <Button className="border" onClick={onProfileClick} aria-label="Profile">
+        <Button
+          className="border"
+          onClick={onProfileClick}
+          aria-label="Profile"
+        >
           <i className="bi bi-person-fill fs-4"></i>
         </Button>
-        <Button className="border" onClick={onSettingsClick} aria-label="Settings">
+        <Button
+          className="border"
+          onClick={onSettingsClick}
+          aria-label="Settings"
+        >
           <i className="bi bi-gear-fill fs-4"></i>
         </Button>
         <Button
