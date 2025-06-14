@@ -2,7 +2,6 @@
 Create landmark data for all files in asl_alphabet_train folder and create
 label classes for each folder.
 """
-import contextlib
 import gc
 import os
 import csv

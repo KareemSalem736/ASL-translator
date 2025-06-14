@@ -6,14 +6,14 @@ class ASLDataset(Dataset):
     """
     Dataset class for ASL landmark data and labels to be used by DataLoader.
     """
-    def __init__(self, X, y):
+    def __init__(self, x, y):
         # Convert inputs to tensor types.
-        self.X = torch.tensor(X, dtype=torch.float32)
+        self.X = torch.tensor(x, dtype=torch.float32)
         self.y = torch.tensor(y, dtype=torch.long)
 
     def __len__(self):
         # Return length of dataset.
-        return len(self.X)
+        return len(self.x)
 
     def __getitem__(self, idx):
         # Retrieve an item from the dataset by index.
