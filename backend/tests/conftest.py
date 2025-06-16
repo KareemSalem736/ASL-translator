@@ -1,8 +1,19 @@
 import sys
 from unittest.mock import MagicMock
 
-# --- TensorFlow ---
-sys.modules["tensorflow"] = MagicMock()
+# --- PyTorch ---
+mock_torch = MagicMock()
+
+# Mock common PyTorch submodules and functions:
+mock_torch.tensor = MagicMock()
+mock_torch.nn = MagicMock()
+mock_torch.nn.Module = MagicMock()
+mock_torch.optim = MagicMock()
+mock_torch.cuda = MagicMock()
+mock_torch.device = MagicMock()
+mock_torch.manual_seed = MagicMock()
+
+sys.modules["torch"] = mock_torch
 
 # --- Kaggle API ---
 mock_kaggle_api = MagicMock()

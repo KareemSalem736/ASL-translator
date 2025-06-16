@@ -9,9 +9,9 @@ from fastapi.middleware.cors import CORSMiddleware
 from pydantic import BaseModel
 import torch
 
-from utils.preprocessing import normalize_landmarks
+from backend.utils.preprocessing import normalize_landmarks
 import numpy as np
-import config
+import backend.config as config
 import uvicorn
 
 app = FastAPI()
