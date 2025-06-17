@@ -31,7 +31,6 @@ const axiosInstance = axios.create({
  */
 axiosInstance.interceptors.request.use(
   (config) => {
-    /*
     if (import.meta.env.DEV) {
       // Note: In dev mode, print a separator so logs are easier to read
       console.log("────────────────────────────────────────");
@@ -58,7 +57,6 @@ axiosInstance.interceptors.request.use(
       }
       console.log("────────────────────────────────────────");
     }
-    */
 
     // Attach the access token (if it exists)
     const token = getAccessToken();
@@ -88,7 +86,6 @@ axiosInstance.interceptors.request.use(
 axiosInstance.interceptors.response.use(
   (response) => {
     // Successful response (HTTP 2xx)
-    /*
     if (import.meta.env.DEV) {
       console.log("────────────────────────────────────────");
       console.log("[Axios ← Response]");
@@ -106,7 +103,6 @@ axiosInstance.interceptors.response.use(
       console.log("Data:      ", JSON.stringify(response.data, null, 2));
       console.log("────────────────────────────────────────");
     }
-     */
     return response;
   },
   async (error) => {
