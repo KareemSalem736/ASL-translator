@@ -2,7 +2,7 @@
 // It includes a back button to navigate to the home page, a description of the project,
 // a list of team members, and a link to the remote repository on GitHub.
 
-import Button from "../components/Buttons/Button";
+import Button from "../features/components/Button/Button";
 
 const About = () => {
   return (

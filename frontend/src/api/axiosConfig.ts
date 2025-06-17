@@ -4,11 +4,7 @@
 // handling authentication tokens, and refreshing access tokens on 401 errors.
 
 import axios from "axios";
-import {
-  getAccessToken,
-  refreshAccessToken,
-  clearAuthData,
-} from "./authApi";
+import { getAccessToken, refreshAccessToken, clearAuthData } from "../features/auth/api/authApi";
 
 /**
  * Create a single Axios instance that all of your API calls will use.
