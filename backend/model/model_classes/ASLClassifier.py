@@ -3,6 +3,7 @@ import torch.nn as nn
 
 class ASLClassifier(nn.Module):
     """Class for classifying ASL gestures"""
+
     def __init__(self, input_size=63, hidden_sizes=[256, 128], num_classes=26):  # 26 letters
         super(ASLClassifier, self).__init__()
         layers = []
@@ -14,7 +15,7 @@ class ASLClassifier(nn.Module):
             layers.append(nn.Linear(in_features, hidden_size))
             layers.append(nn.BatchNorm1d(hidden_size))
 
-            #Add GELU activation and dropout to reduce overfitting
+            # Add GELU activation and dropout to reduce overfitting
             layers.append(nn.GELU())
             layers.append(nn.Dropout(0.3))
             in_features = hidden_size
@@ -27,4 +28,5 @@ class ASLClassifier(nn.Module):
         """
         Forward pass of the classifier.
         """
+        assert x.dim() == 2 and x.size(-1) == 63, f"Expected (batch, 63), got {x.shape}"
         return self.model(x)

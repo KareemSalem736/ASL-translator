@@ -24,19 +24,19 @@ export const DEFAULT_PREDICTIONRESPONSE = {
 
 /**
  * Send flattened landmarks to /predict and return the prediction stats.
- * @param landmarks Array of 63 numbers: [x0,y0,z0, x1,y1,z1, …, x20,y20,z20]
+ * @param landmarksBatch An Array of an Array of 63 numbers: [x0,y0,z0, x1,y1,z1, …, x20,y20,z20]
  */
-export async function getHandPrediction(
-  landmarks: number[]
+export async function getHandSequencePrediction(
+  landmarksBatch: number[][]
 ): Promise<PredictionResponse> {
   try {
     const response = await axiosInstance.post<PredictionResponse>(
       "/predict",
-      { landmarks }
+      JSON.stringify({ landmarks: landmarksBatch}),
     );
     return response.data;
   } catch (err) {
-    console.error("Error in getHandPrediction:", err);
+    console.error("Error in getHandSequencePrediction:", err);
     // You can choose to rethrow or return a default “empty” object
     return DEFAULT_PREDICTIONRESPONSE;
   }

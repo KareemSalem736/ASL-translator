@@ -28,7 +28,7 @@ COPY update_environment.py .
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY --chmod=755 docker/entrypoint.sh .
 
-RUN pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r requirements.txt
+RUN pip install --no-cache-dir -r requirements.txt
 
 WORKDIR /app/frontend
 RUN npm install

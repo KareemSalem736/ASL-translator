@@ -3,7 +3,7 @@
 // The webcam feed is only active when `isActive` is true, and it uses the `Webcam` component from `react-webcam`.
 // The canvas is used to draw landmarks and predictions on top of the webcam feed.
 
-import { forwardRef, useRef } from "react";
+import { forwardRef, useRef, useState, useEffect } from "react";
 import type Webcam from "react-webcam"; // type‐only
 import WebcamDefault from "react-webcam"; // actual component
 import { useHandTracking } from "../../hooks/useHandTracking";
@@ -26,16 +26,52 @@ const WebcamFeed = forwardRef<HTMLVideoElement, WebcamFeedProps>(
     {
       width = 320,
       height = 240,
-      mirrored = true,
+      mirrored = false,
       onPredictionResult,
       isActive,
       showLandmarks = true,
       showPrediction,
     },
     forwardedVideoRef // unused, but kept for compatibility
-  ) => {
+    ) => {
     const webcamComponentRef = useRef<Webcam | null>(null);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
+
+    const [videoConstraints, setVideoConstraints] = useState<MediaTrackConstraints>({
+      facingMode: "user",
+      width,
+      height,
+    });
+
+    // Try to get the max resolution video stream when active
+    useEffect(() => {
+      if (!isActive) return;
+
+      navigator.mediaDevices
+        .getUserMedia({
+          video: {
+            facingMode: "user",
+            width: { ideal: 1920 },
+            height: { ideal: 1080 },
+          },
+        })
+        .then((stream) => {
+          const track = stream.getVideoTracks()[0];
+          const settings = track.getSettings();
+
+          setVideoConstraints({
+            facingMode: "user",
+            width: settings.width || width,
+            height: settings.height || height,
+          });
+
+          track.stop(); // Stop the stream as this was only for detection
+        })
+        .catch((err) => {
+          console.warn("Could not get max-res video stream:", err);
+          // fallback to defaults, no action needed
+        });
+    }, [isActive, width, height]);
 
     // ─── Use the custom hook for hand tracking ───
     // This hook handles the hand tracking logic, including setting up the MediaPipe Hands model,
@@ -47,8 +83,8 @@ const WebcamFeed = forwardRef<HTMLVideoElement, WebcamFeedProps>(
       canvasRef,
       onPredictionResult,
       isActive,
-      width,
-      height,
+      width: videoConstraints.width as number,
+      height: videoConstraints.height as number,
       showLandmarks,
       showPrediction,
     });
@@ -75,8 +111,8 @@ const WebcamFeed = forwardRef<HTMLVideoElement, WebcamFeedProps>(
         {/* The canvas is used to draw landmarks and predictions on top of the webcam feed */}
         <canvas
           ref={canvasRef}
-          width={width}
-          height={height}
+          width={videoConstraints.width as number}
+          height={videoConstraints.height as number}
           className="position-absolute top-0 start-0 rounded-4"
           style={{ width: "100%", height: "100%", pointerEvents: "none" }}
         />

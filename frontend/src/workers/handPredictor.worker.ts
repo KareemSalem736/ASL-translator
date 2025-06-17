@@ -1,5 +1,5 @@
 // This file is a Web Worker that handles hand prediction using an API.
-import { getHandPrediction, type PredictionResponse } from "../api/predictionAPI";
+import {getHandSequencePrediction, type PredictionResponse} from "../api/predictionAPI";
 
 // Runtime type guard to validate PredictionResponse shape
 function isPredictionResponse(x: any): x is PredictionResponse {
@@ -13,10 +13,17 @@ function isPredictionResponse(x: any): x is PredictionResponse {
   );
 }
 
-self.onmessage = async (e: MessageEvent<number[]>) => {
-  const landmarks = e.data;
+self.onmessage = async (e: MessageEvent<ArrayBuffer>) => {
   try {
-    const data: any = await getHandPrediction(landmarks);
+    const flat = new Float32Array(e.data);
+
+    const frameSize = 63;
+    const landmarksBatch: number[][] = [];
+    for (let i = 0; i < flat.length; i += frameSize) {
+      landmarksBatch.push(Array.from(flat.slice(i, i + frameSize)));
+    }
+
+    const data: any = await getHandSequencePrediction(landmarksBatch);
     if (isPredictionResponse(data)) {
       self.postMessage({ success: true, data });
     } else {
@@ -33,7 +40,7 @@ self.onmessage = async (e: MessageEvent<number[]>) => {
       });
     }
   } catch (err) {
-    console.error("Worker: getHandPrediction failed", err);
+    console.error("Worker: getHandSequencePrediction failed", err);
     self.postMessage({
       success: false,
       data: { prediction: "", confidence: 0, accuracy: 0, probabilities: {}, inferenceTimeMs: 0 },

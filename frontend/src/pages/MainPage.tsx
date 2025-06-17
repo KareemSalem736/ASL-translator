@@ -42,9 +42,11 @@ const MainPage: React.FC = () => {
 
   // ─── The actual callback that runs when a prediction comes back ───
   const handlePredictionResult = useCallback((res: PredictionResponse) => {
-    setTranslatedText((prev) => prev + res.prediction);
-    const { prediction, ...rest } = res;
-    setModelStats(rest);
+      if(res.confidence * 100 > 80) {
+          setTranslatedText((prev) => prev + res.prediction);
+      }
+      const {prediction, ...rest} = res;
+      setModelStats(rest);
   }, []);
 
   // ◉ Wrapped callback: only invoke the “real” handler when showPrediction===true
