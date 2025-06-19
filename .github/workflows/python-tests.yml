@@ -4,7 +4,7 @@
 
 name: Run Backend Tests
 
-on: 
+on: # Trigger tests when files in the backend folder change on push/pull
   push:
     paths:
       - 'backend/**'
@@ -14,19 +14,20 @@ on:
 
 jobs:
   test:
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-latest #GitHub runs tests on a cloud-hosted Ubuntu VM (does not affect local machine)
 
     steps:
       - name: Checkout Repository
-        uses: actions/checkout@v3
+        uses: actions/checkout@v3 # Clones the repository into the runner so tests have access to code
 
       - name: Set up Python
-        uses: actions/setup-python@v5
+        uses: actions/setup-python@v5 # Installs the specified Python version
         with:
           python-version: '3.11'
 
       - name: Install dependencies
         working-directory: backend
+        # Creates a virtual environment, installs project dependencies and test tools
         run: |
           python -m venv venv
           ./venv/bin/pip install -r ../requirements.txt
