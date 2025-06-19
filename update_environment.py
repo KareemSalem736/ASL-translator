@@ -79,6 +79,14 @@ def update_frontend_config():
     set_key(env, "VITE_FRONTEND_URL", build_url(frontend_url))
 
 
+def set_config_values(url_string, setting_dict):
+    url = yarl.URL(url_string)
+    setting_dict['scheme'] = url.scheme
+    setting_dict['host'] = url.host
+    setting_dict['port'] = str(url.port)
+    setting_dict['path'] = url.path
+
+
 def setup_environment(frontend_url_string=None, backend_url_string=None):
     """
     Set up the development from one single command.
@@ -90,33 +98,25 @@ def setup_environment(frontend_url_string=None, backend_url_string=None):
 
     # Check if frontend_url_string was set and prompt user for inputs if not
     if frontend_url_string is None:
-        print("Enter the frontend url (default: http://localhost:5173):", end="")
+        print("Enter the frontend url (default: http://localhost:5173): ", end="")
         frontend_url_string = str(input())
 
         if frontend_url_string == "":
             frontend_url_string = "http://localhost:5173"
 
-    url = yarl.URL(frontend_url_string)
-    frontend_url['scheme'] = url.scheme
-    frontend_url['host'] = url.host
-    frontend_url['port'] = str(url.port)
-    frontend_url['path'] = url.path
+    set_config_values(frontend_url_string, frontend_url)
 
     print(f"Final frontend url: {build_url(frontend_url)}")
 
     # Check if backend_url_string was set and prompt user for inputs if not
     if backend_url_string is None:
-        print("Enter the backend url (default: http://localhost:8000/api):", end="")
+        print("Enter the backend url (default: http://localhost:8000/api): ", end="")
         backend_url_string = str(input())
 
         if backend_url_string == "":
             backend_url_string = "http://localhost:8000/api"
 
-    url = yarl.URL(backend_url_string)
-    backend_url['scheme'] = url.scheme
-    backend_url['host'] = url.host
-    backend_url['port'] = str(url.port)
-    backend_url['path'] = url.path
+    set_config_values(backend_url_string, backend_url)
 
     print(f"Final backend url: {build_url(backend_url)}")
 

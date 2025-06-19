@@ -24,8 +24,8 @@ WORKDIR /app
 COPY backend ./backend
 COPY --from=builder /frontend-build ./frontend
 COPY docker/requirements.txt .
-COPY update_environment.py .
 COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
+COPY update_environment.py .
 COPY --chmod=755 docker/entrypoint.sh .
 
 RUN pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r requirements.txt
@@ -33,10 +33,10 @@ RUN pip install --no-cache-dir --extra-index-url https://download.pytorch.org/wh
 WORKDIR /app/frontend
 RUN npm install
 
+WORKDIR /app
+
 EXPOSE 8000
 EXPOSE 5173
-
-WORKDIR /app
 
 # Set the default command
 ENTRYPOINT ["/app/entrypoint.sh"]
