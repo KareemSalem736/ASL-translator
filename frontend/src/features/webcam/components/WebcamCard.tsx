@@ -1,5 +1,3 @@
-import React from "react";
-import Card from "../../components/Card/Card";
 import VideoControls from "./VideoControls";
 import WebcamFeed from "./WebcamFeed";
 import { useWebcam } from "../WebcamContext";
@@ -8,7 +6,7 @@ interface WebcamCardProps {
   onPredictionResult: (res: any) => void;
 }
 
-const WebcamCard: React.FC<WebcamCardProps> = ({ onPredictionResult }) => {
+const WebcamCard = ({ onPredictionResult }: WebcamCardProps) => {
   const {
     webcamActive,
     setWebcamActive,
