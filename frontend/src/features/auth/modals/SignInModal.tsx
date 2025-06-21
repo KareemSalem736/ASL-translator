@@ -132,8 +132,9 @@ const SignIn = ({
         <AuthAlert error={serverError} success={successMessage} />
       </Form>
 
-      <div className="d-flex justify-content-center gap-2 my-3 px-3 text-muted">
-        Don’t have an account?
+      <div className="d-flex justify-content-center gap-2 mt-3 px-3 text-muted">
+        <p className=" text-secondary m-0">Don’t have an account?</p>
+
         <div
           className="link-primary text-start"
           onClick={onSignupClick}

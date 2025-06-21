@@ -117,8 +117,8 @@ const SignUpModal = ({ open, onClose, onSignInClick }: SignUpModalProps) => {
         <AuthAlert error={serverError} success={successMessage} />
       </Form>
 
-      <div className="d-flex justify-content-center gap-2 my-3 px-3 text-muted">
-        Already have an account?
+      <div className="d-flex justify-content-center gap-2 mt-3 px-3 text-muted">
+        <p className="text-body m-0">Already have an account?</p>
         <div
           className="link-primary text-start"
           onClick={onSignInClick}
