@@ -9,15 +9,10 @@ import { useEffect, useState } from "react";
 import Form from "../Form/Form";
 import TextInput from "../Form/TextInput";
 import Modal from "./Modal";
-import { registerUser } from "../../api/authApi";
+import {type RegisterRequest, registerUser} from "../../api/authApi";
 import AuthAlert from "../Alert/AuthAlert";
 import Divider from "../Layout/Divider";
-import {
-  formatPhoneInput,
-  normalizePhoneNumber,
-} from "../../utils/formatters/FormatPhoneNumber";
 import GoogleSignInButton from "../Buttons/GoogleSignInButton";
-import UsePhoneButton from "../Buttons/EmailPhoneToggleButton";
 import { validateSignUp } from "../../utils/validation";
 
 interface SignUpModalProps {
@@ -28,16 +23,20 @@ interface SignUpModalProps {
 
 // Default values for the sign-up form inputs
 const DEFAULT_SIGNUP_VALUES = {
-  identifier: "",
+  username: "",
+  email: "",
   password: "",
   confirmPassword: "",
 };
 
-const SignUpModal = ({ open, onClose, onSignInClick }: SignUpModalProps) => {
+const SignUpModal = ({
+   open,
+   onClose,
+   onSignInClick
+}: SignUpModalProps) => {
   const [serverError, setServerError] = useState("");
-  const [usePhone, setUsePhone] = useState(false);
   const [successMessage, setSuccessMessage] = useState("");
-  const [initialValues, setInitialValues] = useState(DEFAULT_SIGNUP_VALUES); // Default values for the form inputs (from types/defaultValues.d.ts)
+  const [initialValues] = useState(DEFAULT_SIGNUP_VALUES); // Default values for the form inputs (from types/defaultValues.d.ts)
 
   // Handle form submission
   // We receive `identifier` as either email or phone based on `usePhone`.
@@ -45,31 +44,23 @@ const SignUpModal = ({ open, onClose, onSignInClick }: SignUpModalProps) => {
   // If `usePhone` is false, we send the email as is.
   // The `registerUser` function is expected to return a success message or throw an error.
   const handleSubmit = async ({
-    identifier,
+    username,
+    email,
     password,
   }: typeof initialValues) => {
     try {
       setServerError("");
       setSuccessMessage("");
 
-      const user = usePhone
-        ? { phone: normalizePhoneNumber(identifier) }
-        : { email: identifier };
-
-      const payload = { user, password };
+      const payload = { username, email, password } as RegisterRequest;
 
       const result = await registerUser(payload);
       setSuccessMessage(result.message || "Registration successful.");
+      onClose();
     } catch (err: any) {
       console.error("Registration failed:", err.message);
       setServerError(err.message);
     }
-  };
-
-  // Toggle between email and phone input modes
-  const toggleInputMode = () => {
-    setInitialValues(DEFAULT_SIGNUP_VALUES);
-    setUsePhone((prev) => !prev);
   };
 
   // Reset server error and success message when the modal closes
@@ -86,32 +77,34 @@ const SignUpModal = ({ open, onClose, onSignInClick }: SignUpModalProps) => {
     <Modal onClose={onClose} open={open}>
       <Form
         onSubmit={handleSubmit}
-        validate={(values) => validateSignUp({ ...values, usePhone })}
+        validate={(values) => validateSignUp({ ...values })}
         initialValues={initialValues}
         submitBtnLabel="Sign Up"
       >
         <p className="h1 mb-3 fw-bold text-center pb-2">Sign Up</p>
 
         <TextInput
-          name="identifier"
-          label={usePhone ? "Phone Number" : "Email"}
-          type={usePhone ? "tel" : "text"}
-          autoComplete={usePhone ? "tel" : "email"}
-          format={usePhone ? formatPhoneInput : undefined}
+          name="username"
+          label="username"
+          type="text"
+        />
+
+        <TextInput
+          name="email"
+          label="email"
+          type="text"
         />
 
         <TextInput
           name="password"
           type="password"
           label="Password"
-          autoComplete="current-password"
         />
 
         <TextInput
           name="confirmPassword"
           type="password"
           label="Confirm Password"
-          autoComplete="new-password"
         />
 
         <AuthAlert error={serverError} success={successMessage} />
@@ -132,7 +125,6 @@ const SignUpModal = ({ open, onClose, onSignInClick }: SignUpModalProps) => {
 
       <div className="d-flex flex-column px-3 gap-3">
         <GoogleSignInButton />
-        <UsePhoneButton toggleFun={toggleInputMode} toggleBoolean={usePhone} />
       </div>
     </Modal>
   );

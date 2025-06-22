@@ -13,6 +13,11 @@ export interface PredictionResponse {
   // …any other fields your backend returns
 }
 
+export interface ErrorResponse {
+  error_code: number;
+  error: string;
+}
+
 // Default response object to return in case of errors
 export const DEFAULT_PREDICTIONRESPONSE = {
   prediction: "",

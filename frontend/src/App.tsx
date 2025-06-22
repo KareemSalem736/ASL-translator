@@ -4,7 +4,7 @@
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import About from "./pages/AboutPage";
 import MainPage from "./pages/MainPage";
-import InstrctionsPage from "./pages/InstrctionsPage";
+import InstrctionsPage from "./pages/InstructionsPage.tsx";
 
 function App() {
   return (

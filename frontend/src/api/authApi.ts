@@ -33,7 +33,8 @@ export type USER =
  * OR `{ user: { phone: "..." }, password: "..." }`.
  */
 export interface AuthRequest {
-  user: USER;
+  identifier: string;
+  type: string;
   password: string;
 }
 
@@ -42,10 +43,19 @@ export interface AuthRequest {
  * If successful, `access_token` should exist (and be stored in memory).
  */
 export interface AuthResponse {
-  user?: USER;           // user’s basic info
+  username: string;           // user’s basic info
   message: string;       // e.g. "Registration successful" or "Invalid credentials"
   access_token?: string; // JWT (if not using cookie-only)
+  token_type?: string
 }
+
+
+export interface RegisterRequest {
+  username: string;
+  email: string;
+  password: string;
+}
+
 
 /** Used by Google One-Tap: `response.credential` is the ID token. */
 interface GoogleCredentialResponse {
@@ -53,7 +63,7 @@ interface GoogleCredentialResponse {
 }
 
 // ─── REGISTER ───
-export const registerUser = async (data: AuthRequest): Promise<AuthResponse> => {
+export const registerUser = async (data: RegisterRequest): Promise<AuthResponse> => {
   try {
     const response = await axiosInstance.post<AuthResponse>('/auth/register', data);
     return response.data;
@@ -63,10 +73,19 @@ export const registerUser = async (data: AuthRequest): Promise<AuthResponse> => 
   }
 };
 
-// ─── LOGIN (email/phone + password) ───
+// ─── LOGIN (email/username + password) ───
 export const loginUser = async (data: AuthRequest): Promise<AuthResponse> => {
   try {
-    const response = await axiosInstance.post<AuthResponse>('/auth/login', data);
+    const formData = new URLSearchParams();
+    formData.append("username", data.identifier);
+    formData.append("password", data.password);
+    formData.append("grant_type", "password")
+    const response = await axiosInstance.post<AuthResponse>('/auth/login', formData, {
+      headers: {
+        "Content-Type": "application/x-www-form-urlencoded",
+      }
+    });
+
     // If the backend returns { access_token: "..." }, store it in memory:
     if (response.data.access_token) {
       setAccessToken(response.data.access_token);
@@ -112,8 +131,8 @@ export const handleCredentialResponse = async (response: GoogleCredentialRespons
     if (res.data.access_token) {
       setAccessToken(res.data.access_token);
     }
-    if (res.data.user) {
-      localStorage.setItem('user', JSON.stringify(res.data.user));
+    if (res.data.username) {
+      localStorage.setItem('user', JSON.stringify(res.data.username));
     }
     return res.data;
   } catch (error: any) {

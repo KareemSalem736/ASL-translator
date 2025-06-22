@@ -11,13 +11,8 @@ import { loginUser } from "../../api/authApi";
 import AuthAlert from "../Alert/AuthAlert";
 import LinkAction from "../LinkActions/LinkAction";
 import Divider from "../Layout/Divider";
-import {
-  formatPhoneInput,
-  normalizePhoneNumber,
-} from "../../utils/formatters/FormatPhoneNumber";
 import GoogleSignInButton from "../Buttons/GoogleSignInButton";
-import EmailPhoneToggleButton from "../Buttons/EmailPhoneToggleButton";
-import { validateSignIn } from "../../utils/validation";
+import {determineLoginType, validateSignIn} from "../../utils/validation";
 import type { AuthRequest } from "../../api/authApi";
 
 interface SignInProps {
@@ -29,7 +24,7 @@ interface SignInProps {
 
 // Default values for the sign-in form inputs
 const DEFAULT_SIGNIN_VALUES = {
-  identifier: "", // This will be either email or phone based on `usePhone`
+  identifier: "", // This will be either email or username
   password: "",
 };
 
@@ -41,13 +36,10 @@ const SignIn = ({
 }: SignInProps) => {
   const [serverError, setServerError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
-  const [usePhone, setUsePhone] = useState(false);
-  const [initialValues, setInitialValues] = useState(DEFAULT_SIGNIN_VALUES); // Default values for the form inputs (from types/defualtvalues.d.ts)
+  const [initialValues] = useState(DEFAULT_SIGNIN_VALUES); // Default values for the form inputs (from types/defualtvalues.d.ts)
 
   // Handle form submission
-  // We receive `identifier` as either email or phone based on `usePhone`.
-  // If `usePhone` is true, we normalize the phone number before sending.
-  // If `usePhone` is false, we send the email as is.
+  // We receive `identifier` as either email or username.
   // The `password` is always sent as is.
   // The `loginUser` function is expected to return a success message or throw an error.
   const handleSubmit = async ({
@@ -58,14 +50,11 @@ const SignIn = ({
       setServerError("");
       setSuccessMessage("");
 
-      const user = usePhone
-        ? { phone: normalizePhoneNumber(identifier) }
-        : { email: identifier };
+      const type = determineLoginType(identifier);
 
-      const payload = { user, password } as AuthRequest;
+      const payload = { identifier, type, password } as AuthRequest;
 
       const result = await loginUser(payload);
-      console.log("Login successful:", result); // remove later
       setSuccessMessage(result.message || "Login successful.");
       onClose();
     } catch (err: any) {
@@ -74,14 +63,7 @@ const SignIn = ({
     }
   };
 
-  // Toggle between email and phone input modes
-  // Resets the form to default values when toggling
-  const toggleInputMode = () => {
-    setInitialValues(DEFAULT_SIGNIN_VALUES);
-    setUsePhone((prev) => !prev);
-  };
-
-  // Reset form values when toggling between email and phone
+  // Set initial values based on the input mode
   useEffect(() => {
     if (!open) {
       setServerError("");
@@ -89,21 +71,11 @@ const SignIn = ({
     }
   }, [open]);
 
-  // Set initial values based on the input mode
-  useEffect(() => {
-    setInitialValues({
-      identifier: usePhone ? "" : "", // Default to empty string for both email and phone
-      password: "",
-    });
-  }, [usePhone]);
-
-  if (!open) return null;
-
   return (
     <Modal onClose={onClose} open={open}>
       <Form
         onSubmit={handleSubmit}
-        validate={(values) => validateSignIn({ ...values, usePhone })}
+        validate={(values) => validateSignIn({ ...values })}
         initialValues={initialValues}
         submitBtnLabel="Sign In"
       >
@@ -111,11 +83,10 @@ const SignIn = ({
 
         <TextInput
           name="identifier"
-          label={usePhone ? "Phone Number" : "Email"}
-          placeholder={usePhone ? "Phone Number" : "Email"}
-          type={usePhone ? "tel" : "text"}
-          autoComplete={usePhone ? "tel" : "email"}
-          format={usePhone ? formatPhoneInput : undefined}
+          label="Username or Email"
+          placeholder="Username or Email"
+          type="text"
+          autoComplete="username"
         />
 
         <TextInput
@@ -148,10 +119,6 @@ const SignIn = ({
 
       <div className="d-flex flex-column px-3 gap-3">
         <GoogleSignInButton />
-        <EmailPhoneToggleButton
-          toggleFun={toggleInputMode}
-          toggleBoolean={usePhone}
-        />
       </div>
     </Modal>
   );

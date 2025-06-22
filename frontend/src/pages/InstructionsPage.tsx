@@ -16,7 +16,7 @@ const InstructionsPage = () => {
           A simple guide to help you get the most out of the ASL Live Translator
           app.
         </p>
-        instrctions here...
+        instructions here...
       </section>
     </main>
   );

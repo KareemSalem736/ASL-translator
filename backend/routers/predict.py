@@ -3,12 +3,16 @@ Predict route
 """
 import os
 import time
+from typing import Annotated
 
 import torch
 import numpy as np
 
 from pydantic import BaseModel
-from fastapi import APIRouter
+from fastapi import APIRouter, Depends
+
+from backend.database.database import User
+from backend.utils.auth import get_current_active_user
 from backend.utils.preprocessing import normalize_landmarks
 
 router = APIRouter()
@@ -35,6 +39,14 @@ class LandmarkSequenceInput(BaseModel):
     landmarks: list[list[float]]
 
 
+class PredictionResult(BaseModel):
+    prediction: str
+    confidence: float
+    accuracy: float
+    possibilities: list[str] | None = None
+    inferenceTimeMs: int
+
+
 def current_time_milli():
     """
     Get current time in milliseconds
@@ -43,10 +55,11 @@ def current_time_milli():
 
 
 @router.post("/predict")
-def predict(input_data: LandmarkInput):
+def predict(input_data: LandmarkInput, current_user: Annotated[User, Depends(get_current_active_user)]):
     """
     FastAPI route for receiving and predicting landmark data from the frontend.
     """
+    print(current_user.username)
     # Get start time of operation.
     start_time = current_time_milli()
 
@@ -66,5 +79,5 @@ def predict(input_data: LandmarkInput):
     confidence = float(np.max(prediction))
 
     end_time = current_time_milli() - start_time
-    return {"prediction": top_class, "confidence": confidence,
-            "accuracy": accuracy, "probabilities": {}, "inferenceTimeMs": end_time}
+    return PredictionResult(prediction=top_class, confidence=confidence,
+                            accuracy=accuracy, possibilities=[], inferenceTimeMs=end_time)

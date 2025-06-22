@@ -1,63 +1,79 @@
-import { normalizePhoneNumber } from "../formatters/FormatPhoneNumber";
+const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+const usernameRegex = /^[a-zA-Z0-9_]+$/;
 
 export interface AuthSignInData {
   identifier: string;
+  type: string;
   password: string;
-  usePhone: boolean;
 }
 
-export interface AuthSignUpData extends AuthSignInData {
+export interface AuthSignUpData {
+  username: string;
+  email: string;
+  password: string;
   confirmPassword: string;
 }
 
+export const determineLoginType = (login: string) => {
+  const trimmed_login = login.trim();
+
+  if (emailRegex.test(trimmed_login)) {
+    return "email";
+  } else {
+    return "username";
+  }
+}
+
 // Validates the input for the forgot password form.
-export const validateForgotPassword    = (data: { identifier: string }, usePhone: boolean) => {
-    const errors: { [key: string]: string } = {};
+export const validateForgotPassword = (data: { identifier: string }) => {
+    let errors: { [key: string]: string } = {};
     const raw = data.identifier.trim();
 
-    if (!raw) {
-      errors.identifier = usePhone
-        ? "Phone number is required"
-        : "Email is required";
-    } else if (usePhone) {
-      // Normalize and then ensure it’s digits-only & length exactly 10
-      const normalized = normalizePhoneNumber(raw);
-      if (!/^\d+$/.test(normalized)) {
-        errors.identifier = "Phone number must contain only digits";
-      } else if (normalized.length !== 10) {
-        errors.identifier = "Phone number must be exactly 10 digits";
-      }
+    if (determineLoginType(raw) === "email") {
+      errors = {...errors, ...validateEmail(raw)};
     } else {
-      // Validate as email
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(raw)) {
-        errors.identifier = "Invalid email format";
-      }
+      errors = {...errors, ...validateUsername(raw)}
     }
 
     return errors;
   };
 
-export const validateSignIn = (data: AuthSignInData) => {
+export const validateUsername = (username: string) => {
   const errors: Record<string, string> = {};
-  const value = data.identifier.trim();
 
-  if (!value) {
-    errors.identifier = data.usePhone
-      ? "Phone number is required"
-      : "Email is required";
-  } else if (data.usePhone) {
-    const raw = normalizePhoneNumber(value);
-    if (!/^\d+$/.test(raw)) {
-      errors.identifier = "Phone number must contain only numbers";
-    } else if (raw.length !== 10) {
-      errors.identifier = "Phone number must be exactly 10 digits";
-    }
+  if (!username) {
+    errors.username = "Username is required";
+  }
+
+  if (!usernameRegex.test(username)) {
+    errors.username = "Invalid characters. Please use only the following: a-zA-Z0-9_";
+  }
+
+  return errors;
+}
+
+export const validateEmail = (email: string) => {
+  const errors: Record<string, string> = {};
+
+  if (!email) {
+    errors.email = "Email is required";
   } else {
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(value)) {
-      errors.identifier = "Invalid email format";
+    if (!emailRegex.test(email)) {
+      errors.email = "Invalid email format";
     }
+  }
+
+  return errors;
+}
+
+export const validateSignIn = (data: AuthSignInData) => {
+  let errors: Record<string, string> = {};
+  const identifier = data.identifier.trim();
+
+  if (determineLoginType(identifier) === "email") {
+      errors = {...errors, ...validateEmail(identifier)};
+  } else {
+      errors = {...errors, ...validateUsername(identifier)};
   }
 
   if (!data.password) {
@@ -68,7 +84,12 @@ export const validateSignIn = (data: AuthSignInData) => {
 };
 
 export const validateSignUp = (data: AuthSignUpData) => {
-  const errors = validateSignIn(data);
+  let errors: Record<string, string> = {};
+  const trimmed_user = data.username.trim();
+  const trimmed_email = data.email.trim();
+
+  errors = {...errors, ...validateEmail(trimmed_email)};
+  errors = {...errors, ...validateUsername(trimmed_user)};
 
   if (!data.confirmPassword) {
     errors.confirmPassword = "Confirm password is required";

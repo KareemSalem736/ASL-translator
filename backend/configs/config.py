@@ -4,6 +4,8 @@ Create initial config and handle
 import os
 import configparser
 
+from secrets import token_hex
+
 config = configparser.ConfigParser()
 
 
@@ -17,6 +19,13 @@ def initialize_config():
             'host': 'localhost',
             'port': '8000',
             'path': '/api'
+        }
+
+        # Create settings for authentication.
+        config['AUTH'] = {
+            "secret": token_hex(32),
+            "algorithm": "HS256",
+            "access_token_expire_minutes": 30
         }
 
         config['CORS'] = {
@@ -37,3 +46,6 @@ def get_config():
     Return instance of config
     """
     return config
+
+
+initialize_config()
