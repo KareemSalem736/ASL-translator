@@ -1,6 +1,6 @@
 // src/__tests__/SignInModal.spec.tsx
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
-import SignInModal from "../features/auth/modals/SignInModal";
+import SignInModal from "../auth/SignInModal";
 
 // Mock external components
 jest.mock("../components/Buttons/GoogleSignInButton", () => () => (

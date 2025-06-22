@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen, fireEvent } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import Header from "../features/components/Layout/Header";
+import Header from "../Header";
 
 describe("Header", () => {
   it("renders all buttons and fires callbacks on click", () => {
@@ -11,9 +11,9 @@ describe("Header", () => {
 
     render(
       <Header
-        onLoginClick={handleLogin}
-        onProfileClick={handleProfile}
-        onSettingsClick={handleSettings}
+        //onLoginClick={handleLogin}
+        //onProfileClick={handleProfile}
+        //onSettingsClick={handleSettings}
       />
     );
 

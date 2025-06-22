@@ -9,15 +9,12 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./index.css";
 import App from "./App.tsx";
-import { SettingsProvider } from "./features/settings/context/SettingsContext.tsx";
-import { WebcamProvider } from "./features/webcam/WebcamContext.tsx";
+import { WebcamProvider } from "./webcam/WebcamContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <SettingsProvider>
       <WebcamProvider>
         <App />
       </WebcamProvider>
-    </SettingsProvider>
   </StrictMode>
 );

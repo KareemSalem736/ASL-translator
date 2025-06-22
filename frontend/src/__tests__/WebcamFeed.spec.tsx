@@ -1,5 +1,5 @@
 import { render, screen } from '@testing-library/react';
-import WebcamFeed from '../components/Webcam/WebcamFeed';
+import WebcamFeed from '../webcam/WebcamFeed';
 import '@testing-library/jest-dom'
 
 // Mock react-webcam to avoid actual camera

@@ -1,0 +1,121 @@
+.
+├── .env.local
+├── README.md
+├── babel.config.cjs
+├── eslint.config.js
+├── index.html
+├── package-lock.json
+├── package.json
+├── public
+│   ├── logo.svg
+│   ├── logo1.svg
+│   ├── logo2.svg
+│   └── robots.txt
+├── setup-tests.ts
+├── src
+│   ├── App.tsx
+│   ├── __mocks__
+│   │   ├── SignInModal.tsx
+│   │   ├── fileMock.js
+│   │   ├── useHandTracking.ts
+│   │   └── workerMock.js
+│   ├── __tests__
+│   │   ├── App.spec.tsx
+│   │   ├── Footer.spec.tsx
+│   │   ├── Header.spec.tsx
+│   │   ├── SignInModal.spec.tsx
+│   │   └── WebcamFeed.spec.tsx
+│   ├── api
+│   │   └── axiosConfig.ts
+│   ├── experimental
+│   │   └── components
+│   │       ├── Card
+│   │       ├── Modal
+│   │       └── ProgressBar
+│   ├── features
+│   │   ├── auth
+│   │   │   ├── api
+│   │   │   │   └── authApi.ts
+│   │   │   ├── components
+│   │   │   │   ├── EmailPhoneToggleButton.tsx
+│   │   │   │   └── GoogleSignInButton.tsx
+│   │   │   ├── modals
+│   │   │   │   ├── ForgotPasswordModal.tsx
+│   │   │   │   ├── ProfileModal.tsx
+│   │   │   │   ├── SignInModal.tsx
+│   │   │   │   └── SignUpModal.tsx
+│   │   │   └── validation
+│   │   │       └── authValidation.ts
+│   │   ├── components
+│   │   │   ├── Alert
+│   │   │   │   ├── AuthAlert.tsx
+│   │   │   │   └── InputAlert.tsx
+│   │   │   ├── Button
+│   │   │   │   ├── Button.tsx
+│   │   │   │   └── CardIconButton.tsx
+│   │   │   ├── Card
+│   │   │   │   └── Card.tsx
+│   │   │   ├── Form
+│   │   │   │   ├── Form.tsx
+│   │   │   │   ├── RangeInput.tsx
+│   │   │   │   └── TextInput.tsx
+│   │   │   ├── Layout
+│   │   │   │   ├── Divider.tsx
+│   │   │   │   ├── Footer.tsx
+│   │   │   │   └── Header.tsx
+│   │   │   ├── LinkActions
+│   │   │   │   └── LinkAction.tsx
+│   │   │   ├── Modal
+│   │   │   │   └── Modal.tsx
+│   │   │   ├── ProgressBar
+│   │   │   │   └── ProgressBar.tsx
+│   │   │   └── Tooltips
+│   │   │       └── TooltipWrapper.tsx
+│   │   ├── prediction
+│   │   │   ├── api
+│   │   │   │   └── predictionAPI.ts
+│   │   │   ├── components
+│   │   │   │   ├── ModelStatisticsCard.tsx
+│   │   │   │   ├── PredictionHistoryCard.tsx
+│   │   │   │   └── TranslatedOutputCard.tsx
+│   │   │   ├── hooks
+│   │   │   │   └── useHandTracking.ts
+│   │   │   └── workers
+│   │   │       └── handPredictor.worker.ts
+│   │   ├── settings
+│   │   │   ├── context
+│   │   │   │   └── SettingsContext.tsx
+│   │   │   ├── hooks
+│   │   │   │   ├── useDarkMode.ts
+│   │   │   │   └── useSettings.ts
+│   │   │   ├── modals
+│   │   │   │   └── SettingsModal.tsx
+│   │   │   └── utils
+│   │   │       └── presistSettings.ts
+│   │   └── webcam
+│   │       ├── WebcamContext.tsx
+│   │       └── components
+│   │           ├── VideoControls.tsx
+│   │           ├── WebcamCard.tsx
+│   │           └── WebcamFeed.tsx
+│   ├── index.css
+│   ├── main.tsx
+│   ├── pages
+│   │   ├── AboutPage.tsx
+│   │   ├── InstrctionsPage.tsx
+│   │   └── MainPage.tsx
+│   ├── utils
+│   │   ├── formatters
+│   │   │   └── FormatPhoneNumber.ts
+│   │   └── validation
+│   │       ├── index.ts
+│   │       ├── types.ts
+│   │       └── validators.ts
+│   └── vite-env.d.ts
+├── structures.txt
+├── tsconfig.app.json
+├── tsconfig.json
+├── tsconfig.node.json
+└── vite.config.ts
+
+43 directories, 76 files
