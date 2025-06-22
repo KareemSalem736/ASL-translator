@@ -12,9 +12,9 @@ export interface TooltipWrapperProps {
   // The ref will be used to attach the tooltip to the child element
   children: ReactElement<any & { ref?: React.Ref<any> }>;
 
-  message: string;
-  placement?: "top" | "bottom" | "left" | "right";
-  trigger?: "hover" | "click" | "focus" | "manual"; // Trigger type for the tooltip
+  message: string | undefined;
+  placement?: "top" | "bottom" | "left" | "right" | undefined;
+  trigger?: "hover" | "click" | "focus" | "manual" | undefined; // Trigger type for the tooltip
   container?: string | false;
 }
 

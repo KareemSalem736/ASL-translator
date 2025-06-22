@@ -4,12 +4,15 @@
 
 import type { CSSProperties, ReactNode } from "react";
 import { Link } from "react-router-dom";
+import TooltipWrapper from "../Tooltips/TooltipWrapper";
 
 export interface ButtonProps {
   children: ReactNode; // Button content, can be text or JSX elements
   className?: string;
   style?: CSSProperties;
   type?: "button" | "submit";
+  tooltip?: string;
+  tooltipPlacements?: "top" | "bottom" | "left" | "right" | undefined;
   onClick?: () => void;
   to?: string; // for internal navigation (React Router)
   href?: string; // for external links
@@ -22,6 +25,8 @@ const Button = ({
   children,
   className = "btn-light",
   type = "button",
+  tooltip,
+  tooltipPlacements,
   onClick,
   style = {},
   to,
@@ -64,15 +69,21 @@ const Button = ({
 
   // Standard Button
   return (
-    <button
-      style={style}
-      type={type}
-      className={baseClass}
-      onClick={onClick}
-      {...rest}
+    <TooltipWrapper
+      message={tooltip || ""}
+      placement={tooltipPlacements}
+      trigger="hover"
     >
-      {children}
-    </button>
+      <button
+        style={style}
+        type={type}
+        className={baseClass}
+        onClick={onClick}
+        {...rest}
+      >
+        {children}
+      </button>
+    </TooltipWrapper>
   );
 };
 
