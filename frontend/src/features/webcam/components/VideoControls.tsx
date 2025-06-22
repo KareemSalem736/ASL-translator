@@ -34,6 +34,7 @@ const VideoControls: React.FC<VideoControlsProps> = ({
     <div className="control-bar d-flex flex-row gap-2 p-2 position-absolute bottom-0 bg-black bg-opacity-25 rounded-4">
       {/* Start/Stop */}
       <Button
+        tooltip={webcamActive ? "Stop camera" : "Start camera"}
         className=" border-0 btn-sm btn-outline-light"
         onClick={() => setWebcamActive(!webcamActive)}
       >
@@ -49,6 +50,7 @@ const VideoControls: React.FC<VideoControlsProps> = ({
 
       {/* Toggle Mirror */}
       <Button
+        tooltip={mirrored ? "Un-mirror video" : "Mirror video"}
         className=" border-0 btn-sm btn-outline-light"
         onClick={() => setMirrored(!mirrored)}
       >
@@ -64,6 +66,7 @@ const VideoControls: React.FC<VideoControlsProps> = ({
 
       {/* Toggle Landmarks */}
       <Button
+        tooltip={showLandmarks ? "Hide landmarks" : "Show landmarks"}
         className=" border-0 btn-sm btn-outline-light"
         onClick={() => setShowLandmarks(!showLandmarks)}
       >
@@ -76,6 +79,7 @@ const VideoControls: React.FC<VideoControlsProps> = ({
 
       {/* ◉ Toggle Prediction (API calls) */}
       <Button
+        tooltip={showPrediction ? "Stop predictions" : "Start predictions"}
         className=" border-0 btn-sm btn-outline-light"
         onClick={() => setShowPrediction(!showPrediction)}
       >
@@ -96,6 +100,7 @@ const VideoControls: React.FC<VideoControlsProps> = ({
 
       {/* Toggle Fullscreen */}
       <Button
+        tooltip={isFullscreen ? "Exit full-screen" : "Enter full-screen"}
         className=" border-0 btn-sm btn-outline-light"
         onClick={() => setIsFullscreen(!isFullscreen)}
       >
