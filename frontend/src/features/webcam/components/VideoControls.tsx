@@ -55,12 +55,12 @@ const VideoControls: React.FC<VideoControlsProps> = ({
         onClick={() => setMirrored(!mirrored)}
       >
         {mirrored ? (
+          <i className="bi bi-layout-sidebar" style={{ fontSize: "1.25rem" }} />
+        ) : (
           <i
-            className="bi bi-symmetry-vertical"
+            className="bi bi-layout-sidebar-reverse"
             style={{ fontSize: "1.25rem" }}
           />
-        ) : (
-          <i className="bi bi-eye" style={{ fontSize: "1.25rem" }} />
         )}
       </Button>
 
