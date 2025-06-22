@@ -6,6 +6,7 @@ import { type ReactNode } from "react";
 interface CardProps {
   header?: ReactNode;
   children?: ReactNode;
+  cameraViewPort?: ReactNode;
   className?: string;
   nullContentMessage?: string; // Optional prop for custom message when content is null
 }
@@ -13,6 +14,7 @@ interface CardProps {
 const Card = ({
   header,
   children,
+  cameraViewPort = null,
   className = "",
   nullContentMessage = "Content unavailable",
 }: CardProps) => (
@@ -22,11 +24,13 @@ const Card = ({
         <span className="fw-bold text-primary">{header}</span>
       </div>
     )}
-    {children ? (
+    {cameraViewPort}
+    {children && (
       <div className="w-100 d-flex flex-column gap-3 px-2 overflow-auto flex-grow-1 px-3 rounded-bottom-4">
         {children}
       </div>
-    ) : (
+    )}
+    {!children && !cameraViewPort && (
       <div className="w-100 d-flex flex-column gap-3 px-2 h-100">
         <p className="text-muted m-auto">{nullContentMessage}</p>
       </div>

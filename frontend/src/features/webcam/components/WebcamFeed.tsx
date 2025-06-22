@@ -71,9 +71,7 @@ const WebcamFeed = forwardRef<HTMLVideoElement, WebcamFeedProps>(
 
     return (
       <div
-        className={`position-relative w-100 h-100 rounded-4 p-0 m-0 overflow-hidden ${
-          webcamActive ? "" : "bg-dark"
-        }`}
+        className={webcamActive ? "" : "bg-dark"}
         style={{
           width: "100%",
           height: "100%",
