@@ -1,0 +1,87 @@
+.
+├── README.md
+├── babel.config.cjs
+├── eslint.config.js
+├── index.html
+├── public
+│   ├── logo.svg
+│   ├── logo1.svg
+│   ├── logo2.svg
+│   └── robots.txt
+├── setup-tests.ts
+├── src
+│   ├── App.tsx
+│   ├── Divider.tsx
+│   ├── Footer.tsx
+│   ├── Header.tsx
+│   ├── __mocks__
+│   │   ├── SignInModal.tsx
+│   │   ├── fileMock.js
+│   │   ├── useHandTracking.ts
+│   │   └── workerMock.js
+│   ├── __tests__
+│   │   ├── App.spec.tsx
+│   │   ├── Footer.spec.tsx
+│   │   ├── Header.spec.tsx
+│   │   ├── SignInModal.spec.tsx
+│   │   └── WebcamFeed.spec.tsx
+│   ├── auth
+│   │   ├── api
+│   │   │   └── authApi.ts
+│   │   ├── components
+│   │   │   ├── EmailPhoneToggleButton.tsx
+│   │   │   └── GoogleSignInButton.tsx
+│   │   ├── modals
+│   │   │   ├── ForgotPasswordModal.tsx
+│   │   │   ├── ProfileModal.tsx
+│   │   │   ├── SignInModal.tsx
+│   │   │   └── SignUpModal.tsx
+│   │   └── validation
+│   │       └── authValidation.ts
+│   ├── axiosConfig.ts
+│   ├── components
+│   │   ├── Alert
+│   │   │   ├── AuthAlert.tsx
+│   │   │   └── InputAlert.tsx
+│   │   ├── Button
+│   │   │   ├── Button.tsx
+│   │   │   └── CardIconButton.tsx
+│   │   ├── Card
+│   │   │   └── Card.tsx
+│   │   ├── Form
+│   │   │   ├── Form.tsx
+│   │   │   ├── RangeInput.tsx
+│   │   │   └── TextInput.tsx
+│   │   ├── LinkActions
+│   │   │   └── LinkAction.tsx
+│   │   ├── Modal
+│   │   │   └── Modal.tsx
+│   │   ├── ProgressBar
+│   │   │   └── ProgressBar.tsx
+│   │   └── Tooltips
+│   │       └── TooltipWrapper.tsx
+│   ├── index.css
+│   ├── main.tsx
+│   ├── prediction
+│   │   ├── ModelStatisticsCard.tsx
+│   │   ├── PredictionHistoryCard.tsx
+│   │   ├── TranslatedOutputCard.tsx
+│   │   ├── handPredictor.worker.ts
+│   │   ├── predictionAPI.ts
+│   │   └── useHandTracking.ts
+│   ├── utils
+│   │   ├── FormatPhoneNumber.ts
+│   │   ├── index.ts
+│   │   ├── types.ts
+│   │   └── validators.ts
+│   ├── vite-env.d.ts
+│   └── webcam
+│       ├── VideoControls.tsx
+│       ├── WebcamCard.tsx
+│       ├── WebcamContext.tsx
+│       └── WebcamFeed.tsx
+├── structure2.txt
+├── structures.txt
+└── vite.config.ts
+
+22 directories, 63 files

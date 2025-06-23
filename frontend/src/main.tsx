@@ -9,9 +9,12 @@ import "bootstrap/dist/js/bootstrap.bundle.min.js";
 import "bootstrap-icons/font/bootstrap-icons.css";
 import "./index.css";
 import App from "./App.tsx";
+import { WebcamProvider } from "./webcam/WebcamContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-    <App />
+      <WebcamProvider>
+        <App />
+      </WebcamProvider>
   </StrictMode>
 );
