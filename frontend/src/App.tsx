@@ -1,7 +1,7 @@
 // This is the main App component that sets up the routing for the application.
 // It uses React Router to define different routes for the application, including the main page, about page, and instructions page.
 
-import React, { useCallback, useState } from "react";
+import { useCallback, useState } from "react";
 import Header from "./Header";
 import Footer from "./Footer";
 import ModelStatisticsCard from "./prediction/ModelStatisticsCard";
@@ -9,6 +9,7 @@ import TranslatedOutputCard from "./prediction/TranslatedOutputCard";
 import PredictionHistoryCard from "./prediction/PredictionHistoryCard";
 import type { PredictionResponse } from "./prediction/predictionAPI";
 import WebcamCard from "./webcam/WebcamCard";
+import {useAuth} from "./auth/useAuth.ts";
 
 function App() {
   const [activeModal, setActiveModal] = useState<null | "settings">(null);
@@ -16,6 +17,8 @@ function App() {
 
   const [translatedText, setTranslatedText] = useState("");
   const [modelStats, setModelStats] = useState<PredictionResponse | null>(null);
+
+  const { isAuthenticated, loading } = useAuth();
 
   const handlePredictionResult = useCallback((res: PredictionResponse) => {
     setTranslatedText((prev) => prev + res.prediction);
@@ -31,7 +34,9 @@ function App() {
 
   return (
     <div className="d-flex flex-column vh-100 flex-row-sm container">
-      <Header />
+      <Header
+      isAuthenticated={isAuthenticated}
+      isLoading={loading}/>
 
       <main className="flex-grow-1 pb-3">
         <div className="row h-75 mb-3">

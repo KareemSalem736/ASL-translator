@@ -1,5 +1,5 @@
 import { useEffect, useState } from "react";
-import {isAccessTokenValid} from "../api/authApi.ts";
+import {isAccessTokenValid} from "./authApi.ts";
 
 export const useAuth = () => {
   const [isAuthenticated, setIsAuthenticated] = useState<boolean>(false);

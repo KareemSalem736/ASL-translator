@@ -8,15 +8,11 @@
 import { useEffect, useState } from "react";
 import AuthAlert from "../components/AuthAlert";
 import Divider from "../Divider";
-import {
-  formatPhoneInput,
-  normalizePhoneNumber,
-} from "../utils/FormatPhoneNumber";
 import Form from "../components/Form";
 import TextInput from "../components/TextInput";
 import GoogleSignInButton from "./GoogleSignInButton";
-import { registerUser } from "../auth/authApi";
-import { validateSignUp } from "../auth/authValidation";
+import {type RegisterRequest, registerUser} from "./authApi.ts";
+import { validateSignUp } from "./authValidation.ts";
 import Modal from "../components/Modal";
 
 interface SignUpModalProps {
@@ -89,13 +85,13 @@ const SignUpModal = ({
 
         <TextInput
           name="username"
-          label="username"
+          label="Username"
           type="text"
         />
 
         <TextInput
           name="email"
-          label="email"
+          label="Email"
           type="text"
         />
 

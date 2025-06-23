@@ -10,18 +10,13 @@
 
 import Modal from "../components/Modal";
 import { useEffect, useState } from "react";
-import Form from "../Form/Form.tsx";
-import TextInput from "../Form/TextInput.tsx";
-import {validatePasswords} from "../../utils/validation";
-import AuthAlert from "../Alert/AuthAlert.tsx";
-import {
-    changeUserPassword,
-    isAccessTokenValid,
-    requestUserLogout,
-    type PasswordChangeRequest,
-} from "../../api/authApi.ts";
-import Button from "../Buttons/Button.tsx";
-import Divider from "../Layout/Divider.tsx";
+import {changeUserPassword, isAccessTokenValid, type PasswordChangeRequest, requestUserLogout} from "./authApi.ts";
+import {validatePasswords} from "./authValidation.ts";
+import TextInput from "../components/TextInput.tsx";
+import AuthAlert from "../components/AuthAlert.tsx";
+import Divider from "../Divider.tsx";
+import Button from "../components/Button.tsx";
+import Form from "../components/Form.tsx";
 
 interface ProfileModalProps {
     open: boolean;

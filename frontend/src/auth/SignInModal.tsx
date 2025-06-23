@@ -7,19 +7,12 @@ import { useEffect, useState } from "react";
 import AuthAlert from "../components/AuthAlert";
 import LinkAction from "../components/LinkAction";
 import Divider from "../Divider";
-import {
-  formatPhoneInput,
-  normalizePhoneNumber,
-} from "../utils/FormatPhoneNumber";
-import EmailPhoneToggleButton from "./EmailPhoneToggleButton";
 import GoogleSignInButton from "./GoogleSignInButton";
 import Form from "../components/Form";
 import TextInput from "../components/TextInput";
-import { loginUser, type AuthRequest } from "../auth/authApi";
+import { loginUser, type AuthRequest } from "./authApi.ts";
 import Modal from "../components/Modal";
-import { validateSignIn } from "../auth/authValidation";
-import {determineLoginType, validateSignIn} from "../../utils/validation";
-import type { AuthRequest } from "../../api/authApi";
+import { determineLoginType, validateSignIn } from "./authValidation.ts";
 
 interface SignInProps {
   open: boolean;
@@ -90,7 +83,6 @@ const SignIn = ({
         <TextInput
           name="identifier"
           label="Username or Email"
-          placeholder="Username or Email"
           type="text"
           autoComplete="username"
         />
@@ -99,7 +91,6 @@ const SignIn = ({
           name="password"
           type="password"
           label="Password"
-          placeholder="Password"
           autoComplete="current-password"
         />
 
