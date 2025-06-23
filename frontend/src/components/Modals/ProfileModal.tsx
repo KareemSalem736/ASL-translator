@@ -18,10 +18,10 @@ import {
     changeUserPassword,
     isAccessTokenValid,
     requestUserLogout,
-    type LogoutRequest,
     type PasswordChangeRequest,
 } from "../../api/authApi.ts";
 import Button from "../Buttons/Button.tsx";
+import Divider from "../Layout/Divider.tsx";
 
 interface ProfileModalProps {
     open: boolean;
@@ -29,6 +29,7 @@ interface ProfileModalProps {
 }
 
 const DEFAULT_PASSWORDS_VALUES = {
+    currentPassword: "",
     password: "",
     confirmPassword: "",
 };
@@ -42,6 +43,7 @@ const ProfileModal = ({
   const [initialValues] = useState(DEFAULT_PASSWORDS_VALUES)
 
   const handleSubmit = async ({
+      currentPassword,
       password
   }: typeof initialValues) => {
       try {
@@ -51,7 +53,11 @@ const ProfileModal = ({
           const token = await isAccessTokenValid();
 
           if (token) {
-            const payload = {token, password} as PasswordChangeRequest;
+            const payload =
+                {
+                    current_password: currentPassword,
+                    new_password: password
+                } as PasswordChangeRequest;
 
             const result = await changeUserPassword(payload);
             setSuccessMessage(result || "Password successfully changed.");
@@ -72,9 +78,7 @@ const ProfileModal = ({
           const token = await isAccessTokenValid();
 
           if (token) {
-              const payload = { token } as LogoutRequest;
-
-              const result = await requestUserLogout(payload);
+              const result = await requestUserLogout();
               setSuccessMessage(result || "Successfully logged out");
               onClose();
           } else {
@@ -105,6 +109,13 @@ const ProfileModal = ({
           <p className="h1 mb-3 fw-bold text-center pb-2">Update Password</p>
 
           <TextInput
+              name="currentPassword"
+              type="password"
+              label="Current Password"
+              placeholder="Current Password"
+          />
+
+          <TextInput
               name="password"
               type="password"
               label="Password"
@@ -119,7 +130,10 @@ const ProfileModal = ({
           />
           <AuthAlert error={serverError} success={successMessage} />
       </Form>
-      <Button className="btn-primary" onClick={logoutUser}>Logout</Button>
+
+      <Divider text="" />
+
+      <Button className="d-flex flex-column btn-primary" onClick={logoutUser}>Logout</Button>
     </Modal>
   );
 };

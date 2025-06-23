@@ -4,61 +4,22 @@ Router for authentication backend.
 from typing import Annotated
 
 from fastapi import APIRouter, Depends, status, HTTPException, Response, Request
-from fastapi.security import OAuth2PasswordRequestForm, OAuth2AuthorizationCodeBearer
-from pydantic import BaseModel
+from fastapi.security import OAuth2PasswordRequestForm
 
-from backend.database.database import User
-from backend.utils.auth import (create_access_token, get_authenticated_user,
-                                check_user_exists, check_user_email_exists, create_user,
-                                create_refresh_token, is_token_expired, get_user_from_token, get_current_token)
+from backend.models.auth_models import Token, PasswordResetRequest, RegisterRequest
+from backend.utils.auth.auth import update_password
+from backend.utils.auth.auth_tokens import create_tokens, get_current_token, is_valid_token, get_user_from_token, \
+    create_access_token
+from backend.utils.auth.auth_users import get_authenticated_user, check_user_exists, check_user_email_exists, \
+    create_user
 
 # Create router for this class to be referenced by main.
 router = APIRouter()
 
 
-class Token(BaseModel):
-    """
-    A model that represents a token to be sent to the user.
-    """
-    username: str
-    access_token: str
-    token_type: str
-
-
-class TokenVerification(BaseModel):
-    username: str
-    access_token: str
-
-
-class TokenRefresh(BaseModel):
-    """
-    A model that represents a request for a new refresh token.
-    """
-    username: str
-    access_token: str
-
-
-class AuthResponse(BaseModel):
-    """
-    A model that represents authentication response data to send to browser.
-    """
-    username: str
-    message: str
-    access_token: str
-    token_type: str
-
-
-class RegisterRequest(BaseModel):
-    """
-    A model that represents data received for a registration request.
-    """
-    username: str
-    email: str
-    password: str
-
-
 @router.post('/auth/login')
-async def login_user(response: Response, form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token:
+async def login_user(response: Response,
+                     form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token:
     """
     Endpoint to handle a user login request using OAuth2 standards.
     """
@@ -71,17 +32,7 @@ async def login_user(response: Response, form_data: Annotated[OAuth2PasswordRequ
             headers={"WWW-Authenticate": "Bearer"}
         )
     # User successfully authenticated, create access token and send to user.
-    refresh_token = create_refresh_token(data={"sub": user.username})
-    access_token = create_access_token(data={"sub": user.username})
-
-    response.set_cookie(
-        'refresh_token',
-        refresh_token,
-        httponly=True,
-        secure=False,
-        samesite='strict',
-        max_age=60 * 60 * 24 * 30
-    )
+    access_token = create_tokens(data={"sub": user.username}, response=response)
 
     return Token(username=user.username, access_token=access_token, token_type="bearer")
 
@@ -107,24 +58,14 @@ async def register_user(response: Response, register_data: RegisterRequest) -> T
         )
 
     # Create user and then generate an access token to send to the user.
-    user = create_user(register_data.username, register_data.email, register_data.password)
-    refresh_token = create_refresh_token(data={"sub": user.username})
-    access_token = create_access_token(data={"sub": user.username})
-
-    response.set_cookie(
-        'refresh_token',
-        refresh_token,
-        httponly=True,
-        secure=False,
-        samesite='strict',
-        max_age=60 * 60 * 24 * 30
-    )
+    create_user(register_data.username, register_data.email, register_data.password)
+    access_token = create_tokens(data={"sub": register_data.username}, response=response)
 
     return Token(username=register_data.username, access_token=access_token, token_type="bearer")
 
 
 @router.post('/auth/logout')
-async def logout_user(response: Response):
+async def logout_user(response: Response, token: str = Depends(get_current_token)):
     """
     Endpoint to handle a user logout request using OAuth2 standards.
     """
@@ -132,24 +73,65 @@ async def logout_user(response: Response):
     return {"message": "Successfully logged out"}
 
 
+@router.post('/auth/changepassword')
+async def reset_password(data: PasswordResetRequest,
+                         token: str = Depends(get_current_token)):
+    """
+    Endpoint to handle password reset requests.
+    """
+    valid, message = is_valid_token(token, "access")
+
+    if not valid:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail=message,
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+    # Extract the user from the token and then confirm
+    # if the password for the user is correct.
+    user = get_user_from_token(token, "access")
+    user = get_authenticated_user(user.username, data.current_password)
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Your current password is incorrect",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+    if not user.is_active:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="Inactive user",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+    user = update_password(user.email, data.new_password)
+
+    if user is None:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail="An unknown error occurred during password reset",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
+
+    return {"message": "Password reset successful"}
+
+
 @router.post('/auth/verify')
 async def verify_access_token(token: str = Depends(get_current_token)):
     """
     Verify submitted user token is valid.
     """
-    if token is None:
+    valid, message = is_valid_token(token, "access")
+
+    if not valid:
         raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Token is missing",
+            detail=message,
             headers={"WWW-Authenticate": "Bearer"}
         )
 
-    if is_token_expired(token, "access"):
-        return HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Access token is expired",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
     return {"message": "Token is valid."}
 
 
@@ -160,11 +142,13 @@ async def refresh_access_token(request: Request):
     """
     refresh_token = request.cookies.get("refresh_token")
 
-    # If the token is expired, then the user needs to login again.
-    if is_token_expired(refresh_token, "refresh"):
-        return HTTPException(
+    # If the token is expired, then the user needs to log in again.
+    valid, message = is_valid_token(refresh_token, "refresh")
+
+    if not valid:
+        raise HTTPException(
             status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Refresh token is expired. Please login again.",
+            detail=message,
             headers={"WWW-Authenticate": "Bearer"}
         )
 

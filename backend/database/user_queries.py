@@ -36,16 +36,17 @@ def get_user_email(email):
         return None
 
 
-def database_create_user(username, email, password_hashed):
+def database_create_user(username: str, email: str, password: str):
     """
     Create a user in the database with the supplied username, email, and hashed password.
     """
     with Session(engine) as session:
-        session.add(User(username=username, email=email, password_hashed=password_hashed, created_at=datetime.now()))
+        session.add(User(username=username, email=email,
+                password_hashed=password, created_at=datetime.now()))
         session.commit()
 
 
-def update_password(email, password_hashed):
+def database_update_password(email, password_hashed):
     """
     Updated the password for the supplied email's user.
     """

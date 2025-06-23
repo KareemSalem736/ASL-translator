@@ -3,16 +3,13 @@ Predict route
 """
 import os
 import time
-from typing import Annotated
 
 import torch
 import numpy as np
 
 from pydantic import BaseModel
-from fastapi import APIRouter, Depends
+from fastapi import APIRouter
 
-from backend.database.database import User
-from backend.utils.auth import get_current_active_user
 from backend.utils.preprocessing import normalize_landmarks
 
 router = APIRouter()

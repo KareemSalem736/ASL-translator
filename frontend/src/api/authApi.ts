@@ -16,9 +16,25 @@ export const setAccessToken = (token: string) => {
   accessToken = token;
 };
 
+let loggedIn: boolean = false;
+
+export const getLoggedIn = () => loggedIn;
+
+export const setLoggedIn = (isLoggedIn: boolean) => {
+  loggedIn = isLoggedIn;
+}
+
+/** Getter for a completed authorization header. */
+export function getAuthHeader(): {Authorization: string} {
+  return {
+    Authorization: `Bearer ${getAccessToken()}`
+  }
+}
+
 /** → Remove everything (on logout or refresh failure). */
 export const clearAuthData = () => {
   accessToken = null;
+  loggedIn = false;
   localStorage.removeItem('user');
 };
 
@@ -55,13 +71,9 @@ export interface RegisterRequest {
   password: string;
 }
 
-export interface LogoutRequest {
-  token: string;
-}
-
 export interface PasswordChangeRequest {
-  token: string;
-  password: string;
+  current_password: string;
+  new_password: string;
 }
 
 /** Used by Google One-Tap: `response.credential` is the ID token. */
@@ -80,6 +92,7 @@ export const registerUser = async (data: RegisterRequest): Promise<AuthResponse>
     if (response.data.access_token) {
       console.log(response.data.access_token)
       setAccessToken(response.data.access_token);
+      setLoggedIn(true);
     }
     return response.data;
   } catch (err: any) {
@@ -91,12 +104,13 @@ export const registerUser = async (data: RegisterRequest): Promise<AuthResponse>
 // ─── LOGIN (email/username + password) ───
 export const loginUser = async (data: AuthRequest): Promise<AuthResponse> => {
   try {
-    const formData = new URLSearchParams();
-    formData.append("username", data.identifier);
-    formData.append("password", data.password);
-    formData.append("grant_type", "password")
-    const response = await axiosInstance.post<AuthResponse>('/auth/login', formData, {
-      headers: {
+    const response = await axiosInstance.post<AuthResponse>('/auth/login',
+        {
+          username: data.identifier,
+          password: data.password,
+          grant_type: "password"
+        },
+        { headers: {
         "Content-Type": "application/x-www-form-urlencoded",
       },
       withCredentials: true
@@ -106,6 +120,7 @@ export const loginUser = async (data: AuthRequest): Promise<AuthResponse> => {
     if (response.data.access_token) {
       console.log(response.data.access_token)
       setAccessToken(response.data.access_token);
+      setLoggedIn(true);
     }
     console.log(getAccessToken())
     return response.data;
@@ -115,9 +130,10 @@ export const loginUser = async (data: AuthRequest): Promise<AuthResponse> => {
 };
 
 // ─── LOGOUT ───
-export const requestUserLogout = async (data: LogoutRequest): Promise<string | void> => {
+export const requestUserLogout = async (): Promise<string | void> => {
   try {
-    const response = await axiosInstance.post<{ message: string }>("/auth/logout", data, { withCredentials: true });
+    const response = await axiosInstance.post<{ message: string }>("/auth/logout",
+        {header: getAuthHeader()}, { withCredentials: true });
     clearAuthData();
 
     if (response.status !== 200) {
@@ -133,7 +149,8 @@ export const requestUserLogout = async (data: LogoutRequest): Promise<string | v
 // ─── FORGOT PASSWORD ───
 export const requestPasswordReset = async (user: USER): Promise<{ message: string }> => {
   try {
-    const response = await axiosInstance.post<{ message: string }>('/auth/forgot-password', { user });
+    const response = await axiosInstance.post<{ message: string }>
+    ('/auth/forgot-password', { header: getAuthHeader(),  });
     return response.data;
   } catch (err: any) {
     throw new Error(err.response?.data?.detail || "Failed to send password reset email");
@@ -144,19 +161,17 @@ export const requestPasswordReset = async (user: USER): Promise<{ message: strin
 export const changeUserPassword = async (data: PasswordChangeRequest): Promise<string | void> => {
   try {
     // Send a request to the backend to change the password for the given user.
-    const response = await axiosInstance.post<string>('/auth/passwordchange', {
-      token: data.token,
-      password: data.password
-    });
+    const response = await axiosInstance.post<{ message: string }>(
+        '/auth/changepassword', data, { headers: getAuthHeader() });
 
     // Check if there was a response from the backend.
     if (response.status !== 200) {
       return;
     }
-    return "Password successfully updated.";
+    return "Password changed successfully";
   } catch (error: any) {
-    const msg = error.response?.data?.detail || "Password change failed.";
-    throw new Error(msg);
+    console.log(error);
+    throw new Error(error.response?.data?.detail || "Password change failed.");
   }
 }
 
@@ -193,9 +208,7 @@ export const isAccessTokenValid = async (): Promise<string | void> => {
   }
 
   const response = await axiosInstance.post("/auth/verify", {
-    headers: {
-      "Authorization": `Bearer ${getAccessToken()}`,
-    },
+    headers: getAuthHeader(),
     data: {}
   });
 

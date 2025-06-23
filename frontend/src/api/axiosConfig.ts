@@ -7,7 +7,7 @@ import axios from "axios";
 import {
   getAccessToken,
   refreshAccessToken,
-  clearAuthData,
+  clearAuthData, getLoggedIn,
 } from "./authApi";
 
 /**
@@ -159,6 +159,11 @@ axiosInstance.interceptors.response.use(
     // If we got a 401 and haven’t retried yet, attempt to refresh the access token
     if (resp?.status === 401 && !originalRequest._retry) {
       originalRequest._retry = true;
+
+      if (!getLoggedIn()) {
+        return Promise.reject("Not logged in.")
+      }
+
       try {
         const newToken = await refreshAccessToken();
         originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
