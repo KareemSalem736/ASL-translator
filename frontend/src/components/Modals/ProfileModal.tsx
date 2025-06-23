@@ -9,18 +9,119 @@
 // You can also pass props to customize the modal's behavior and content.
 
 import Modal from "./Modal";
+import { useEffect, useState } from "react";
+import Form from "../Form/Form.tsx";
+import TextInput from "../Form/TextInput.tsx";
+import {validatePasswords} from "../../utils/validation";
+import AuthAlert from "../Alert/AuthAlert.tsx";
+import {
+    changeUserPassword,
+    isAccessTokenValid,
+    requestUserLogout,
+    type LogoutRequest,
+    type PasswordChangeRequest,
+} from "../../api/authApi.ts";
+import Button from "../Buttons/Button.tsx";
 
-const Profile = () => {
+interface ProfileModalProps {
+    open: boolean;
+    onClose: () => void;
+}
+
+const DEFAULT_PASSWORDS_VALUES = {
+    password: "",
+    confirmPassword: "",
+};
+
+const ProfileModal = ({
+    open,
+    onClose
+}: ProfileModalProps) => {
+  const [serverError, setServerError] = useState("");
+  const [successMessage, setSuccessMessage] = useState("");
+  const [initialValues] = useState(DEFAULT_PASSWORDS_VALUES)
+
+  const handleSubmit = async ({
+      password
+  }: typeof initialValues) => {
+      try {
+          setServerError("");
+          setSuccessMessage("");
+
+          const token = await isAccessTokenValid();
+
+          if (token) {
+            const payload = {token, password} as PasswordChangeRequest;
+
+            const result = await changeUserPassword(payload);
+            setSuccessMessage(result || "Password successfully changed.");
+          } else {
+            setServerError("You are currently not signed in.");
+          }
+      } catch (err: any) {
+          console.error("Password change failed:", err.message);
+          setServerError(err.message);
+      }
+  };
+
+  const logoutUser = async () => {
+      try {
+          setServerError("")
+          setSuccessMessage("")
+
+          const token = await isAccessTokenValid();
+
+          if (token) {
+              const payload = { token } as LogoutRequest;
+
+              const result = await requestUserLogout(payload);
+              setSuccessMessage(result || "Successfully logged out");
+              onClose();
+          } else {
+              setServerError("You are currently not signed in.");
+          }
+      } catch (err: any) {
+          console.error("User logout failed:", err.message);
+          setServerError(err.message);
+      }
+  };
+
+  useEffect(() => {
+      if (!open) {
+          setServerError("");
+          setSuccessMessage("");
+      }
+  }, [open]);
+
   return (
-    <Modal
-      onClose={function (): void {
-        throw new Error("Function not implemented.");
-      }}
-      open={false}
-    >
-      Profile Modal Content
+    <Modal onClose={onClose} open={open}>
+
+      <Form
+          onSubmit={handleSubmit}
+          validate={(values) => validatePasswords({ ...values })}
+          initialValues={initialValues}
+          submitBtnLabel="Update Password"
+      >
+          <p className="h1 mb-3 fw-bold text-center pb-2">Update Password</p>
+
+          <TextInput
+              name="password"
+              type="password"
+              label="Password"
+              placeholder="Password"
+          />
+
+          <TextInput
+              name="confirmPassword"
+              type="password"
+              label="Confirm Password"
+              placeholder="Confirm Password"
+          />
+          <AuthAlert error={serverError} success={successMessage} />
+      </Form>
+      <Button className="btn-primary" onClick={logoutUser}>Logout</Button>
     </Modal>
   );
 };
 
-export default Profile;
+export default ProfileModal;

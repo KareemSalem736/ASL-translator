@@ -3,6 +3,7 @@
 // This page is the main interface for users to interact with the application.
 
 import React, { useCallback, useRef, useState } from "react";
+import { useAuth } from "../hooks/useAuth";
 import Footer from "../components/Layout/Footer";
 import Header from "../components/Layout/Header";
 import WebcamFeed from "../components/Webcam/WebcamFeed";
@@ -12,6 +13,7 @@ import SettingsModal from "../components/Modals/SettingsModal";
 import SignUpModal from "../components/Modals/SignUpModal";
 import ForgotPasswordModal from "../components/Modals/ForgotPasswordModal";
 import type { PredictionResponse } from "../api/predictionAPI";
+import ProfileModal from "../components/Modals/ProfileModal.tsx";
 
 const MainPage: React.FC = () => {
   // ─── Lifted state for modals ───
@@ -40,6 +42,9 @@ const MainPage: React.FC = () => {
     "prediction"
   > | null>(null);
 
+  // --- Check if the user is logged in ---
+  const { isAuthenticated, loading } = useAuth();
+
   // ─── The actual callback that runs when a prediction comes back ───
   const handlePredictionResult = useCallback((res: PredictionResponse) => {
     setTranslatedText((prev) => prev + res.prediction);
@@ -64,6 +69,8 @@ const MainPage: React.FC = () => {
         onLoginClick={() => setActiveModal("login")}
         onProfileClick={() => setActiveModal("profile")}
         onSettingsClick={() => setActiveModal("settings")}
+        isAuthenticated={isAuthenticated}
+        isLoading={loading}
       />
 
       {/* Modals */}
@@ -78,12 +85,20 @@ const MainPage: React.FC = () => {
         onClose={closeModal}
         onSignInClick={() => setActiveModal("login")}
       />
+      <ProfileModal
+          open={activeModal === "profile"}
+          onClose={closeModal}
+      />
       <ForgotPasswordModal
         open={activeModal === "forgotPassword"}
         onClose={closeModal}
         onSignInClick={() => setActiveModal("login")}
       />
-      <SettingsModal open={activeModal === "settings"} onClose={closeModal} />
+      <SettingsModal
+          open={activeModal === "settings"}
+          onClose={closeModal}
+      />
+
 
       <main className="flex-grow-1 pb-3">
         <div className="row h-75 mb-3">

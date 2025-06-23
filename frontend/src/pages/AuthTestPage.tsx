@@ -3,8 +3,17 @@
 // a list of team members, and a link to the remote repository on GitHub.
 
 import Button from "../components/Buttons/Button";
+import { useAuth } from "../hooks/useAuth";
 
 const About = () => {
+  const { isAuthenticated, loading } = useAuth();
+
+  if (loading) return <p>Loading...</p>;
+
+  if (!isAuthenticated) {
+    return <p>Unauthorized</p>
+  }
+
   return (
     <main className=" container mt-5">
       <Button className="bi bi-arrow-left fw-bold btn-primary m-3" to="/">
@@ -16,7 +25,7 @@ const About = () => {
 
         <article className="mb-3">
           <p>
-            Capstone Project on ASL translator web app using pytorch...
+            Capstone Project on ASL translator web app using tenserflow/kares...
           </p>
         </article>
 

@@ -21,11 +21,12 @@ def initialize_config():
             'path': '/api'
         }
 
-        # Create settings for authentication.
         config['AUTH'] = {
-            "secret": token_hex(32),
+            "secret_access": token_hex(32),
+            "secret_refresh": token_hex(32),
             "algorithm": "HS256",
-            "access_token_expire_minutes": 30
+            "access_token_expire_minutes": 15,
+            "refresh_token_expire_days": 30
         }
 
         config['CORS'] = {

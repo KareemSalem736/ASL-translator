@@ -82,7 +82,7 @@ const ForgotPasswordModal = ({
 
       <Form
         onSubmit={handleSubmit}
-        validate={(values) => validateForgotPassword(values, usePhone)}
+        validate={(values) => validateForgotPassword(values)}
         initialValues={{ identifier: "" }}
         submitBtnLabel="Send"
       >

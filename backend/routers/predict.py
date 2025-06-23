@@ -40,6 +40,9 @@ class LandmarkSequenceInput(BaseModel):
 
 
 class PredictionResult(BaseModel):
+    """
+    Class for storing a prediction result.
+    """
     prediction: str
     confidence: float
     accuracy: float
@@ -55,11 +58,10 @@ def current_time_milli():
 
 
 @router.post("/predict")
-def predict(input_data: LandmarkInput, current_user: Annotated[User, Depends(get_current_active_user)]):
+def predict(input_data: LandmarkInput):
     """
     FastAPI route for receiving and predicting landmark data from the frontend.
     """
-    print(current_user.username)
     # Get start time of operation.
     start_time = current_time_milli()
 

@@ -33,7 +33,7 @@ jest.mock('../components/Webcam/VideoControls', () => ({
 }));
 
 
-import {render, screen} from '@testing-library/react'
+import {render} from '@testing-library/react'
 import App from '../App'
 
 describe('Renders App', () => {

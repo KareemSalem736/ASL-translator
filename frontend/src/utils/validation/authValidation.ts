@@ -14,6 +14,11 @@ export interface AuthSignUpData {
   confirmPassword: string;
 }
 
+export interface PasswordUpdateData {
+  password: string;
+  confirmPassword: string;
+}
+
 export const determineLoginType = (login: string) => {
   const trimmed_login = login.trim();
 
@@ -83,6 +88,21 @@ export const validateSignIn = (data: AuthSignInData) => {
   return errors;
 };
 
+export const validatePasswords = (data: PasswordUpdateData) => {
+  const errors: Record<string, string> = {};
+  const password = data.password.trim();
+  const confirmPassword = data.confirmPassword.trim();
+
+  if (!password && !confirmPassword) {
+    errors.confirmPassword = "";
+  } else if (password && !confirmPassword) {
+    errors.confirmPassword = "Please confirm your password";
+  } else if (password !== confirmPassword) {
+    errors.confirmPassword = "Passwords do not match";
+  }
+  return errors;
+}
+
 export const validateSignUp = (data: AuthSignUpData) => {
   let errors: Record<string, string> = {};
   const trimmed_user = data.username.trim();
@@ -90,12 +110,7 @@ export const validateSignUp = (data: AuthSignUpData) => {
 
   errors = {...errors, ...validateEmail(trimmed_email)};
   errors = {...errors, ...validateUsername(trimmed_user)};
-
-  if (!data.confirmPassword) {
-    errors.confirmPassword = "Confirm password is required";
-  } else if (data.confirmPassword !== data.password) {
-    errors.confirmPassword = "Passwords do not match";
-  }
+  errors = {...errors, ...validatePasswords({password: data.password, confirmPassword: data.confirmPassword})}
 
   return errors;
 };
