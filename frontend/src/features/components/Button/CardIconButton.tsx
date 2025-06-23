@@ -3,28 +3,19 @@
 // It accepts an icon class name, tooltip text, click handler, and optional additional classes.
 
 import { type ReactNode } from "react";
-import TooltipWrapper from "../Tooltips/TooltipWrapper";
+import Button from "./Button";
 
 interface CardIconButtonProps {
   icon: ReactNode; // Icon class name, e.g. "bi-plus-circle"
   tooltip: string; // Tooltip text
   onClick: () => void;
-  className?: string;
 }
 
-const CardIconButton = ({
-  className = "",
-  icon,
-  tooltip,
-  onClick,
-}: CardIconButtonProps) => {
+const CardIconButton = ({ icon, tooltip, onClick }: CardIconButtonProps) => {
   return (
-    <TooltipWrapper message={tooltip} placement="top" trigger="hover">
-      <button
-        className={`bi ${icon} bg-white py-0 border-0 ${className}`}
-        onClick={onClick}
-      ></button>
-    </TooltipWrapper>
+    <Button className="px-1 py-0 border-0" onClick={onClick} tooltip={tooltip}>
+      <i className={`bi ${icon}`}></i>
+    </Button>
   );
 };
 

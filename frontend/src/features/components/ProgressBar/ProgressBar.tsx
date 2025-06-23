@@ -69,7 +69,7 @@ const ProgressBar: React.FC<ProgressBarProps> = ({
             aria-valuemax={100}
           />
         </div>
-        <span className="small text-muted">{pct.toFixed(1)}%</span>
+        <div className="m-0 small">{pct.toFixed(1)}%</div>
       </div>
     </div>
   );

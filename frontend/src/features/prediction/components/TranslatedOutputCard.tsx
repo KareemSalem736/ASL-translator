@@ -43,11 +43,8 @@ const TranslatedOutputCard = ({
       }
       nullContentMessage="No predictions yet."
     >
-      {/* <div className="d-flex align-items-center">
-      <div className="pt-2 pb-3 text-break">{translatedText}</div>
-    </div> */}
       {translatedText && (
-        <div className="pt-2 pb-3 text-break">{translatedText}</div>
+        <div className="text-break border">{translatedText}</div>
       )}
     </Card>
   );
