@@ -1,6 +1,6 @@
 import { describe, it, vi, expect, beforeEach } from "vitest";
 import { render, screen, fireEvent } from "@testing-library/react";
-import WebcamCard from "../webcam/WebcamCard"; // Adjust path if needed
+import WebcamCard from "../webcam/WebcamCard"; 
 import * as WebcamContext from "../webcam/WebcamContext";
 
 // Mock global Worker if not available (Node environment)
