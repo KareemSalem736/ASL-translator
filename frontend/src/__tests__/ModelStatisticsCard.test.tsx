@@ -27,14 +27,9 @@ describe("ModelStatisticsCard", () => {
   it("displays progress bar values as percentages", () => {
     render(<ModelStatisticsCard stats={mockStats} />);
 
-    // The ProgressBar component might render percentage values directly or as inline styles.
-    // Assuming the percentage appears in the DOM as text (adjust if needed):
+
     expect(screen.getAllByText(/0.0/i)[1]).toBeInTheDocument();
   });
 
-//   it("shows placeholder for missing stats", () => {
-//     render(<ModelStatisticsCard stats={null} />);
 
-//     expect(screen.getByText(/no model stats available/i)).toBeInTheDocument();
-//   });
 });
