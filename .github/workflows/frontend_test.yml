@@ -2,9 +2,9 @@ name: Run Vitest Tests in Frontend
 
 on:
   push:
-    branches: [frontend-prototype]
+    branches: ["*"]
   pull_request:
-    branches: [frontend-prototype]
+    branches: ["*"]
 
 jobs:
   test:
