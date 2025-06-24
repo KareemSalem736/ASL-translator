@@ -3,9 +3,7 @@
 // // The webcam feed is only active when `isActive` is true, and it uses the `Webcam` component from `react-webcam`.
 // // The canvas is used to draw landmarks and predictions on top of the webcam feed.
 
-import { forwardRef, useEffect, useRef, useState } from "react";
-import type Webcam from "react-webcam";
-import WebcamDefault from "react-webcam";
+import { forwardRef, useEffect, useRef } from "react";
 import type { PredictionResponse } from "../prediction/predictionAPI";
 import { useHandTracking } from "../prediction/useHandTracking";
 import { useWebcam } from "../webcam/WebcamContext";
@@ -18,48 +16,63 @@ export interface WebcamFeedProps {
 
 const WebcamFeed = forwardRef<HTMLVideoElement, WebcamFeedProps>(
   ({ width = 1280, height = 720, onPredictionResult }, forwardedVideoRef) => {
-    const webcamComponentRef = useRef<Webcam | null>(null);
     const canvasRef = useRef<HTMLCanvasElement | null>(null);
-    const [deviceId, setDeviceId] = useState<string>("");
-
-    // Destructure all settings from context
-    const { webcamActive, mirrored, showLandmarks, showPrediction } =
-      useWebcam();
+    const videoElementRef = useRef<HTMLVideoElement | null>(null);
+    const {
+      webcamActive,
+      mirrored,
+      showLandmarks,
+      showPrediction,
+      mediaStream,
+      setMediaStream,
+    } = useWebcam();
 
     useEffect(() => {
-      navigator.mediaDevices
-        .getUserMedia({ video: true }) // Triggers prompt
-        .then(() => navigator.mediaDevices.enumerateDevices())
-        .then((devices) => {
-          const videoDevices = devices.filter((d) => d.kind === "videoinput");
-          const preferred = videoDevices.find((d) =>
-            /hd|rgb|webcam/i.test(d.label)
-          );
-          setDeviceId(preferred?.deviceId || videoDevices[0]?.deviceId || "");
-        })
-        .catch(() => {
-          console.warn("Webcam access denied or unavailable.");
+      if (webcamActive && !mediaStream) {
+        navigator.mediaDevices
+          .getUserMedia({ video: true })
+          .then((stream) => {
+            setMediaStream(stream);
+          })
+          .catch((err) => {
+            console.error("Camera access denied or unavailable", err);
+          });
+      }
+
+      if (!webcamActive && mediaStream) {
+        // Stop all media tracks
+        mediaStream.getTracks().forEach((track) => {
+          track.stop();
         });
-    }, []);
 
+        setMediaStream(null);
+      }
+    }, [webcamActive]);
+
+    // Attach stream to video element
     useEffect(() => {
-      if (
-        typeof forwardedVideoRef === "function" &&
-        webcamComponentRef.current?.video
-      ) {
-        forwardedVideoRef(webcamComponentRef.current.video);
+      if (videoElementRef.current && mediaStream) {
+        videoElementRef.current.srcObject = mediaStream;
+        videoElementRef.current.play().catch(console.error);
+      }
+    }, [mediaStream]);
+
+    // Pass video element ref upward
+    useEffect(() => {
+      if (typeof forwardedVideoRef === "function" && videoElementRef.current) {
+        forwardedVideoRef(videoElementRef.current);
       } else if (
         forwardedVideoRef &&
         typeof forwardedVideoRef === "object" &&
         "current" in forwardedVideoRef
       ) {
-        forwardedVideoRef.current = webcamComponentRef.current?.video || null;
+        forwardedVideoRef.current = videoElementRef.current;
       }
     }, []);
 
-    // Hook for hand tracking with these live values
+    // Hand tracking
     useHandTracking({
-      videoComponentRef: webcamComponentRef,
+      videoComponentRef: videoElementRef,
       canvasRef,
       onPredictionResult,
       isActive: webcamActive,
@@ -78,22 +91,19 @@ const WebcamFeed = forwardRef<HTMLVideoElement, WebcamFeedProps>(
           transform: mirrored ? "scaleX(-1)" : "none",
         }}
       >
-        {webcamActive && deviceId && (
-          <WebcamDefault
-            key={deviceId + String(webcamActive)}
-            audio={false}
-            ref={webcamComponentRef}
-            mirrored={mirrored}
-            videoConstraints={{
-              deviceId: { exact: deviceId },
-              // width: { ideal: width },
-              // height: { ideal: height },
-              facingMode: "user",
-            }}
-            style={{ display: "none" }}
-          />
-        )}
-
+        <video
+          className="d-none"
+          ref={videoElementRef}
+          autoPlay
+          playsInline
+          muted
+          style={{
+            width: "100%",
+            height: "100%",
+            objectFit: "cover",
+            display: webcamActive ? "block" : "none",
+          }}
+        />
         <canvas
           ref={canvasRef}
           width={width}
