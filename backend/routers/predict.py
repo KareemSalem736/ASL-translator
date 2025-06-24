@@ -8,8 +8,10 @@ import torch
 import numpy as np
 
 from pydantic import BaseModel
-from fastapi import APIRouter
+from fastapi import APIRouter, Request, Depends
 
+from backend.database.user_queries import database_increment_predict_count
+from backend.utils.auth.auth_tokens import get_current_token, is_valid_token, get_user_from_token
 from backend.utils.preprocessing import normalize_landmarks
 
 router = APIRouter()
@@ -55,7 +57,8 @@ def current_time_milli():
 
 
 @router.post("/predict")
-def predict(input_data: LandmarkInput):
+async def predict(request: Request, input_data: LandmarkInput,
+                  token: str = Depends(get_current_token)):
     """
     FastAPI route for receiving and predicting landmark data from the frontend.
     """
@@ -76,6 +79,22 @@ def predict(input_data: LandmarkInput):
 
     top_class = label_classes[np.argmax(prediction)]
     confidence = float(np.max(prediction))
+
+    # Check if the confidence is over 80% and if the user is logged in, increment the predict count.
+    if confidence >= 0.80:
+        # Check if either the access or refresh token is valid for the user.
+        token_type = "access"
+        valid = is_valid_token(token, "access")
+        if not valid:
+            token_type = "refresh"
+            token = request.cookies.get("refresh_token")
+            valid = is_valid_token(token, "refresh")
+
+        # if either is valid, get the user and increment the count.
+        if valid:
+            user = get_user_from_token(token, token_type)
+            if user:
+                database_increment_predict_count(user.email)
 
     end_time = current_time_milli() - start_time
     return PredictionResult(prediction=top_class, confidence=confidence,

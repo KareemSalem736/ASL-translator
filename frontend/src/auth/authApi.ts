@@ -16,14 +16,6 @@ export const setAccessToken = (token: string) => {
   accessToken = token;
 };
 
-let loggedIn: boolean = false;
-
-export const getLoggedIn = () => loggedIn;
-
-export const setLoggedIn = (isLoggedIn: boolean) => {
-  loggedIn = isLoggedIn;
-}
-
 /** Getter for a completed authorization header. */
 export function getAuthHeader(): {Authorization: string} {
   return {
@@ -34,14 +26,8 @@ export function getAuthHeader(): {Authorization: string} {
 /** → Remove everything (on logout or refresh failure). */
 export const clearAuthData = () => {
   accessToken = null;
-  loggedIn = false;
   localStorage.removeItem('user');
 };
-
-// ─── Type definitions ───
-export type USER =
-  | { email: string; phone?: never }
-  | { phone: string; email?: never };
 
 /** 
  * Payload we send to /auth/register or /auth/login
@@ -71,6 +57,15 @@ export interface RegisterRequest {
   password: string;
 }
 
+export interface UserInfoResponse {
+  username: string;
+  email: string;
+  total_predictions: number;
+  prediction_history_size: number;
+  last_login: string;
+  creation_date: string;
+}
+
 export interface PasswordChangeRequest {
   current_password: string;
   new_password: string;
@@ -92,7 +87,6 @@ export const registerUser = async (data: RegisterRequest): Promise<AuthResponse>
     if (response.data.access_token) {
       console.log(response.data.access_token)
       setAccessToken(response.data.access_token);
-      setLoggedIn(true);
     }
     return response.data;
   } catch (err: any) {
@@ -118,16 +112,28 @@ export const loginUser = async (data: AuthRequest): Promise<AuthResponse> => {
 
     // If the backend returns { access_token: "..." }, store it in memory:
     if (response.data.access_token) {
-      console.log(response.data.access_token)
       setAccessToken(response.data.access_token);
-      setLoggedIn(true);
     }
-    console.log(getAccessToken())
     return response.data;
   } catch (err: any) {
+
     throw new Error(err.response?.data?.detail || "Login failed");
   }
 };
+
+// --- GET USER INFO ---
+export const infoUser = async (): Promise<UserInfoResponse | void> => {
+  try {
+    const response = await axiosInstance.get<UserInfoResponse>("/auth/info")
+
+    if (response.status !== 200) {
+      return;
+    }
+    return response.data
+  } catch (err: any) {
+    throw new Error(err.response?.data?.detail || "Failed to retrieve user info");
+  }
+}
 
 // ─── LOGOUT ───
 export const requestUserLogout = async (): Promise<string | void> => {
@@ -139,7 +145,7 @@ export const requestUserLogout = async (): Promise<string | void> => {
     if (response.status !== 200) {
       return;
     }
-    return "Successfully logged out";
+    return response.data.message;
   } catch (err: any) {
     throw new Error(err.response?.data?.detail || "Failed to send password reset email");
   }
@@ -147,10 +153,10 @@ export const requestUserLogout = async (): Promise<string | void> => {
 };
 
 // ─── FORGOT PASSWORD ───
-export const requestPasswordReset = async (user: USER): Promise<{ message: string }> => {
+export const requestPasswordReset = async ( data: { email: string } ): Promise<{ message: string }> => {
   try {
     const response = await axiosInstance.post<{ message: string }>
-    ('/auth/forgot-password', { header: getAuthHeader(),  });
+    ('/auth/forgot-password', data, { headers: getAuthHeader(),  });
     return response.data;
   } catch (err: any) {
     throw new Error(err.response?.data?.detail || "Failed to send password reset email");
@@ -168,7 +174,7 @@ export const changeUserPassword = async (data: PasswordChangeRequest): Promise<s
     if (response.status !== 200) {
       return;
     }
-    return "Password changed successfully";
+    return response.data.message;
   } catch (error: any) {
     console.log(error);
     throw new Error(error.response?.data?.detail || "Password change failed.");
@@ -194,8 +200,7 @@ export const handleCredentialResponse = async (response: GoogleCredentialRespons
     }
     return res.data;
   } catch (error: any) {
-    const msg = error.response?.data?.detail || 'Google sign-in failed';
-    throw new Error(msg);
+    throw new Error(error.response?.data?.detail || 'Google sign-in failed');
   }
 };
 
@@ -203,14 +208,16 @@ export const isAccessTokenValid = async (): Promise<string | void> => {
   let token = getAccessToken()
   if (!token) {
     token = await refreshAccessToken()
-    setAccessToken(token)
-    return token;
+    if (token) {
+      setAccessToken(token)
+      return token;
+    } else {
+      return;
+    }
   }
 
-  const response = await axiosInstance.post("/auth/verify", {
-    headers: getAuthHeader(),
-    data: {}
-  });
+  const response = await axiosInstance.post("/auth/verify", {},
+      {headers: getAuthHeader()});
 
   if (response.status === 200) {
     return token;
@@ -220,17 +227,17 @@ export const isAccessTokenValid = async (): Promise<string | void> => {
 };
 
 // ─── REFRESH ACCESS TOKEN ───
-export const refreshAccessToken = async (): Promise<string> => {
+export const refreshAccessToken = async (): Promise<string | null> => {
   try {
     // The backend endpoint /auth/refresh should look at the HttpOnly cookie (refresh token),
     // verify it, and respond with a fresh { access_token: "newJwt" }.
     const response = await axiosInstance.post<{ access_token: string }>('/auth/refresh',
-        {}, { withCredentials: true});
+        {}, {withCredentials: true});
 
-    return response.data.access_token;
-  } catch {
+      return response.data.access_token;
+  } catch (error: any) {
     clearAuthData();
-    throw new Error("Session expired. Please log in again.");
+    throw new Error(error.response?.data?.detail || 'Session expired. Please log in again.');
   }
 };
 

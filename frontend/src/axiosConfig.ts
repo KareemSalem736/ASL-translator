@@ -154,20 +154,29 @@ axiosInstance.interceptors.response.use(
 
     // If we got a 401 and haven’t retried yet, attempt to refresh the access token
     if (resp?.status === 401 && !originalRequest._retry) {
-      originalRequest._retry = true;
 
-      if (!getLoggedIn()) {
-        return Promise.reject("Not logged in.")
+      const isRefreshEndpoint = originalRequest.url?.includes("/auth/refresh");
+
+      if (isRefreshEndpoint) {
+        // Clear the auth state and notify the user the session has expired.
+        clearAuthData();
+        return Promise.reject(error);
       }
+
+      originalRequest._retry = true;
 
       try {
         const newToken = await refreshAccessToken();
-        originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
-        return axiosInstance(originalRequest);
-      } catch (e) {
+        if (newToken) {
+          originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
+          return axiosInstance(originalRequest);
+        } else {
+          return Promise.reject(error);
+        }
+      } catch (error: any) {
         // If refresh fails, clear auth data and reject
         clearAuthData();
-        return Promise.reject(e);
+        return Promise.reject(error);
       }
     }
 

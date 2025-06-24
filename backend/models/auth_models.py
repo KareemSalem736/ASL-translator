@@ -1,6 +1,7 @@
 """
 Module containing BaseModels for authentication endpoints.
 """
+from datetime import datetime
 from typing import Optional
 
 from pydantic import BaseModel
@@ -22,30 +23,16 @@ class TokenData(BaseModel):
     username: Optional[str] = None
 
 
-class TokenVerification(BaseModel):
+class UserDataResponse(BaseModel):
     """
-    A model that represents a token to be verified.
-    """
-    username: str
-    access_token: str
-
-
-class TokenRefresh(BaseModel):
-    """
-    A model that represents a request for a new refresh token.
+    A model representing current user's date.
     """
     username: str
-    access_token: str
-
-
-class AuthResponse(BaseModel):
-    """
-    A model that represents authentication response data to send to browser.
-    """
-    username: str
-    message: str
-    access_token: str
-    token_type: str
+    email: str
+    total_predictions: int
+    prediction_history_size: int
+    last_login: datetime
+    creation_date: datetime
 
 
 class RegisterRequest(BaseModel):

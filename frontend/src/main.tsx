@@ -10,11 +10,14 @@ import "bootstrap-icons/font/bootstrap-icons.css";
 import "./index.css";
 import App from "./App.tsx";
 import { WebcamProvider } from "./webcam/WebcamContext.tsx";
+import {AuthProvider} from "./auth/AuthProvider.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
-      <WebcamProvider>
-        <App />
-      </WebcamProvider>
+      <AuthProvider>
+          <WebcamProvider>
+              <App />
+          </WebcamProvider>
+      </AuthProvider>
   </StrictMode>
 );

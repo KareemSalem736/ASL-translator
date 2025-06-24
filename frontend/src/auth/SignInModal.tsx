@@ -13,6 +13,7 @@ import TextInput from "../components/TextInput";
 import { loginUser, type AuthRequest } from "./authApi.ts";
 import Modal from "../components/Modal";
 import { determineLoginType, validateSignIn } from "./authValidation.ts";
+import {useAuth} from "./AuthProvider.tsx";
 
 interface SignInProps {
   open: boolean;
@@ -36,6 +37,7 @@ const SignIn = ({
   const [serverError, setServerError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [initialValues] = useState(DEFAULT_SIGNIN_VALUES); // Default values for the form inputs (from types/defualtvalues.d.ts)
+  const { setAuthenticated } = useAuth();
 
   // Handle form submission
   // We receive `identifier` as either email or username.
@@ -54,6 +56,7 @@ const SignIn = ({
       const payload = { identifier, type, password } as AuthRequest;
 
       const result = await loginUser(payload);
+      setAuthenticated(true);
       setSuccessMessage(result.message || "Login successful.");
       onClose();
     } catch (err: any) {
@@ -71,7 +74,7 @@ const SignIn = ({
   }, [open]);
 
   return (
-    <Modal onClose={onClose} open={open}>
+    <Modal onClose={onClose} open={open} style={{ maxWidth: "500px" }}>
       <Form
         onSubmit={handleSubmit}
         validate={(values) => validateSignIn({ ...values })}

@@ -5,15 +5,11 @@
 import { useEffect, useState } from "react";
 import Button from "../components/Button";
 import AuthAlert from "../components/AuthAlert";
-import {
-  formatPhoneInput,
-  normalizePhoneNumber,
-} from "../utils/FormatPhoneNumber";
 import Form from "../components/Form";
 import TextInput from "../components/TextInput";
-import { requestPasswordReset, type USER } from "../auth/authApi";
+import { requestPasswordReset } from "./authApi.ts";
 import Modal from "../components/Modal";
-import { validateForgotPassword } from "../auth/authValidation";
+import { validateForgotPassword } from "./authValidation.ts";
 
 interface ForgotPasswordModalProps {
   open: boolean;
@@ -26,10 +22,6 @@ const ForgotPasswordModal = ({
   onClose,
   onSignInClick,
 }: ForgotPasswordModalProps) => {
-  // ─── Form state ───
-  // `usePhone` determines whether the user is entering an email (false) or a phone (true)
-  const [usePhone, setUsePhone] = useState(false);
-
   // Displays any server-side error or success message from the API
   const [serverError, setServerError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
@@ -39,8 +31,6 @@ const ForgotPasswordModal = ({
     if (!open) {
       setServerError("");
       setSuccessMessage("");
-      // Optionally also reset `usePhone` if you want to default back to email each time:
-      setUsePhone(false);
     }
   }, [open]);
 
@@ -53,15 +43,8 @@ const ForgotPasswordModal = ({
 
     try {
       const trimmed = data.identifier.trim();
-      let userPayload: USER;
 
-      if (usePhone) {
-        // Normalize before sending
-        const phone = normalizePhoneNumber(trimmed);
-        userPayload = { phone };
-      } else {
-        userPayload = { email: trimmed };
-      }
+      const userPayload = { email: trimmed };
 
       // API call: requestPasswordReset expects a USER object
       const res = await requestPasswordReset(userPayload);
@@ -77,7 +60,7 @@ const ForgotPasswordModal = ({
 
   if (!open) return null;
   return (
-    <Modal open={open} onClose={onClose}>
+    <Modal open={open} onClose={onClose} style={{ maxWidth: "500px" }}>
       {/* Toggle between Email / Phone */}
 
       <Form
@@ -91,34 +74,13 @@ const ForgotPasswordModal = ({
         {/* Single input whose label and placeholder adapt to usePhone */}
         <TextInput
           name="identifier"
-          label={usePhone ? "Phone Number" : "Email"}
-          type={usePhone ? "tel" : "text"}
-          placeholder={usePhone ? "Enter 10-digit phone" : "you@example.com"}
-          autoComplete={usePhone ? "tel" : "email"}
-          format={usePhone ? formatPhoneInput : undefined}
+          label="Email"
+          type="text"
+          autoComplete="email"
         />
 
         {/* Display server error or success message */}
         <AuthAlert error={serverError} success={successMessage} />
-
-        <div className="d-flex justify-content-center mb-3">
-          <Button
-            className={`btn-sm me-2 ${
-              !usePhone ? "btn-secondary" : "btn-outline-secondary"
-            }`}
-            onClick={() => setUsePhone(false)}
-          >
-            Use Email
-          </Button>
-          <Button
-            className={`btn-sm ${
-              usePhone ? "btn-secondary" : "btn-outline-secondary"
-            }`}
-            onClick={() => setUsePhone(true)}
-          >
-            Use Phone
-          </Button>
-        </div>
       </Form>
 
       <Button

@@ -12,6 +12,7 @@ interface ModalProps {
   children: ReactNode; // Content to be displayed inside the modal
   onClose: () => void;
   open: boolean;
+  style?: React.CSSProperties; // Optionally allow the user to pass the style property
 }
 
 // Modal component that displays a modal dialog with a title and content
@@ -19,11 +20,11 @@ interface ModalProps {
 // The modal is only rendered when the `open` prop is true.
 // The modal is styled with Bootstrap classes and includes a backdrop.
 
-const Modal = ({ title, children, onClose, open }: ModalProps) => {
+const Modal = ({ title, children, onClose, open, style }: ModalProps) => {
   if (!open) return null;
 
   return (
-    <>
+    <div>
       <div
         className="modal fade show d-block"
         data-bs-backdrop="static"
@@ -33,7 +34,8 @@ const Modal = ({ title, children, onClose, open }: ModalProps) => {
         style={{ display: "block" }}
       >
         <div
-          className="modal-dialog modal-dialog-centered modal-dialog-scrollable bg-transparent"
+          className="modal-dialog modal-dialog-centered bg-transparent"
+          style={{ maxWidth: "1000px", width: "100%", ...style }}
           role="document"
         >
           <div className="modal-content rounded-5 border-0 p-3">
@@ -54,7 +56,7 @@ const Modal = ({ title, children, onClose, open }: ModalProps) => {
         </div>
       </div>
       <div className="modal-backdrop fade show"></div>
-    </>
+    </div>
   );
 };
 

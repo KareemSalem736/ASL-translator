@@ -14,6 +14,7 @@ import GoogleSignInButton from "./GoogleSignInButton";
 import {type RegisterRequest, registerUser} from "./authApi.ts";
 import { validateSignUp } from "./authValidation.ts";
 import Modal from "../components/Modal";
+import {useAuth} from "./AuthProvider.tsx";
 
 interface SignUpModalProps {
   open: boolean;
@@ -37,6 +38,7 @@ const SignUpModal = ({
   const [serverError, setServerError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [initialValues] = useState(DEFAULT_SIGNUP_VALUES); // Default values for the form inputs (from types/defaultValues.d.ts)
+  const { setAuthenticated } = useAuth();
 
   // Handle form submission
   // We receive `identifier` as either email or phone based on `usePhone`.
@@ -55,6 +57,7 @@ const SignUpModal = ({
       const payload = { username, email, password } as RegisterRequest;
 
       const result = await registerUser(payload);
+      setAuthenticated(true);
       setSuccessMessage(result.message || "Registration successful.");
       onClose();
     } catch (err: any) {
@@ -74,7 +77,7 @@ const SignUpModal = ({
   }, [open]);
 
   return (
-    <Modal onClose={onClose} open={open}>
+    <Modal onClose={onClose} open={open} style={{ maxWidth: "500px" }}>
       <Form
         onSubmit={handleSubmit}
         validate={(values) => validateSignUp({ ...values })}

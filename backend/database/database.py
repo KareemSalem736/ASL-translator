@@ -14,8 +14,10 @@ class User(SQLModel, table=True):
     username: str = Field(..., max_length=50)
     email: str = Field(..., max_length=50)
     password_hashed: str = Field(..., max_length=50)
+    total_predictions: int = Field(default=0)
     is_active: bool = Field(default=True)
     created_at: datetime = Field(default=None)
+    last_login: datetime = Field(default=None)
 
 
 class PredictionHistory(SQLModel, table=True):

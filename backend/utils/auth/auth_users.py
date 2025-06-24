@@ -7,7 +7,8 @@ from fastapi import Depends, status, HTTPException
 from jwt import InvalidTokenError
 
 from backend.database.database import User
-from backend.database.user_queries import database_create_user, get_user_email, get_user_username
+from backend.database.user_queries import database_create_user, get_user_email, get_user_username, \
+    database_update_login_time
 from backend.models.auth_models import TokenData
 from backend.utils.auth.auth import get_password_hash, oauth2_scheme, verify_password, SECRET_ACCESS, ALGORITHM
 
@@ -58,6 +59,7 @@ def get_authenticated_user(identifier: str, password: str) -> Optional[User]:
         return None
     if not verify_password(password, user.password_hashed.encode("utf-8")):
         return None
+    database_update_login_time(user.email)
     return user
 
 
