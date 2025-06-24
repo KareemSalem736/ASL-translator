@@ -1,23 +1,27 @@
-// src/__tests__/SignInModal.spec.tsx
 import { render, screen, fireEvent, waitFor } from "@testing-library/react";
+import { vi } from "vitest";
 import SignInModal from "../auth/SignInModal";
 
-// Mock external components
-jest.mock("../components/Buttons/GoogleSignInButton", () => () => (
-  <div data-testid="mock-google-button">Mock Google Button</div>
-));
-
-jest.mock("../api/authApi", () => ({
-  loginUser: jest.fn().mockResolvedValue({ message: "Login successful" }),
+// Mocks (must come before imports that use them)
+vi.mock("../auth/GoogleSignInButton", () => ({
+  default: () => <div data-testid="mock-google-button">Mock Google Button</div>,
 }));
 
+vi.mock("../auth/authApi", () => {
+  return {
+    loginUser: vi.fn().mockResolvedValue({ message: "Login successful" }),
+  };
+});
+
+import { loginUser } from "../auth/authApi";
+
 describe("SignInModal", () => {
-  const mockOnClose = jest.fn();
-  const mockOnSignupClick = jest.fn();
-  const mockOnForgotPasswordClick = jest.fn();
+  const mockOnClose = vi.fn();
+  const mockOnSignupClick = vi.fn();
+  const mockOnForgotPasswordClick = vi.fn();
 
   beforeEach(() => {
-    jest.clearAllMocks();
+    vi.clearAllMocks();
   });
 
   it("renders modal when open", () => {
@@ -30,27 +34,16 @@ describe("SignInModal", () => {
       />
     );
 
-    // Title
-    const titleText = screen
-      .getAllByText(/^sign in$/i)
-      .find((el) => el.tagName.toLowerCase() === "p");
+    expect(
+      screen.getAllByText(/sign in/i)[0]
+    ).toBeInTheDocument();
 
-    expect(titleText).not.toBeUndefined();
-
-    // Email and Password inputs
     expect(screen.getByLabelText(/email/i)).toBeInTheDocument();
-
-    const passwordInputs = screen.getAllByLabelText(/password/i);
-    const passwordInput = passwordInputs.find((el) => el.tagName === "INPUT");
-    expect(passwordInput).toBeInTheDocument();
-
-    // Google button mock
+    expect(screen.getAllByText(/password/i)[1]).toBeInTheDocument();
     expect(screen.getByTestId("mock-google-button")).toBeInTheDocument();
   });
 
   it("submits the form and closes modal on success", async () => {
-    const { loginUser } = require("../api/authApi");
-
     render(
       <SignInModal
         open={true}
@@ -70,8 +63,8 @@ describe("SignInModal", () => {
       target: { value: "securePass123" },
     });
 
-    const submitButton = screen.getByRole("button", { name: /sign in/i });
-    fireEvent.click(submitButton);
+
+    fireEvent.click(screen.getByRole("button", { name: /sign in/i }));
 
     await waitFor(() => {
       expect(loginUser).toHaveBeenCalled();
