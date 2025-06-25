@@ -13,4 +13,4 @@ jobs:
       with:
         url: 'https://api.ryanjhuston.com/l/asl-translator-update'
         method: 'POST'
-        data: '{"Authorization": ${{ secrets.VPS_REST_SECRET }}}'
+        bearerToken: '${{ secrets.VPS_REST_SECRET }}}'
