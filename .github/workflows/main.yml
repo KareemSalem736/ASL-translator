@@ -1,0 +1,16 @@
+name: 'Deploy main on update'
+
+on:
+  push:
+    branches: [ main ]
+
+jobs:
+  deployment:
+    runs-on: ubuntu-latest
+    steps:
+    - name: Deploy to VPS
+      uses: fjogeleit/http-request-action@v1
+      with:
+        url: 'https://api.ryanjhuston.com/l/asl-translator-update'
+        method: 'POST'
+        data: '{"Authorization": ${{ secrets.VPS_REST_SECRET }}}'
