@@ -6,6 +6,8 @@ import configparser
 import os.path
 import sys
 from pathlib import Path
+from secrets import token_hex
+
 import yarl
 from dotenv import set_key
 
@@ -57,6 +59,14 @@ def update_backend_config():
             'allow_methods': config.get('CORS', 'allow_methods'),
             'allow_headers': config.get('CORS', 'allow_headers')
         }
+
+    config['AUTH'] = {
+        "secret_access": token_hex(32),
+        "secret_refresh": token_hex(32),
+        "algorithm": "HS256",
+        "access_token_expire_minutes": 15,
+        "refresh_token_expire_days": 30
+    }
 
     config['HOST'] = {
         'scheme': backend_url['scheme'],
