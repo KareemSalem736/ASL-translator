@@ -1,7 +1,7 @@
 """
 Router for authentication backend.
 """
-from typing import Annotated
+from typing import Annotated, Optional
 
 from fastapi import APIRouter, Depends, status, HTTPException, Response, Request
 from fastapi.security import OAuth2PasswordRequestForm
@@ -66,7 +66,7 @@ async def register_user(response: Response, register_data: RegisterRequest) -> T
 
 
 @router.get('/auth/info')
-async def info_user(token: str = Depends(get_current_token)) -> UserDataResponse:
+async def info_user(token: Optional[str] = Depends(get_current_token)) -> UserDataResponse:
     """
     Endpoint to get the current user information.
     """
@@ -98,7 +98,7 @@ async def logout_user(response: Response):
 
 @router.post('/auth/changepassword')
 async def reset_password(data: PasswordResetRequest,
-                         token: str = Depends(get_current_token)):
+                         token: Optional[str] = Depends(get_current_token)):
     """
     Endpoint to handle password reset requests.
     """
@@ -142,7 +142,7 @@ async def reset_password(data: PasswordResetRequest,
 
 
 @router.post('/auth/verify')
-async def verify_access_token(token: str = Depends(get_current_token)):
+async def verify_access_token(token: Optional[str] = Depends(get_current_token)):
     """
     Verify submitted user token is valid.
     """

@@ -10,7 +10,7 @@ from backend.utils.auth.auth import oauth2_scheme, ALGORITHM, SECRET_ACCESS, TOK
 from backend.utils.auth.auth_users import get_user
 
 
-def get_current_token(token: str = Depends(oauth2_scheme)):
+def get_current_token(token: Optional[str] = Depends(oauth2_scheme)):
     """
     Get the current token from the oauth2 header format.
     """

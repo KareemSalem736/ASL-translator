@@ -97,20 +97,24 @@ const ProfileModal = ({
   useEffect(() => {
       const fetchUserInfo = async () => {
           try {
-              const info = await infoUser();
-              if (info) {
-                  const createDate = new Date(info.creation_date);
-                  const loginDate = new Date(info.last_login);
+              const token = await isAccessTokenValid();
 
-                  const formatted = new Intl.DateTimeFormat("en-US", {
-                      dateStyle: "medium",
-                      timeStyle: "short"
-                  })
+              if (token) {
+                  const info = await infoUser();
+                  if (info) {
+                      const createDate = new Date(info.creation_date);
+                      const loginDate = new Date(info.last_login);
 
-                  info.creation_date = formatted.format(createDate);
-                  info.last_login = formatted.format(loginDate);
+                      const formatted = new Intl.DateTimeFormat("en-US", {
+                          dateStyle: "medium",
+                          timeStyle: "short"
+                      })
 
-                  setUserInfo(info);
+                      info.creation_date = formatted.format(createDate);
+                      info.last_login = formatted.format(loginDate);
+
+                      setUserInfo(info);
+                  }
               }
               return;
           } catch (error: any) {
@@ -118,10 +122,11 @@ const ProfileModal = ({
           }
       };
 
+      fetchUserInfo();
+
       if (!open) {
           setServerError("");
           setSuccessMessage("");
-          fetchUserInfo();
       }
   }, [open]);
 

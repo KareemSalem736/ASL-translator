@@ -12,9 +12,6 @@ import WebcamCard from "./webcam/WebcamCard";
 import {useAuth} from "./auth/AuthProvider.tsx";
 
 function App() {
-  const [activeModal, setActiveModal] = useState<null | "settings">(null);
-  const closeModal = () => setActiveModal(null);
-
   const [translatedText, setTranslatedText] = useState("");
   const [modelStats, setModelStats] = useState<PredictionResponse | null>(null);
 

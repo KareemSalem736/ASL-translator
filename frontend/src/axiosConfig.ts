@@ -152,17 +152,12 @@ axiosInstance.interceptors.response.use(
       console.error("────────────────────────────────────────");
     }
 
+    const isRefreshEndpoint = originalRequest.url?.includes("/auth/verify")
+          || originalRequest.url?.includes("/auth/info")
+          || originalRequest.url?.includes("/auth/changepassword");
+
     // If we got a 401 and haven’t retried yet, attempt to refresh the access token
-    if (resp?.status === 401 && !originalRequest._retry) {
-
-      const isRefreshEndpoint = originalRequest.url?.includes("/auth/refresh");
-
-      if (isRefreshEndpoint) {
-        // Clear the auth state and notify the user the session has expired.
-        clearAuthData();
-        return Promise.reject(error);
-      }
-
+    if (resp?.status === 401 && isRefreshEndpoint && !originalRequest._retry) {
       originalRequest._retry = true;
 
       try {

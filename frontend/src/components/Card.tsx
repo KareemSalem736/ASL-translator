@@ -20,7 +20,7 @@ const Card = ({
 }: CardProps) => (
   <div className={`d-flex flex-column h-100 shadow rounded-4 ${className}`}>
     {header != null && (
-      <div className="bg-white position-sticky top-0 border-bottom rounded-top-4 pt-1 px-2 mb-3">
+      <div className="bg-white position-sticky top-0 border-bottom rounded-top-4 pt-1 px-2 mb-1">
         <span className="fw-bold text-primary">{header}</span>
       </div>
     )}

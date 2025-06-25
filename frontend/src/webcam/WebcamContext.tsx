@@ -24,6 +24,8 @@ export interface WebcamContextType {
   setShowLandmarks: Dispatch<SetStateAction<boolean>>;
   showPrediction: boolean;
   setShowPrediction: Dispatch<SetStateAction<boolean>>;
+  mediaStream: MediaStream | null;
+  setMediaStream: Dispatch<SetStateAction<MediaStream | null>>;
 }
 
 // ─── Context Creation ────────────────────────────────────────────
@@ -46,6 +48,7 @@ export const WebcamProvider = ({ children }: { children: ReactNode }) => {
   const [mirrored, setMirrored] = useState(true);
   const [showLandmarks, setShowLandmarks] = useState(true);
   const [showPrediction, setShowPrediction] = useState(true);
+  const [mediaStream, setMediaStream] = useState<MediaStream | null>(null);
 
   const value: WebcamContextType = {
     videoRef,
@@ -59,6 +62,8 @@ export const WebcamProvider = ({ children }: { children: ReactNode }) => {
     setShowLandmarks,
     showPrediction,
     setShowPrediction,
+    mediaStream,
+    setMediaStream,
   };
 
   return (

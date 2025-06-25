@@ -28,7 +28,7 @@ const ModelStatisticsCard = ({ stats }: ModelStatisticsCardProps) => {
         value={stats?.confidence ?? 0.0}
       />
 
-      <p className="my-2">
+      <p className="m-0">
         <i className="bi bi-stopwatch me-1" />
         <span>Inference Time:</span>{" "}
         <span className="badge bg-secondary">

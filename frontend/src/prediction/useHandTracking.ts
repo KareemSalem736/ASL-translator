@@ -4,7 +4,6 @@
 
 
 import { useEffect, useRef } from "react";
-import type Webcam from "react-webcam";
 import { HAND_CONNECTIONS, Hands } from "@mediapipe/hands";
 import { Camera } from "@mediapipe/camera_utils";
 import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
@@ -12,7 +11,7 @@ import HandPredictorWorker from "../prediction/handPredictor.worker.ts?worker";
 import type { PredictionResponse } from "../prediction/predictionAPI";
 
 interface UseHandTrackingParams {
-  videoComponentRef: React.RefObject<Webcam | null>;
+  videoComponentRef: React.RefObject<HTMLVideoElement | null>
   canvasRef: React.RefObject<HTMLCanvasElement | null>;
   onPredictionResult: (res: PredictionResponse) => void;
   isActive: boolean;
@@ -172,13 +171,22 @@ export function useHandTracking({
   // ─── Effect to start/stop camera based on isActive ───
   // This effect runs whenever isActive changes
   // It starts the camera when isActive is true, and stops it when false
+  const lastFrameTimeRef = useRef(0);
+  const frameInterval = 1000 / 60;   // target FPS
+  
   useEffect(() => {
-    const videoEl = videoComponentRef.current?.video || null;
+    const videoEl = videoComponentRef.current;
+
+    if (!videoEl) return;
 
     if (isActive) {
-      if (videoEl && handsRef.current && !isCameraRunningRef.current) {
+      if (handsRef.current && !isCameraRunningRef.current) {
         cameraRef.current = new Camera(videoEl, {
           onFrame: async () => {
+            const now = Date.now();
+            if (now - lastFrameTimeRef.current < frameInterval) return;
+            lastFrameTimeRef.current = now;
+
             const hasFrame =
               videoEl.readyState === HTMLMediaElement.HAVE_ENOUGH_DATA &&
               videoEl.videoWidth > 0 &&
@@ -187,26 +195,60 @@ export function useHandTracking({
 
             try {
               await handsRef.current.send({ image: videoEl });
-            } catch {
-              console.log("service not ready");
-              throw new Error("not ready");
+            } catch (err) {
+              console.warn("MediaPipe Hands send() error:", err);
             }
           },
           width,
           height,
         });
+
         cameraRef.current.start();
         isCameraRunningRef.current = true;
       }
     } else {
-      if (cameraRef.current && isCameraRunningRef.current) {
-        cameraRef.current.stop();
-        cameraRef.current = null;
-        isCameraRunningRef.current = false;
+  // 🔻 1. Stop MediaPipe Camera
+  if (cameraRef.current && isCameraRunningRef.current) {
+    console.log("[MediaPipe] Stopping camera loop");
+    cameraRef.current.stop();
+    cameraRef.current = null;
+    isCameraRunningRef.current = false;
+  }
+
+  // 🔻 2. Stop media tracks and detach from video
+  const videoEl = videoComponentRef.current;
+  if (videoEl?.srcObject instanceof MediaStream) {
+    console.log("[Webcam] Stopping video tracks...");
+    videoEl.srcObject.getTracks().forEach((track, i) => {
+      console.log(
+        `  - Track #${i} (${track.kind}): readyState=${track.readyState}`
+      );
+      try {
+        track.stop();
+        console.log(`    ✅ Track #${i} stopped.`);
+      } catch (err) {
+        console.warn(`    ❌ Error stopping track #${i}:`, err);
       }
-      // Clear the canvas immediately when camera stops
-      const ctx = canvasRef.current?.getContext("2d");
-      if (ctx) ctx.clearRect(0, 0, width, height);
-    }
+    });
+
+    // Remove video stream reference
+    videoEl.srcObject = null;
+    console.log("[Webcam] srcObject set to null.");
+  } else {
+    console.log("[Webcam] No MediaStream found on video element.");
+  }
+
+  // 🔻 3. Clear canvas visually
+  const ctx = canvasRef.current?.getContext("2d");
+  if (ctx) {
+    ctx.clearRect(0, 0, width, height);
+    console.log("[Canvas] Cleared.");
+  }
+}
+
+
+
+    // No cleanup function needed here — cleanup is handled in the unmount effect
   }, [isActive, width, height, videoComponentRef, canvasRef]);
+
 }

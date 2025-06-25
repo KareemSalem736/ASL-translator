@@ -1,4 +1,5 @@
 import axiosInstance from "../axiosConfig";
+import {getAuthHeader, isAccessTokenValid} from "../auth/authApi.ts";
 
 export interface PredictionResponse {
   prediction: string;   // The predicted text or label  
@@ -8,7 +9,7 @@ export interface PredictionResponse {
   // You can adjust these based on your backend response structure
   // e.g. accuracy, probabilities, inference time
   accuracy?: number;          // Accuracy score (0 to 1) how well the model performed as a whole
-  probabilities?: Record<string, number>;   // Probabilities for each letter < letter: probability >                        
+  probabilities?: Record<string, number>;   // Probabilities for each letter < letter: probability >
   inferenceTimeMs?: number;                             // Inference time in milliseconds shows how long the model took to make a prediction
   // …any other fields your backend returns
 }
@@ -35,9 +36,13 @@ export async function getHandPrediction(
   landmarks: number[]
 ): Promise<PredictionResponse> {
   try {
+    // TODO: Optimize this :)
+    const token = await isAccessTokenValid();
+
     const response = await axiosInstance.post<PredictionResponse>(
       "/predict",
-      { landmarks }
+      { landmarks },
+        token ? { headers: getAuthHeader() } : {}
     );
     return response.data;
   } catch (err) {

@@ -61,7 +61,6 @@ const SignUpModal = ({
       setSuccessMessage(result.message || "Registration successful.");
       onClose();
     } catch (err: any) {
-      console.error("Registration failed:", err.message);
       setServerError(err.message);
     }
   };

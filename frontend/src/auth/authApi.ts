@@ -85,7 +85,6 @@ export const registerUser = async (data: RegisterRequest): Promise<AuthResponse>
 
     // If the backend returns { access_token: "..." }, store it in memory:
     if (response.data.access_token) {
-      console.log(response.data.access_token)
       setAccessToken(response.data.access_token);
     }
     return response.data;
@@ -105,10 +104,10 @@ export const loginUser = async (data: AuthRequest): Promise<AuthResponse> => {
           grant_type: "password"
         },
         { headers: {
-        "Content-Type": "application/x-www-form-urlencoded",
-      },
-      withCredentials: true
-    });
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+        withCredentials: true
+        });
 
     // If the backend returns { access_token: "..." }, store it in memory:
     if (response.data.access_token) {
@@ -116,7 +115,6 @@ export const loginUser = async (data: AuthRequest): Promise<AuthResponse> => {
     }
     return response.data;
   } catch (err: any) {
-
     throw new Error(err.response?.data?.detail || "Login failed");
   }
 };
@@ -156,7 +154,7 @@ export const requestUserLogout = async (): Promise<string | void> => {
 export const requestPasswordReset = async ( data: { email: string } ): Promise<{ message: string }> => {
   try {
     const response = await axiosInstance.post<{ message: string }>
-    ('/auth/forgot-password', data, { headers: getAuthHeader(),  });
+    ('/auth/forgot-password', data, { headers: getAuthHeader() });
     return response.data;
   } catch (err: any) {
     throw new Error(err.response?.data?.detail || "Failed to send password reset email");
@@ -217,7 +215,7 @@ export const isAccessTokenValid = async (): Promise<string | void> => {
   }
 
   const response = await axiosInstance.post("/auth/verify", {},
-      {headers: getAuthHeader()});
+      !getAuthHeader() ? {} : {headers: getAuthHeader()});
 
   if (response.status === 200) {
     return token;
@@ -235,7 +233,7 @@ export const refreshAccessToken = async (): Promise<string | null> => {
         {}, {withCredentials: true});
 
       return response.data.access_token;
-  } catch (error: any) {
+  } catch (error : any) {
     clearAuthData();
     throw new Error(error.response?.data?.detail || 'Session expired. Please log in again.');
   }
