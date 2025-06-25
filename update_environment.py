@@ -42,7 +42,7 @@ def build_url(dictionary_url):
 def update_backend_config():
     config = configparser.ConfigParser()
 
-    if not os.path.isfile("./backend/config.ini"):
+    if not os.path.isfile("./config.ini"):
         config['CORS'] = {
             'allow_origins': [build_url(frontend_url)],
             'allow_credentials': True,
@@ -50,7 +50,7 @@ def update_backend_config():
             'allow_headers': ['*']
         }
     else:
-        config.read("./backend/config.ini")
+        config.read("./config.ini")
         config['CORS'] = {
             'allow_origins': [build_url(frontend_url)],
             'allow_credentials': config.get('CORS', 'allow_credentials'),
@@ -65,7 +65,7 @@ def update_backend_config():
         'path': backend_url['path']
     }
 
-    with open('./backend/config.ini', 'w') as configfile:
+    with open('./config.ini', 'w') as configfile:
         config.write(configfile)
 
 
