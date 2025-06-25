@@ -4,9 +4,9 @@ Utility functions for performing actions with authentication.
 import bcrypt
 from fastapi.security import OAuth2PasswordBearer
 
-from backend.configs.config import get_config
-from backend.database.database import User
-from backend.database.user_queries import database_update_password
+from ...configs.config import get_config
+from ...database.database import User
+from ...database.user_queries import database_update_password
 
 # constant variables pulled from config
 SECRET_ACCESS = get_config().get("AUTH", "secret_access")

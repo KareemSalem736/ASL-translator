@@ -28,6 +28,9 @@ COPY docker/supervisord.conf /etc/supervisor/conf.d/supervisord.conf
 COPY update_environment.py .
 COPY --chmod=755 docker/entrypoint.sh .
 
+# Remove hidden characters added when editing the .sh file on windows.
+RUN sed -i 's/\r$//g' /app/entrypoint.sh
+
 RUN pip install --no-cache-dir --extra-index-url https://download.pytorch.org/whl/cpu -r requirements.txt
 
 WORKDIR /app/frontend

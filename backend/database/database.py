@@ -1,7 +1,7 @@
 """
 Create models for database and then generate local databse file.
 """
-from datetime import datetime, timezone
+from datetime import datetime
 
 from sqlmodel import SQLModel, create_engine, Field
 

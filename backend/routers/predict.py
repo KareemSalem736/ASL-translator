@@ -12,17 +12,17 @@ from pydantic import BaseModel
 from fastapi import APIRouter, Depends
 
 from backend.database.user_queries import database_increment_predict_count
-from backend.utils.auth.auth_tokens import get_current_token, is_valid_token, get_user_from_token
+from backend.utils.auth.auth_tokens import get_current_token, get_user_from_token
 from backend.utils.preprocessing import normalize_landmarks
 
 router = APIRouter()
 
 device = torch.device("cpu")
 
-model = torch.jit.load("model" + os.path.sep + "landmark_model.pt")
+model = torch.jit.load("backend" + os.path.sep + "model" + os.path.sep + "landmark_model.pt")
 model = torch.compile(model)
 model.eval()
-label_classes = np.load("model" + os.path.sep + "label_classes.npy", allow_pickle=True)
+label_classes = np.load("backend" + os.path.sep + "model" + os.path.sep + "label_classes.npy", allow_pickle=True)
 
 
 class LandmarkInput(BaseModel):

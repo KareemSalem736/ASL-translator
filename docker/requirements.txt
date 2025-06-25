@@ -1,5 +1,8 @@
-fastapi==0.115.12
+fastapi[standard]==0.115.12
 numpy==1.26.4
 pydantic==2.11.5
 torch==2.7.1+cpu
 uvicorn==0.34.2
+sqlmodel~=0.0.24
+PyJWT~=2.10.1
+bcrypt~=4.3.0
