@@ -21,7 +21,15 @@ const TranslatedOutputCard = ({
               icon={"bi-arrow-90deg-left"}
               tooltip={"Undo"}
               onClick={function (): void {
-                throw new Error("Function not implemented.");
+                if (translatedText.endsWith("space")) {
+                  setTranslatedText(translatedText.substring(0, translatedText.length - "space".length - 1));
+                } else if(translatedText.endsWith("del")) {
+                  setTranslatedText(translatedText.substring(0, translatedText.length - "del".length - 1));
+                } else if(translatedText.length === 0) {
+                  setTranslatedText(translatedText.substring(0, translatedText.length - 1));
+                } else {
+                  throw new Error("No text to be deleted.")
+                }
               }}
             />
 

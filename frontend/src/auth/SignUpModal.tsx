@@ -38,7 +38,7 @@ const SignUpModal = ({
   const [serverError, setServerError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [initialValues] = useState(DEFAULT_SIGNUP_VALUES); // Default values for the form inputs (from types/defaultValues.d.ts)
-  const { setAuthenticated } = useAuth();
+  const { setIsAuthenticated } = useAuth();
 
   // Handle form submission
   // We receive `identifier` as either email or phone based on `usePhone`.
@@ -57,7 +57,7 @@ const SignUpModal = ({
       const payload = { username, email, password } as RegisterRequest;
 
       const result = await registerUser(payload);
-      setAuthenticated(true);
+      setIsAuthenticated(true);
       setSuccessMessage(result.message || "Registration successful.");
       onClose();
     } catch (err: any) {

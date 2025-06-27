@@ -6,8 +6,8 @@ import { useState } from "react";
 import Button from "./components/Button";
 import SignInModal from "./auth/SignInModal";
 import SignUpModal from "./auth/SignUpModal";
-import ForgotPasswordModal from "./auth/ForgotPasswordModal";
-import ProfileModal from "./auth/ProfileModal.tsx";
+import ForgotPasswordModal from "./account/ForgotPasswordModal";
+import ProfileModal from "./account/ProfileModal.tsx";
 
 interface HeaderProps {
     isLoading: boolean;
@@ -16,7 +16,7 @@ interface HeaderProps {
 
 const Header = ({
                     isLoading,
-                    isAuthenticated
+                    isAuthenticated,
                 }: HeaderProps) => {
   const [activeAuthModal, setActiveAuthModal] = useState<
     null | "login" | "signup" | "profile" | "forgotPassword"

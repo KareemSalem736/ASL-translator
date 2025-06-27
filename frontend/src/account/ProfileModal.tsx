@@ -11,18 +11,20 @@
 import Modal from "../components/Modal";
 import { useEffect, useState } from "react";
 import {
-    changeUserPassword, infoUser,
-    isAccessTokenValid,
+    changeUserPassword,
+    requestAccountInfo,
     type PasswordChangeRequest,
-    requestUserLogout,
-    type UserInfoResponse
-} from "./authApi.ts";
-import {validatePasswords} from "./authValidation.ts";
+    type AccountInfoResponse
+} from "./accountApi.ts";
+import {
+    isAccessTokenValid, logoutUser
+} from "../auth/authApi.ts"
+import {validatePasswords} from "../auth/authValidation.ts";
 import TextInput from "../components/TextInput.tsx";
 import AuthAlert from "../components/AuthAlert.tsx";
 import Button from "../components/Button.tsx";
 import Form from "../components/Form.tsx";
-import {useAuth} from "./AuthProvider.tsx";
+import {useAuth} from "../auth/AuthProvider.tsx";
 
 interface ProfileModalProps {
     open: boolean;
@@ -42,8 +44,8 @@ const ProfileModal = ({
   const [serverError, setServerError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [initialValues] = useState(DEFAULT_PASSWORDS_VALUES)
-  const [userInfo, setUserInfo] = useState<UserInfoResponse | null>(null);
-  const { setAuthenticated } = useAuth();
+  const [accountInfo, setAccountInfo] = useState<AccountInfoResponse | null>(null);
+  const { setIsAuthenticated } = useAuth();
 
   const handleSubmit = async ({
       currentPassword,
@@ -73,7 +75,7 @@ const ProfileModal = ({
       }
   };
 
-  const logoutUser = async () => {
+  const logout = async () => {
       try {
           setServerError("")
           setSuccessMessage("")
@@ -81,12 +83,12 @@ const ProfileModal = ({
           const token = await isAccessTokenValid();
 
           if (token) {
-              const result = await requestUserLogout();
-              setAuthenticated(false);
+              const result = await logoutUser();
+              setIsAuthenticated(false);
               setSuccessMessage(result || "Successfully logged out");
               onClose();
           } else {
-              setServerError("You are currently not signed in.");
+              setServerError("You are not currently signed in.");
           }
       } catch (err: any) {
           console.error("User logout failed:", err.message);
@@ -100,7 +102,7 @@ const ProfileModal = ({
               const token = await isAccessTokenValid();
 
               if (token) {
-                  const info = await infoUser();
+                  const info = await requestAccountInfo();
                   if (info) {
                       const createDate = new Date(info.creation_date);
                       const loginDate = new Date(info.last_login);
@@ -113,7 +115,7 @@ const ProfileModal = ({
                       info.creation_date = formatted.format(createDate);
                       info.last_login = formatted.format(loginDate);
 
-                      setUserInfo(info);
+                      setAccountInfo(info);
                   }
               }
               return;
@@ -135,19 +137,19 @@ const ProfileModal = ({
           <div className="d-flex flex-row gap-4" style={{maxWidth: "800px"}}>
               <div className="border-end pe-4">
                   <h4>User Profile</h4>
-                  {userInfo ? (
+                  {accountInfo ? (
                       <div>
-                          <p><strong>Username:</strong> {userInfo.username}</p>
-                          <p><strong>Email:</strong> {userInfo.email}</p>
-                          <p><strong>Total Predictions:</strong> {userInfo.total_predictions}</p>
-                          <p><strong>Prediction History Size:</strong> {userInfo.prediction_history_size}</p>
-                          <p><strong>Last Login:</strong> {userInfo.last_login}</p>
-                          <p><strong>Creation Date:</strong> {userInfo.creation_date}</p>
+                          <p><strong>Username:</strong> {accountInfo.username}</p>
+                          <p><strong>Email:</strong> {accountInfo.email}</p>
+                          <p><strong>Total Predictions:</strong> {accountInfo.total_predictions}</p>
+                          <p><strong>Prediction History Size:</strong> {accountInfo.prediction_history_size}</p>
+                          <p><strong>Last Login:</strong> {accountInfo.last_login}</p>
+                          <p><strong>Creation Date:</strong> {accountInfo.creation_date}</p>
                       </div>
                   ) : (
                       <p>Loading user info...</p>
                   )}
-                  <Button className="btn-sm btn-danger" onClick={logoutUser}>
+                  <Button className="btn-sm btn-danger" onClick={logout}>
                       Logout
                   </Button>
               </div>

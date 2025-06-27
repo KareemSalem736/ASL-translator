@@ -6,9 +6,7 @@ from typing import Annotated, Optional
 from fastapi import APIRouter, Depends, status, HTTPException, Response, Request
 from fastapi.security import OAuth2PasswordRequestForm
 
-from backend.database.prediction_history_queries import get_prediction_history_size
-from backend.models.auth_models import Token, PasswordResetRequest, RegisterRequest, UserDataResponse
-from backend.utils.auth.auth import update_password
+from backend.models.auth_models import Token, RegisterRequest
 from backend.utils.auth.auth_tokens import create_tokens, get_current_token, is_valid_token, get_user_from_token, \
     create_access_token
 from backend.utils.auth.auth_users import get_authenticated_user, check_user_exists, check_user_email_exists, \
@@ -65,28 +63,6 @@ async def register_user(response: Response, register_data: RegisterRequest) -> T
     return Token(username=register_data.username, access_token=access_token, token_type="bearer")
 
 
-@router.get('/auth/info')
-async def info_user(token: Optional[str] = Depends(get_current_token)) -> UserDataResponse:
-    """
-    Endpoint to get the current user information.
-    """
-    user = get_user_from_token(token, "access")
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="You are not logged in",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
-
-    prediction_history_size = get_prediction_history_size(user.email)
-
-    return UserDataResponse(username=user.username, email=user.email,
-                            total_predictions=user.total_predictions,
-                            prediction_history_size=prediction_history_size, last_login=user.last_login,
-                            creation_date=user.created_at)
-
-
 @router.post('/auth/logout')
 async def logout_user(response: Response):
     """
@@ -94,51 +70,6 @@ async def logout_user(response: Response):
     """
     response.delete_cookie('refresh_token')
     return {"message": "Successfully logged out"}
-
-
-@router.post('/auth/changepassword')
-async def reset_password(data: PasswordResetRequest,
-                         token: Optional[str] = Depends(get_current_token)):
-    """
-    Endpoint to handle password reset requests.
-    """
-    valid, message = is_valid_token(token, "access")
-
-    if not valid:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=message,
-            headers={"WWW-Authenticate": "Bearer"}
-        )
-    # Extract the user from the token and then confirm
-    # if the password for the user is correct.
-    user = get_user_from_token(token, "access")
-    user = get_authenticated_user(user.username, data.current_password)
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Your current password is incorrect",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
-
-    if not user.is_active:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Inactive user",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
-
-    user = update_password(user.email, data.new_password)
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_400_BAD_REQUEST,
-            detail="An unknown error occurred during password reset",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
-
-    return {"message": "Password reset successful"}
 
 
 @router.post('/auth/verify')

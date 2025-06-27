@@ -10,7 +10,7 @@ import uvicorn
 
 from backend.configs.config import get_config
 
-from backend.routers import predict, auth
+from backend.routers import predict, auth, account
 
 app = FastAPI()
 
@@ -18,6 +18,7 @@ prefix = get_config().get('HOST', 'path')
 
 app.include_router(predict.router, prefix=prefix)
 app.include_router(auth.router, prefix=prefix)
+app.include_router(account.router, prefix=prefix)
 
 app.add_middleware(
     CORSMiddleware,

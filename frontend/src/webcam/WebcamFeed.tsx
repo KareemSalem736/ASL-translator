@@ -6,7 +6,7 @@
 import { forwardRef, useEffect, useRef } from "react";
 import type { PredictionResponse } from "../prediction/predictionAPI";
 import { useHandTracking } from "../prediction/useHandTracking";
-import { useWebcam } from "../webcam/WebcamContext";
+import { useWebcam } from "./WebcamContext.tsx";
 
 export interface WebcamFeedProps {
   width?: number;
@@ -20,6 +20,7 @@ const WebcamFeed = forwardRef<HTMLVideoElement, WebcamFeedProps>(
     const videoElementRef = useRef<HTMLVideoElement | null>(null);
     const {
       webcamActive,
+      setWebcamActive,
       mirrored,
       showLandmarks,
       showPrediction,
@@ -29,14 +30,20 @@ const WebcamFeed = forwardRef<HTMLVideoElement, WebcamFeedProps>(
 
     useEffect(() => {
       if (webcamActive && !mediaStream) {
-        navigator.mediaDevices
-          .getUserMedia({ video: true })
-          .then((stream) => {
-            setMediaStream(stream);
-          })
-          .catch((err) => {
-            console.error("Camera access denied or unavailable", err);
-          });
+        if (navigator.mediaDevices) {
+            navigator.mediaDevices
+                .getUserMedia({video: true})
+                .then((stream) => {
+                    setMediaStream(stream);
+                })
+                .catch((err) => {
+                    setWebcamActive(false);
+                    console.error("Camera access denied or unavailable", err);
+                });
+        } else {
+            setWebcamActive(false);
+            console.error("Camera access denied or unavailable")
+        }
       }
 
       if (!webcamActive && mediaStream) {

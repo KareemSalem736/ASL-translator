@@ -8,7 +8,7 @@ import { HAND_CONNECTIONS, Hands } from "@mediapipe/hands";
 import { Camera } from "@mediapipe/camera_utils";
 import { drawConnectors, drawLandmarks } from "@mediapipe/drawing_utils";
 import HandPredictorWorker from "../prediction/handPredictor.worker.ts?worker";
-import type { PredictionResponse } from "../prediction/predictionAPI";
+import type { PredictionResponse } from "./predictionAPI.ts";
 
 interface UseHandTrackingParams {
   videoComponentRef: React.RefObject<HTMLVideoElement | null>

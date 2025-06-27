@@ -37,7 +37,7 @@ const SignIn = ({
   const [serverError, setServerError] = useState("");
   const [successMessage, setSuccessMessage] = useState("");
   const [initialValues] = useState(DEFAULT_SIGNIN_VALUES); // Default values for the form inputs (from types/defualtvalues.d.ts)
-  const { setAuthenticated } = useAuth();
+  const { setIsAuthenticated } = useAuth();
 
   // Handle form submission
   // We receive `identifier` as either email or username.
@@ -56,7 +56,7 @@ const SignIn = ({
       const payload = { identifier, type, password } as AuthRequest;
 
       const result = await loginUser(payload);
-      setAuthenticated(true);
+      setIsAuthenticated(true);
       setSuccessMessage(result.message || "Login successful.");
       onClose();
     } catch (err: any) {
