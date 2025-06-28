@@ -20,6 +20,7 @@ class TokenData(BaseModel):
     A model representing the data in a token.
     """
     username: Optional[str] = None
+    expiration: Optional[int] = None
 
 
 class RegisterRequest(BaseModel):

@@ -1,5 +1,5 @@
 // This file is a Web Worker that handles hand prediction using an API.
-import {type ErrorResponse, getHandPrediction, type PredictionResponse } from "../prediction/predictionAPI";
+import {type ErrorResponse, getHandPrediction, type PredictionResponse } from "./predictionAPI.ts";
 
 // Runtime type guard to validate PredictionResponse shape
 function isPredictionResponse(x: any): x is PredictionResponse {

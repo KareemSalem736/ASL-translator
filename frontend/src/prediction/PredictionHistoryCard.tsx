@@ -2,6 +2,9 @@ import Card from "../components/Card";
 import CardIconButton from "../components/CardIconButton";
 
 const PredictionHistoryCard = () => {
+
+
+
   return (
     <Card
       header={

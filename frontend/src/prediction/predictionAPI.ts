@@ -29,6 +29,26 @@ export const DEFAULT_PREDICTIONRESPONSE = {
 }
 
 /**
+ * Add to authenticated user's prediction history.
+ * @param data
+ */
+export const addPredictionHistory = async (data: string): Promise<string | void> => {
+  try {
+    if (getAuthHeader()) {
+      const response = await axiosInstance.post<{ message: string }>(
+          '/account/add-prediction', {prediction_string: data}, {headers: getAuthHeader()},);
+
+      if (response.status !== 200) {
+        return;
+      }
+      return response.data.message;
+    }
+  } catch (err: any) {
+    throw new Error(err.response?.data?.detail || "Prediction history update failed.");
+  }
+}
+
+/**
  * Send flattened landmarks to /predict and return the prediction stats.
  * @param landmarks Array of 63 numbers: [x0,y0,z0, x1,y1,z1, …, x20,y20,z20]
  */
@@ -36,8 +56,9 @@ export async function getHandPrediction(
   landmarks: number[]
 ): Promise<PredictionResponse> {
   try {
-    // TODO: Optimize this :)
     const token = await isAccessTokenValid();
+
+    console.log(token);
 
     const response = await axiosInstance.post<PredictionResponse>(
       "/predict",

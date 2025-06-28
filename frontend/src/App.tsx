@@ -50,7 +50,7 @@ function App() {
           <div className="col-8 d-flex flex-column h-100">
             <TranslatedOutputCard
               translatedText={translatedText}
-              setTranslatedText={() => setTranslatedText("")}
+              setTranslatedText={setTranslatedText}
             />
           </div>
 

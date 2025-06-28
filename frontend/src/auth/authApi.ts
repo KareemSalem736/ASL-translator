@@ -2,14 +2,21 @@
 // It uses Axios for HTTP requests and manages the access token in memory.
 
 import axiosInstance from "../axiosConfig";
+import Cookies from "js-cookie";
 
-/** → Getter for other modules (e.g. axios interceptor) */
-export const getAccessToken = () =>
-    localStorage.getItem("access_token") || null;
+/** Access token retrieval method. */
+export const getAccessToken = (): string | undefined => {
+  return Cookies.get("access_token");
+}
 
 /** → Setter whenever we get a new token from login/Google. */
 export const setAccessToken = (token: string) => {
-  localStorage.setItem("access_token", token);
+  Cookies.set("access_token", token, {expires: 1/24, secure: true, sameSite: 'strict'});
+};
+
+/** → Remove everything (on logout or refresh failure). */
+export const clearAuthData = () => {
+  Cookies.remove("access_token");
 };
 
 /** Getter for a completed authorization header. */
@@ -18,11 +25,6 @@ export function getAuthHeader(): {Authorization: string} {
     Authorization: `Bearer ${getAccessToken()}`
   }
 }
-
-/** → Remove everything (on logout or refresh failure). */
-export const clearAuthData = () => {
-  localStorage.removeItem("access_token");
-};
 
 /** 
  * Payload we send to /auth/register or /auth/login
@@ -165,7 +167,7 @@ export const isAccessTokenValid = async (): Promise<boolean> => {
 };
 
 // ─── REFRESH ACCESS TOKEN ───
-export const refreshAccessToken = async (): Promise<string | null> => {
+export const refreshAccessToken = async (): Promise<string | undefined> => {
   try {
     // The backend endpoint /auth/refresh should look at the HttpOnly cookie (refresh token),
     // verify it, and respond with a fresh { access_token: "newJwt" }.

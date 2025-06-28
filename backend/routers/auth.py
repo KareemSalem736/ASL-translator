@@ -6,9 +6,9 @@ from typing import Annotated, Optional
 from fastapi import APIRouter, Depends, status, HTTPException, Response, Request
 from fastapi.security import OAuth2PasswordRequestForm
 
-from backend.models.auth_models import Token, RegisterRequest
-from backend.utils.auth.auth_tokens import create_tokens, get_current_token, is_valid_token, get_user_from_token, \
-    create_access_token
+from backend.models.auth_models import RegisterRequest
+from backend.utils.auth.auth_tokens import create_tokens, get_current_token, \
+    create_access_token, get_token_data
 from backend.utils.auth.auth_users import get_authenticated_user, check_user_exists, check_user_email_exists, \
     create_user
 
@@ -18,7 +18,7 @@ router = APIRouter()
 
 @router.post('/auth/login')
 async def login_user(response: Response,
-                     form_data: Annotated[OAuth2PasswordRequestForm, Depends()]) -> Token:
+                     form_data: Annotated[OAuth2PasswordRequestForm, Depends()]):
     """
     Endpoint to handle a user login request using OAuth2 standards.
     """
@@ -30,14 +30,14 @@ async def login_user(response: Response,
             detail="Incorrect username or password",
             headers={"WWW-Authenticate": "Bearer"}
         )
-    # User successfully authenticated, create access token and send to user.
-    access_token = create_tokens(data={"sub": user.username}, response=response)
+    # User successfully authenticated, create refresh and access tokens and add as cookies.
+    create_tokens(data={"sub": user.username}, response=response)
 
-    return Token(username=user.username, access_token=access_token, token_type="bearer")
+    return {"message": "User successfully logged in."}
 
 
 @router.post('/auth/register')
-async def register_user(response: Response, register_data: RegisterRequest) -> Token:
+async def register_user(response: Response, register_data: RegisterRequest):
     """
     Endpoint to handle a user register request.
     """
@@ -56,11 +56,11 @@ async def register_user(response: Response, register_data: RegisterRequest) -> T
             headers={"WWW-Authenticate": "Bearer"}
         )
 
-    # Create user and then generate an access token to send to the user.
+    # Create user and then generate an access and refresh tokens and add as cookies.
     create_user(register_data.username, register_data.email, register_data.password)
-    access_token = create_tokens(data={"sub": register_data.username}, response=response)
+    create_tokens(data={"sub": register_data.username}, response=response)
 
-    return Token(username=register_data.username, access_token=access_token, token_type="bearer")
+    return {"message": "User successfully registered."}
 
 
 @router.post('/auth/logout')
@@ -77,43 +77,20 @@ async def verify_access_token(token: Optional[str] = Depends(get_current_token))
     """
     Verify submitted user token is valid.
     """
-    valid, message = is_valid_token(token, "access")
+    token_data = get_token_data(token, "access")
 
-    if not valid:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=message,
-            headers={"WWW-Authenticate": "Bearer"}
-        )
-
-    return {"message": "Token is valid."}
+    return {"message": f'Token is valid is valid for user {token_data.username}'}
 
 
 @router.post('/auth/refresh')
-async def refresh_access_token(request: Request):
+async def refresh_access_token(request: Request, response: Response):
     """
     Refresh user token if necessary
     """
     refresh_token = request.cookies.get("refresh_token")
 
     # If the token is expired, then the user needs to log in again.
-    valid, message = is_valid_token(refresh_token, "refresh")
+    token_data = get_token_data(refresh_token, "refresh")
 
-    if not valid:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail=message,
-            headers={"WWW-Authenticate": "Bearer"}
-        )
-
-    user = get_user_from_token(refresh_token, "refresh")
-
-    if user is None:
-        raise HTTPException(
-            status_code=status.HTTP_401_UNAUTHORIZED,
-            detail="Invalid refresh token",
-            headers={"WWW-Authenticate": "Bearer"}
-        )
-
-    access_token = create_access_token(data={"sub": user.username})
-    return Token(username=user.username, access_token=access_token, token_type="bearer")
+    create_access_token(data={"sub": token_data.username}, response=response)
+    return {"message": f'Access token successfully refreshed for user {token_data.username}'}

@@ -17,6 +17,14 @@ def add_prediction_history(prediction_string: str, user_id: int):
         session.commit()
 
 
+def get_prediction_history(email: str, total: int):
+    """
+    Get a number of the most recent prediction history for a user.
+    """
+    with Session(engine) as session:
+        session.select(func.max(PredictionHistory.created_at))
+
+
 def get_prediction_history_size(email: str) -> int:
     """
     Get size of prediction history queries.

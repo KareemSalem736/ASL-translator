@@ -10,6 +10,7 @@ interface CardIconButtonProps {
   tooltip: string; // Tooltip text
   onClick: () => void;
   className?: string;
+  disabled?: boolean;
 }
 
 const CardIconButton = ({
@@ -17,12 +18,14 @@ const CardIconButton = ({
   icon,
   tooltip,
   onClick,
+  disabled = false
 }: CardIconButtonProps) => {
   return (
     <TooltipWrapper message={tooltip} placement="top" trigger="hover">
       <button
         className={`bi ${icon} bg-white py-0 border-0 ${className}`}
         onClick={onClick}
+        disabled={disabled}
       ></button>
     </TooltipWrapper>
   );

@@ -15,7 +15,7 @@ ALGORITHM = get_config().get("AUTH", "algorithm")
 TOKEN_ACCESS_EXPIRATION = int(get_config().get("AUTH", "refresh_token_expire_days"))
 TOKEN_REFRESH_EXPIRATION = int(get_config().get("AUTH", "access_token_expire_minutes"))
 
-oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login")
+oauth2_scheme = OAuth2PasswordBearer(tokenUrl="/auth/login", auto_error=False)
 
 
 def get_password_hash(password: str) -> str:

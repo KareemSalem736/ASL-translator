@@ -15,22 +15,6 @@ export interface PasswordChangeRequest {
   new_password: string;
 }
 
-export const addPredictionHistory = async (data: string): Promise<string | void> => {
-  try {
-    if (getAuthHeader()) {
-      const response = await axiosInstance.post<{ message: string }>(
-          '/account/add-prediction', data, {headers: getAuthHeader()},);
-
-      if (response.status !== 200) {
-        return;
-      }
-      return response.data.message;
-    }
-  } catch (err: any) {
-    throw new Error(err.response?.data?.detail || "Prediction history update failed.");
-  }
-}
-
 // --- GET USER INFO ---
 export const requestAccountInfo = async (): Promise<AccountInfoResponse | void> => {
   try {
