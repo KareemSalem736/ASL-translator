@@ -41,9 +41,6 @@ const SignUpModal = ({
   const { setIsAuthenticated } = useAuth();
 
   // Handle form submission
-  // We receive `identifier` as either email or phone based on `usePhone`.
-  // If `usePhone` is true, we normalize the phone number before sending.
-  // If `usePhone` is false, we send the email as is.
   // The `registerUser` function is expected to return a success message or throw an error.
   const handleSubmit = async ({
     username,

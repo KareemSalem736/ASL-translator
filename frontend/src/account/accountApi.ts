@@ -1,5 +1,4 @@
 import axiosInstance from "../axiosConfig.ts";
-import {getAuthHeader} from "../auth/authApi.ts";
 
 export interface AccountInfoResponse {
   username: string;
@@ -34,7 +33,7 @@ export const changeUserPassword = async (data: PasswordChangeRequest): Promise<s
   try {
     // Send a request to the backend to change the password for the given user.
     const response = await axiosInstance.post<{ message: string }>(
-        '/account/change-password', data, { headers: getAuthHeader() });
+        '/account/change-password', data);
 
     // Check if there was a response from the backend.
     if (response.status !== 200) {
@@ -51,7 +50,7 @@ export const changeUserPassword = async (data: PasswordChangeRequest): Promise<s
 export const requestPasswordReset = async ( data: { email: string } ): Promise<{ message: string }> => {
   try {
     const response = await axiosInstance.post<{ message: string }>
-    ('/account/forgot-password', data, { headers: getAuthHeader() });
+    ('/account/forgot-password', data);
     return response.data;
   } catch (err: any) {
     throw new Error(err.response?.data?.detail || "Failed to send password reset email");

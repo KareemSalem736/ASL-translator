@@ -15,9 +15,9 @@ interface HeaderProps {
 }
 
 const Header = ({
-                    isLoading,
-                    isAuthenticated,
-                }: HeaderProps) => {
+    isLoading,
+    isAuthenticated,
+}: HeaderProps) => {
   const [activeAuthModal, setActiveAuthModal] = useState<
     null | "login" | "signup" | "profile" | "forgotPassword"
   >(null);

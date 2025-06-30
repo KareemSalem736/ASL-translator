@@ -35,14 +35,14 @@ function App() {
       isAuthenticated={isAuthenticated}
       isLoading={isLoading}/>
 
-      <main className="flex-grow-1 pb-3">
+      <main className="d-flex flex-column flex-grow-1" style={{ minHeight: '0' }}>
         <div className="row h-75 mb-3">
           <div className="col-md-8 col-sm-12 d-flex flex-column h-100">
             <WebcamCard onPredictionResult={onPrediction} />
           </div>
 
-          <div className="col-md-4 d-sm-none d-md-flex flex-column h-100">
-            <PredictionHistoryCard />
+          <div className="col-md-4 d-sm-none d-md-flex flex-column h-100 overflow-hidden">
+            <PredictionHistoryCard/>
           </div>
         </div>
 

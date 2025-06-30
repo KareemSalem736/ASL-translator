@@ -1,5 +1,4 @@
 import axiosInstance from "../axiosConfig";
-import {getAuthHeader, isAccessTokenValid} from "../auth/authApi.ts";
 
 export interface PredictionResponse {
   prediction: string;   // The predicted text or label  
@@ -28,24 +27,44 @@ export const DEFAULT_PREDICTIONRESPONSE = {
   inferenceTimeMs: 0,
 }
 
+export interface PredictionHistoryResult {
+  user_id: string;
+  content: string;
+  id: number;
+  created_at: string;
+}
+
 /**
  * Add to authenticated user's prediction history.
  * @param data
  */
 export const addPredictionHistory = async (data: string): Promise<string | void> => {
   try {
-    if (getAuthHeader()) {
       const response = await axiosInstance.post<{ message: string }>(
-          '/account/add-prediction', {prediction_string: data}, {headers: getAuthHeader()},);
+          '/account/add-prediction', {prediction_string: data});
 
       if (response.status !== 200) {
         return;
       }
-      return response.data.message;
-    }
+      return data;
   } catch (err: any) {
     throw new Error(err.response?.data?.detail || "Prediction history update failed.");
   }
+}
+
+export const getPredictionHistory = async (): Promise<PredictionHistoryResult[] | undefined> => {
+    try {
+      const response = await axiosInstance.get<PredictionHistoryResult[]>(
+          '/account/get-predictions');
+
+      if (response.status !== 200) {
+        return;
+      }
+
+      return response.data;
+    } catch (err: any) {
+      throw new Error(err.response?.data?.detail || "Failed to get prediction history");
+    }
 }
 
 /**
@@ -56,14 +75,9 @@ export async function getHandPrediction(
   landmarks: number[]
 ): Promise<PredictionResponse> {
   try {
-    const token = await isAccessTokenValid();
-
-    console.log(token);
-
     const response = await axiosInstance.post<PredictionResponse>(
       "/predict",
-      { landmarks },
-        token ? { headers: getAuthHeader() } : {}
+      { landmarks }
     );
     return response.data;
   } catch (err) {

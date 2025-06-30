@@ -1,7 +1,7 @@
 """
 Module containing functions to perform user queries on the database.
 """
-from datetime import datetime
+from datetime import datetime, timezone
 
 from sqlmodel import Session, select
 
@@ -40,7 +40,8 @@ def database_create_user(username: str, email: str, password: str):
     """
     with Session(engine) as session:
         session.add(User(username=username, email=email,
-                         password_hashed=password, created_at=datetime.now(), last_login=datetime.now()))
+                         password_hashed=password,
+                         created_at=datetime.now(timezone.utc), last_login=datetime.now(timezone.utc)))
         session.commit()
 
 
@@ -50,7 +51,7 @@ def database_update_login_time(email: str):
     """
     with Session(engine) as session:
         user = get_user_email(email)
-        user.last_login = datetime.now()
+        user.last_login = datetime.now(timezone.utc)
         session.add(user)
         session.commit()
         session.refresh(user)

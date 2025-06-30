@@ -1,12 +1,14 @@
 """
 Router for account backend.
 """
+from datetime import datetime
+
 from fastapi import APIRouter, Depends, status, HTTPException
 from pydantic import BaseModel
 
 from backend.database.database import User
 from backend.database.prediction_history_queries import (get_prediction_history_size,
-                                                         add_prediction_history)
+                                                         add_prediction_history, get_prediction_history)
 from backend.models.account_models import AccountDataResponse, PasswordResetRequest
 from backend.utils.auth.auth import update_password
 from backend.utils.auth.auth_users import get_authenticated_user, get_current_active_user
@@ -16,7 +18,18 @@ router = APIRouter()
 
 
 class PredictionHistoryPayload(BaseModel):
+    """
+    A base model representing a prediction string to be added for a user.
+    """
     prediction_string: str
+
+
+class PredictionHistoryResponse(BaseModel):
+    """
+    A base model for a response to the prediction history request.
+    """
+    prediction_string: str
+    created_at: datetime
 
 
 @router.post('/account/add-prediction')
@@ -30,8 +43,13 @@ async def add_prediction(data: PredictionHistoryPayload, user: User = Depends(ge
 
 
 @router.get('/account/get-predictions')
-async def get_prediction_history(user: User = Depends(get_current_active_user)):
-    temp = ""
+async def get_prediction(user: User = Depends(get_current_active_user)):
+    """
+    Endpoint to get a list of prediction histories for a user.
+    """
+    history = get_prediction_history(user.id, 10)
+
+    return history
 
 
 @router.get('/account/info')

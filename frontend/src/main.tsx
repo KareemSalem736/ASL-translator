@@ -11,12 +11,15 @@ import "./index.css";
 import App from "./App.tsx";
 import { WebcamProvider } from "./webcam/WebcamContext.tsx";
 import {AuthProvider} from "./auth/AuthProvider.tsx";
+import {PredictionHistoryProvider} from "./prediction/PredictionHistoryContext.tsx";
 
 createRoot(document.getElementById("root")!).render(
   <StrictMode>
       <AuthProvider>
           <WebcamProvider>
-              <App />
+              <PredictionHistoryProvider>
+                  <App />
+              </PredictionHistoryProvider>
           </WebcamProvider>
       </AuthProvider>
   </StrictMode>

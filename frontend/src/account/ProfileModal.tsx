@@ -16,9 +16,7 @@ import {
     type PasswordChangeRequest,
     type AccountInfoResponse
 } from "./accountApi.ts";
-import {
-    isAccessTokenValid, logoutUser
-} from "../auth/authApi.ts"
+import {logoutUser} from "../auth/authApi.ts"
 import {validatePasswords} from "../auth/authValidation.ts";
 import TextInput from "../components/TextInput.tsx";
 import AuthAlert from "../components/AuthAlert.tsx";
@@ -55,20 +53,13 @@ const ProfileModal = ({
           setServerError("");
           setSuccessMessage("");
 
-          const token = await isAccessTokenValid();
+          const payload = {
+              current_password: currentPassword,
+              new_password: password
+          } as PasswordChangeRequest;
 
-          if (token) {
-            const payload =
-                {
-                    current_password: currentPassword,
-                    new_password: password
-                } as PasswordChangeRequest;
-
-            const result = await changeUserPassword(payload);
-            setSuccessMessage(result || "Password successfully changed.");
-          } else {
-            setServerError("You are currently not signed in.");
-          }
+          const result = await changeUserPassword(payload);
+          setSuccessMessage(result || "Password successfully changed.");
       } catch (err: any) {
           console.error("Password change failed:", err.message);
           setServerError(err.message);
@@ -80,16 +71,10 @@ const ProfileModal = ({
           setServerError("")
           setSuccessMessage("")
 
-          const token = await isAccessTokenValid();
-
-          if (token) {
-              const result = await logoutUser();
-              setIsAuthenticated(false);
-              setSuccessMessage(result || "Successfully logged out");
-              onClose();
-          } else {
-              setServerError("You are not currently signed in.");
-          }
+          const result = await logoutUser();
+          setIsAuthenticated(false);
+          setSuccessMessage(result || "Successfully logged out");
+          onClose();
       } catch (err: any) {
           console.error("User logout failed:", err.message);
           setServerError(err.message);
@@ -99,24 +84,20 @@ const ProfileModal = ({
   useEffect(() => {
       const fetchUserInfo = async () => {
           try {
-              const token = await isAccessTokenValid();
+              const info = await requestAccountInfo();
+              if (info) {
+                  const createDate = new Date(info.creation_date);
+                  const loginDate = new Date(info.last_login);
 
-              if (token) {
-                  const info = await requestAccountInfo();
-                  if (info) {
-                      const createDate = new Date(info.creation_date);
-                      const loginDate = new Date(info.last_login);
+                  const formatted = new Intl.DateTimeFormat("en-US", {
+                      dateStyle: "medium",
+                      timeStyle: "short"
+                  })
 
-                      const formatted = new Intl.DateTimeFormat("en-US", {
-                          dateStyle: "medium",
-                          timeStyle: "short"
-                      })
+                  info.creation_date = formatted.format(createDate);
+                  info.last_login = formatted.format(loginDate);
 
-                      info.creation_date = formatted.format(createDate);
-                      info.last_login = formatted.format(loginDate);
-
-                      setAccountInfo(info);
-                  }
+                  setAccountInfo(info);
               }
               return;
           } catch (error: any) {

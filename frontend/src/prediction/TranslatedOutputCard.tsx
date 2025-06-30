@@ -2,7 +2,7 @@ import Card from "../components/Card";
 import CardIconButton from "../components/CardIconButton";
 import {getAccessToken} from "../auth/authApi.ts";
 import {useState} from "react";
-import {addPredictionHistory} from "./predictionAPI.ts";
+import {usePredictionHistory} from "./PredictionHistoryContext.tsx";
 
 interface TranslatedOutputCardProps {
   translatedText: string;
@@ -14,6 +14,7 @@ const TranslatedOutputCard = ({
   setTranslatedText
 }: TranslatedOutputCardProps) => {
   const [isSaving, setIsSaving] = useState(false);
+  const { addHistoryItem } = usePredictionHistory();
 
   const handleClear = async() => {
       if (getAccessToken()) {
@@ -24,7 +25,7 @@ const TranslatedOutputCard = ({
           setIsSaving(true);
 
           try {
-              await addPredictionHistory(translatedText);
+              await addHistoryItem(translatedText);
 
               setTranslatedText("");
           } catch (error) {

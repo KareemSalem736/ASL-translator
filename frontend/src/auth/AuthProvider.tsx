@@ -1,5 +1,5 @@
 import React, { createContext, useContext, useEffect, useState } from "react";
-import { isAccessTokenValid } from "./authApi.ts";
+import {verifyAccessToken} from "./authApi.ts";
 
 interface AuthContextType {
     isAuthenticated: boolean;
@@ -16,9 +16,11 @@ export const AuthProvider = ({ children }: { children: React.ReactNode }) => {
     useEffect(() => {
         const checkAuth = async () => {
             try {
-                const token = await isAccessTokenValid();
-                setIsAuthenticated(token);
+                // Attempt to verify access token.
+                await verifyAccessToken();
+                setIsAuthenticated(true);
             } catch {
+                console.error("Token is not validated.")
                 setIsAuthenticated(false);
             } finally {
                 setIsLoading(false);

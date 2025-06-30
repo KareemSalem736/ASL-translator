@@ -65,23 +65,16 @@ def get_token_data(token: str, token_type: str) -> TokenData:
         )
 
 
-def create_access_token(data: dict, response: Response):
+def create_access_token(data: dict):
     """
     Create a JWT access token.
     """
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + timedelta(days=TOKEN_ACCESS_EXPIRATION)
+    expire = datetime.now(timezone.utc) + timedelta(minutes=TOKEN_ACCESS_EXPIRATION)
     to_encode.update({"exp": expire})
     access_token = jwt.encode(to_encode, SECRET_ACCESS, algorithm=ALGORITHM)
 
-    response.set_cookie(
-        'access_token',
-        access_token,
-        httponly=False,
-        secure=False,
-        samesite='strict',
-        max_age=60 * 15
-    )
+    return access_token
 
 
 def create_refresh_token(data: dict, response: Response):
@@ -107,5 +100,6 @@ def create_tokens(data: dict, response: Response):
     """
     Create refresh and access JWT tokens for new session.
     """
-    create_access_token(data, response)
+    access_token = create_access_token(data)
     create_refresh_token(data, response)
+    return access_token

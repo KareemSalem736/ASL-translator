@@ -19,6 +19,27 @@ const axiosInstance = axios.create({
   withCredentials: true,
 });
 
+// boolean for determine if failures should be held until refresh finishes.
+let isRefreshing = false;
+
+// A queue for storing failed requests to be queued after refresh has finished.
+let failedQueue: { resolve: (value: any) => void; reject: (reason: any) => void }[] = [];
+
+/**
+ * Process failed queue after token refresh.
+ */
+const processQueue = (error: any, token: string | null = null) => {
+  failedQueue.forEach(prom => {
+    // If refresh failed, send rejection otherwise retry with valid token.
+    if (error) {
+      prom.reject(error);
+    } else {
+      prom.resolve(token);
+    }
+  });
+  failedQueue = [];
+}
+
 /**
  * ─── REQUEST INTERCEPTOR ───────────────────────────────────────────────────────
  * Runs before every request. Here we:
@@ -57,11 +78,8 @@ axiosInstance.interceptors.request.use(
     // Attach the access token (if it exists)
     const token = getAccessToken();
     if (token && config.headers) {
-      (config.headers as Record<string, string>)[
-        "Authorization"
-      ] = `Bearer ${token}`;
+      config.headers["Authorization"] = `Bearer ${token}`;
     }
-
     return config;
   },
   (error) => {
@@ -152,26 +170,39 @@ axiosInstance.interceptors.response.use(
       console.error("────────────────────────────────────────");
     }
 
-    const isRefreshEndpoint = originalRequest.url?.includes("/auth/verify")
-          || originalRequest.url?.includes("/auth/info")
-          || originalRequest.url?.includes("/auth/changepassword");
-
     // If we got a 401 and haven’t retried yet, attempt to refresh the access token
-    if (resp?.status === 401 && isRefreshEndpoint && !originalRequest._retry) {
+    if (resp?.status === 401 && !originalRequest._retry && originalRequest.url !== '/auth/refresh') {
+      if (isRefreshing) {
+        // A refresh is currently happening, add to failed queue
+        // and queue rerun and failure response.
+        return new Promise((resolve, reject) => {
+          failedQueue.push({ resolve, reject });
+        }).then(token => {
+          originalRequest.headers['Authorization'] = `Bearer ${token}`;
+          return axiosInstance(originalRequest);
+        }).catch(error => {
+          return Promise.reject(error);
+        })
+      }
+
       originalRequest._retry = true;
+      isRefreshing = true;
 
       try {
+        console.log("No access token found, attempting revalidate with refresh token.")
         const newToken = await refreshAccessToken();
-        if (newToken) {
-          originalRequest.headers["Authorization"] = `Bearer ${newToken}`;
-          return axiosInstance(originalRequest);
-        } else {
-          return Promise.reject(error);
-        }
-      } catch (error: any) {
+        originalRequest.headers['Authorization'] = `Bearer ${newToken}`;
+        // Process queue with new token
+        processQueue(null, newToken);
+        return axiosInstance(originalRequest);
+      } catch (refreshError) {
+        console.log("Refresh failed, rejecting original promise.")
         // If refresh fails, clear auth data and reject
+        processQueue(refreshError, null);
         clearAuthData();
-        return Promise.reject(error);
+        return Promise.reject(refreshError);
+      } finally {
+        isRefreshing = false;
       }
     }
 
