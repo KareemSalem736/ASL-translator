@@ -169,9 +169,14 @@ axiosInstance.interceptors.response.use(
       console.error("Error Object:         ", error);
       console.error("────────────────────────────────────────");
     }
+    
+    const attemptRetry = (originalRequest.url !== '/auth/refresh' &&
+        originalRequest.url !== '/auth/login' &&
+        originalRequest.url !== '/auth/logout' &&
+        originalRequest.url !== '/auth/register');
 
     // If we got a 401 and haven’t retried yet, attempt to refresh the access token
-    if (resp?.status === 401 && !originalRequest._retry && originalRequest.url !== '/auth/refresh') {
+    if (resp?.status === 401 && !originalRequest._retry && attemptRetry) {
       if (isRefreshing) {
         // A refresh is currently happening, add to failed queue
         // and queue rerun and failure response.

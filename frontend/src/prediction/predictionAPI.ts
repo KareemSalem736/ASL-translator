@@ -70,14 +70,15 @@ export const getPredictionHistory = async (): Promise<PredictionHistoryResult[] 
 /**
  * Send flattened landmarks to /predict and return the prediction stats.
  * @param landmarks Array of 63 numbers: [x0,y0,z0, x1,y1,z1, …, x20,y20,z20]
+ * @param token access token to be passed to PredictionResponse request.
  */
 export async function getHandPrediction(
-  landmarks: number[]
+  landmarks: number[], token: string | undefined
 ): Promise<PredictionResponse> {
   try {
     const response = await axiosInstance.post<PredictionResponse>(
       "/predict",
-      { landmarks }
+      { landmarks }, !token ? {} : {headers: {Authorization: `Bearer ${token}`}}
     );
     return response.data;
   } catch (err) {

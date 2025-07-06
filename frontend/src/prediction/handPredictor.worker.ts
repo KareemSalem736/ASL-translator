@@ -22,10 +22,10 @@ function isErrorResponse(x: any): x is ErrorResponse {
   )
 }
 
-self.onmessage = async (e: MessageEvent<number[]>) => {
-  const landmarks = e.data;
+self.onmessage = async (e: MessageEvent<{landmarks: number[], token?: string }>) => {
+  const { landmarks, token } = e.data;
   try {
-    const data: any = await getHandPrediction(landmarks);
+    const data: any = await getHandPrediction(landmarks, token);
     if (isPredictionResponse(data)) {
       self.postMessage({success: true, data});
     } else if (isErrorResponse(data)) {

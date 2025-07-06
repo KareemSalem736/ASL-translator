@@ -97,22 +97,6 @@ const VideoControls: React.FC<VideoControlsProps> = ({
           />
         )}
       </Button>
-
-      {/* Toggle Fullscreen */}
-      <Button
-        tooltip={isFullscreen ? "Exit full-screen" : "Enter full-screen"}
-        className=" border-0 btn-sm btn-outline-light"
-        onClick={() => setIsFullscreen(!isFullscreen)}
-      >
-        {isFullscreen ? (
-          <i
-            className="bi bi-fullscreen-exit"
-            style={{ fontSize: "1.25rem" }}
-          />
-        ) : (
-          <i className="bi bi-fullscreen" style={{ fontSize: "1.25rem" }} />
-        )}
-      </Button>
     </div>
   );
 };
