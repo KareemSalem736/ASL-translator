@@ -27,7 +27,7 @@ class PredictionHistory(SQLModel, table=True):
     id: int | None = Field(default=None, primary_key=True)
     user_id: int | None = Field(default=None, foreign_key="user.id")
     content: str = Field(..., max_length=1000)
-    created_at: datetime = Field(default=None)
+    created_at: datetime = Field(default=None, index=True)
 
 
 # Create engine from database location and create all SQLModel tables.

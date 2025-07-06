@@ -11,8 +11,9 @@ import numpy as np
 from pydantic import BaseModel
 from fastapi import APIRouter, Depends
 
+from backend.database.database import User
 from backend.database.user_queries import database_increment_predict_count
-from backend.utils.auth.auth_tokens import get_current_token, get_user_from_token
+from backend.utils.auth.auth_users import get_current_user_optional
 from backend.utils.preprocessing import normalize_landmarks
 
 router = APIRouter()
@@ -22,7 +23,8 @@ device = torch.device("cpu")
 model = torch.jit.load("backend" + os.path.sep + "model" + os.path.sep + "landmark_model.pt")
 model = torch.compile(model)
 model.eval()
-label_classes = np.load("backend" + os.path.sep + "model" + os.path.sep + "label_classes.npy", allow_pickle=True)
+label_classes = np.load("backend" + os.path.sep + "model" + os.path.sep +
+                        "label_classes.npy", allow_pickle=True)
 
 
 class LandmarkInput(BaseModel):
@@ -59,7 +61,7 @@ def current_time_milli():
 
 @router.post("/predict")
 async def predict(input_data: LandmarkInput,
-                  token: Optional[str] = Depends(get_current_token)):
+                  current_user: Optional[User] = Depends(get_current_user_optional)):
     """
     FastAPI route for receiving and predicting landmark data from the frontend.
     """
@@ -67,7 +69,7 @@ async def predict(input_data: LandmarkInput,
     start_time = current_time_milli()
 
     # This will be an average accuracy of the model over all predictions.
-    accuracy = 0.100
+    accuracy = 1
 
     input_np = np.array(input_data.landmarks)
     normalized_landmarks = normalize_landmarks(input_np)
@@ -83,10 +85,8 @@ async def predict(input_data: LandmarkInput,
 
     # Check if the confidence is over 80% and if the user is logged in, increment the predict count.
     if confidence >= 0.80:
-        if token:
-            user = get_user_from_token(token, "access")
-            if user:
-                database_increment_predict_count(user.email)
+        if current_user:
+            database_increment_predict_count(current_user.email)
 
     end_time = current_time_milli() - start_time
     return PredictionResult(prediction=top_class, confidence=confidence,

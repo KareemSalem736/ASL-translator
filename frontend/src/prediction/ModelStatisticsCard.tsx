@@ -6,7 +6,7 @@ interface ModelStatisticsCardProps {
   stats: PredictionResponse | null;
 }
 
-const ModelStatisticsCard = ({ stats }: ModelStatisticsCardProps) => {
+const  ModelStatisticsCard = ({ stats }: ModelStatisticsCardProps) => {
   return (
     <Card
       header={
@@ -16,25 +16,27 @@ const ModelStatisticsCard = ({ stats }: ModelStatisticsCardProps) => {
       }
       nullContentMessage="No model stats available."
     >
-      <ProgressBar
-        icon={<i className="bi bi-cpu me-1" />}
-        label="Model Accuracy"
-        value={stats?.accuracy ?? 0.0}
-      />
+      <div className="d-flex flex-column justify-content-evenly flex-grow-1">
+        <ProgressBar
+          icon={<i className="bi bi-cpu me-1" />}
+          label="Model Accuracy"
+          value={stats?.accuracy ?? 0.0}
+        />
 
-      <ProgressBar
-        icon={<i className="bi bi-bullseye me-1" />}
-        label="Prediction Confidence"
-        value={stats?.confidence ?? 0.0}
-      />
+        <ProgressBar
+          icon={<i className="bi bi-bullseye me-1" />}
+          label="Prediction Confidence"
+          value={stats?.confidence ?? 0.0}
+        />
 
-      <p className="m-0">
-        <i className="bi bi-stopwatch me-1" />
-        <span>Inference Time:</span>{" "}
-        <span className="badge bg-secondary">
-          {stats?.inferenceTimeMs != null ? `${stats.inferenceTimeMs} ms` : "-"}
-        </span>
-      </p>
+        <p className="m-0">
+          <i className="bi bi-stopwatch me-1" />
+          <span>Inference Time:</span>{" "}
+          <span className="badge bg-secondary">
+            {stats?.inferenceTimeMs != null ? `${stats.inferenceTimeMs} ms` : "-"}
+          </span>
+        </p>
+      </div>
     </Card>
   );
 };

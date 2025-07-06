@@ -9,7 +9,7 @@ import TranslatedOutputCard from "./prediction/TranslatedOutputCard";
 import PredictionHistoryCard from "./prediction/PredictionHistoryCard";
 import type { PredictionResponse } from "./prediction/predictionAPI";
 import WebcamCard from "./webcam/WebcamCard";
-import {useAuth} from "./auth/AuthProvider.tsx";
+import { useAuth } from "./auth/AuthProvider.tsx";
 
 function App() {
   const [translatedText, setTranslatedText] = useState("");
@@ -31,17 +31,19 @@ function App() {
 
   return (
     <div className="d-flex flex-column vh-100 flex-row-sm container">
-      <Header
-      isAuthenticated={isAuthenticated}
-      isLoading={isLoading}/>
+      <Header isAuthenticated={isAuthenticated} isLoading={isLoading} />
 
-      <main className="flex-grow-1 pb-3">
+      <main
+        className="d-flex flex-column flex-grow-1"
+        style={{ minHeight: "0" }}
+      >
         <div className="row h-75 mb-3">
           <div className="col-md-8 col-sm-12 d-flex flex-column h-100">
             <WebcamCard onPredictionResult={onPrediction} />
           </div>
 
-          <div className="col-md-4 d-sm-none d-md-flex flex-column h-100">
+          <div className="col-4 d-flex flex-column h-100">
+            {/* <div className="col-md-4 d-sm-none d-md-flex flex-column h-100 overflow-hidden"> */}
             <PredictionHistoryCard />
           </div>
         </div>
@@ -50,7 +52,7 @@ function App() {
           <div className="col-8 d-flex flex-column h-100">
             <TranslatedOutputCard
               translatedText={translatedText}
-              setTranslatedText={() => setTranslatedText("")}
+              setTranslatedText={setTranslatedText}
             />
           </div>
 

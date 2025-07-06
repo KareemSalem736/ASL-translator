@@ -2,90 +2,89 @@ from datetime import datetime, timezone, timedelta
 from typing import Optional
 
 import jwt
-from fastapi import Response, Depends
+from fastapi import Response, Request, HTTPException, status
+from jwt import InvalidTokenError
 
-from backend.database.database import User
-from backend.utils.auth.auth import oauth2_scheme, ALGORITHM, SECRET_ACCESS, TOKEN_ACCESS_EXPIRATION, \
+from backend.models.auth_models import TokenData
+from backend.utils.auth.auth import ALGORITHM, SECRET_ACCESS, TOKEN_ACCESS_EXPIRATION, \
     TOKEN_REFRESH_EXPIRATION, SECRET_REFRESH
-from backend.utils.auth.auth_users import get_user
 
 
-def get_current_token(token: Optional[str] = Depends(oauth2_scheme)):
+def get_current_token(request: Request) -> Optional[str]:
     """
     Get the current token from the oauth2 header format.
     """
+    # Attempt to get the authorization header
+    token = None
+    auth_header = request.headers.get("Authorization")
+    if auth_header:
+        parts = auth_header.split()
+        if len(parts) == 2 and parts[0].lower() == "bearer":
+            token = parts[1]
+
+    # If no token was found in the header, check the access token cookie.
+    if not token:
+        token = request.cookies.get("access_token")
     return token
 
 
-def get_user_from_token(token: str, token_type: str) -> Optional[User]:
+def get_token_data(token: str, token_type: str) -> TokenData:
     """
-    Get a user based on their jwt token.
+    Extract token data from JWT.
     """
-    # Using token_type determine which secret needs to be used for decoding.
     if token_type == "access":
         secret = SECRET_ACCESS
     else:
         secret = SECRET_REFRESH
 
-    decoded_token: dict = jwt.decode(token, secret, algorithms=[ALGORITHM])
-    return get_user(decoded_token.get("sub"))
+    try:
+        payload = jwt.decode(token, secret, algorithms=[ALGORITHM])
+        username: str = payload.get("sub")
+        expiration: int = payload.get("exp")
+
+        # Determine if this token is expired.
+        if expiration < datetime.now(timezone.utc).timestamp():
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="Token expired",
+                headers={"WWW-Authenticate": "Bearer"})
+
+        if username is None:
+            raise HTTPException(
+                status_code=status.HTTP_401_UNAUTHORIZED,
+                detail="The user associated with this token does not exist",
+                headers={"WWW-Authenticate": "Bearer"}
+            )
+
+        return TokenData(username=username, expiration=expiration)
+    except InvalidTokenError:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Invalid token",
+            headers={"WWW-Authenticate": "Bearer"}
+        )
 
 
-def is_token_expired(token: str, token_type: str) -> bool:
-    """
-    Check if the supplied token is expired.
-    """
-    # Using token_type determine which secret needs to be used for decoding.
-    if token_type == "access":
-        secret = SECRET_ACCESS
-    else:
-        secret = SECRET_REFRESH
-
-    decoded_token: dict = jwt.decode(token.encode('utf-8'), secret, algorithms=[ALGORITHM])
-    access_expiration: int = decoded_token.get("exp")
-
-    if access_expiration < datetime.now(timezone.utc).timestamp():
-        return True
-    return False
-
-
-def is_valid_token(token: str, token_type: str) -> {bool, str}:
-    if token is None:
-        return False, "Token missing"
-
-    if is_token_expired(token, token_type):
-        return False, "Token expired"
-    return True, "Token is valid"
-
-
-def create_access_token(data: dict) -> str:
+def create_access_token(data: dict):
     """
     Create a JWT access token.
     """
     to_encode = data.copy()
-    expire = datetime.now(timezone.utc) + timedelta(days=TOKEN_ACCESS_EXPIRATION)
+    expire = datetime.now(timezone.utc) + timedelta(minutes=TOKEN_ACCESS_EXPIRATION)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_ACCESS, algorithm=ALGORITHM)
-    return encoded_jwt
+    access_token = jwt.encode(to_encode, SECRET_ACCESS, algorithm=ALGORITHM)
+
+    return access_token
 
 
-def create_refresh_token(data: dict) -> str:
+def create_refresh_token(data: dict, response: Response):
     """
     Create a JWT refresh token.
     """
     to_encode = data.copy()
     expire = datetime.now(timezone.utc) + timedelta(days=TOKEN_REFRESH_EXPIRATION)
     to_encode.update({"exp": expire})
-    encoded_jwt = jwt.encode(to_encode, SECRET_REFRESH, algorithm=ALGORITHM)
-    return encoded_jwt
-
-
-def create_tokens(data: dict, response: Response) -> str:
-    """
-    Create refresh and access JWT tokens for new session. Add refresh token to response cookie.
-    """
-    access_token = create_access_token(data)
-    refresh_token = create_refresh_token(data)
+    refresh_token = jwt.encode(to_encode, SECRET_REFRESH, algorithm=ALGORITHM)
 
     response.set_cookie(
         'refresh_token',
@@ -95,4 +94,12 @@ def create_tokens(data: dict, response: Response) -> str:
         samesite='strict',
         max_age=60 * 60 * 24 * 30
     )
+
+
+def create_tokens(data: dict, response: Response):
+    """
+    Create refresh and access JWT tokens for new session.
+    """
+    access_token = create_access_token(data)
+    create_refresh_token(data, response)
     return access_token

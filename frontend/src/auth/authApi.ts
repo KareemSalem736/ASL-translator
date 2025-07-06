@@ -2,31 +2,25 @@
 // It uses Axios for HTTP requests and manages the access token in memory.
 
 import axiosInstance from "../axiosConfig";
+import {startTokenTimer, stopTokenTimer} from "./TokenManager.ts";
 
-// ─── In-memory store for the access token ───
-// We do NOT persist the access token in localStorage to avoid XSS risk.
-// The backend also sets an HttpOnly cookie (for refresh tokens or session), so we need `withCredentials:true`.
-let accessToken: string | null = null;
+let accessToken: string | undefined = undefined;
 
-/** → Getter for other modules (e.g. axios interceptor) */
-export const getAccessToken = () => accessToken;
+/** Access token retrieval method. */
+export const getAccessToken = (): string | undefined => {
+  return accessToken;
+}
 
 /** → Setter whenever we get a new token from login/Google. */
 export const setAccessToken = (token: string) => {
   accessToken = token;
+  startTokenTimer(token);
 };
-
-/** Getter for a completed authorization header. */
-export function getAuthHeader(): {Authorization: string} {
-  return {
-    Authorization: `Bearer ${getAccessToken()}`
-  }
-}
 
 /** → Remove everything (on logout or refresh failure). */
 export const clearAuthData = () => {
-  accessToken = null;
-  localStorage.removeItem('user');
+  accessToken = undefined;
+  stopTokenTimer();
 };
 
 /** 
@@ -47,28 +41,13 @@ export interface AuthRequest {
 export interface AuthResponse {
   username: string;           // user’s basic info
   message: string;       // e.g. "Registration successful" or "Invalid credentials"
-  access_token?: string; // JWT (if not using cookie-only)
-  token_type?: string;
+  access_token: string; // JWT access token.
 }
 
 export interface RegisterRequest {
   username: string;
   email: string;
   password: string;
-}
-
-export interface UserInfoResponse {
-  username: string;
-  email: string;
-  total_predictions: number;
-  prediction_history_size: number;
-  last_login: string;
-  creation_date: string;
-}
-
-export interface PasswordChangeRequest {
-  current_password: string;
-  new_password: string;
 }
 
 /** Used by Google One-Tap: `response.credential` is the ID token. */
@@ -83,10 +62,8 @@ export const registerUser = async (data: RegisterRequest): Promise<AuthResponse>
       withCredentials: true
     });
 
-    // If the backend returns { access_token: "..." }, store it in memory:
-    if (response.data.access_token) {
-      setAccessToken(response.data.access_token);
-    }
+    setAccessToken(response.data.access_token);
+
     return response.data;
   } catch (err: any) {
     // If backend threw a 400/422 with { detail: "..."}:
@@ -109,75 +86,27 @@ export const loginUser = async (data: AuthRequest): Promise<AuthResponse> => {
         withCredentials: true
         });
 
-    // If the backend returns { access_token: "..." }, store it in memory:
-    if (response.data.access_token) {
-      setAccessToken(response.data.access_token);
-    }
+    setAccessToken(response.data.access_token);
+
     return response.data;
   } catch (err: any) {
     throw new Error(err.response?.data?.detail || "Login failed");
   }
 };
 
-// --- GET USER INFO ---
-export const infoUser = async (): Promise<UserInfoResponse | void> => {
-  try {
-    const response = await axiosInstance.get<UserInfoResponse>("/auth/info")
-
-    if (response.status !== 200) {
-      return;
-    }
-    return response.data
-  } catch (err: any) {
-    throw new Error(err.response?.data?.detail || "Failed to retrieve user info");
-  }
-}
-
 // ─── LOGOUT ───
-export const requestUserLogout = async (): Promise<string | void> => {
+export const logoutUser = async (): Promise<string | void> => {
   try {
     const response = await axiosInstance.post<{ message: string }>("/auth/logout",
-        {header: getAuthHeader()}, { withCredentials: true });
+        {}, { withCredentials: true });
+
     clearAuthData();
-
-    if (response.status !== 200) {
-      return;
-    }
     return response.data.message;
   } catch (err: any) {
-    throw new Error(err.response?.data?.detail || "Failed to send password reset email");
-  }
-
-};
-
-// ─── FORGOT PASSWORD ───
-export const requestPasswordReset = async ( data: { email: string } ): Promise<{ message: string }> => {
-  try {
-    const response = await axiosInstance.post<{ message: string }>
-    ('/auth/forgot-password', data, { headers: getAuthHeader() });
-    return response.data;
-  } catch (err: any) {
+    clearAuthData();
     throw new Error(err.response?.data?.detail || "Failed to send password reset email");
   }
 };
-
-// --- RESET PASSWORD ---
-export const changeUserPassword = async (data: PasswordChangeRequest): Promise<string | void> => {
-  try {
-    // Send a request to the backend to change the password for the given user.
-    const response = await axiosInstance.post<{ message: string }>(
-        '/auth/changepassword', data, { headers: getAuthHeader() });
-
-    // Check if there was a response from the backend.
-    if (response.status !== 200) {
-      return;
-    }
-    return response.data.message;
-  } catch (error: any) {
-    console.log(error);
-    throw new Error(error.response?.data?.detail || "Password change failed.");
-  }
-}
 
 // ─── GOOGLE SIGN-IN ───
 export const handleCredentialResponse = async (response: GoogleCredentialResponse): Promise<AuthResponse> => {
@@ -185,54 +114,44 @@ export const handleCredentialResponse = async (response: GoogleCredentialRespons
   try {
     // Send the Google ID token to our backend. The backend will verify it, create/lookup the user, and return:
     // { user: { email: "..." }, access_token: "jwt", message: "Logged in with Google" }
-    const res = await axiosInstance.post<AuthResponse>('/auth/google', {
+    const response = await axiosInstance.post<AuthResponse>('/auth/google', {
       id_token: idToken,
     });
 
+    const token = response.data.access_token;
+
     // Backend should set an HttpOnly refresh cookie automatically, so we only need to store the JWT access token (optional).
-    if (res.data.access_token) {
-      setAccessToken(res.data.access_token);
+    if (token) {
+      setAccessToken(token);
     }
-    if (res.data.username) {
-      localStorage.setItem('user', JSON.stringify(res.data.username));
-    }
-    return res.data;
+    return response.data;
   } catch (error: any) {
     throw new Error(error.response?.data?.detail || 'Google sign-in failed');
   }
 };
 
-export const isAccessTokenValid = async (): Promise<string | void> => {
-  let token = getAccessToken()
-  if (!token) {
-    token = await refreshAccessToken()
-    if (token) {
-      setAccessToken(token)
-      return token;
-    } else {
-      return;
-    }
+// --- VERIFY ACCESS TOKEN ---
+export const verifyAccessToken = async (): Promise<void> => {
+  try {
+    console.log(getAccessToken());
+    await axiosInstance.post<{message: string}>('/auth/verify')
+  } catch (error: any) {
+    throw new Error(error.response?.data?.detail || "Failed to verify access token");
   }
-
-  const response = await axiosInstance.post("/auth/verify", {},
-      !getAuthHeader() ? {} : {headers: getAuthHeader()});
-
-  if (response.status === 200) {
-    return token;
-  } else {
-    return;
-  }
-};
+}
 
 // ─── REFRESH ACCESS TOKEN ───
-export const refreshAccessToken = async (): Promise<string | null> => {
+export const refreshAccessToken = async (): Promise<string> => {
   try {
     // The backend endpoint /auth/refresh should look at the HttpOnly cookie (refresh token),
     // verify it, and respond with a fresh { access_token: "newJwt" }.
     const response = await axiosInstance.post<{ access_token: string }>('/auth/refresh',
         {}, {withCredentials: true});
 
-      return response.data.access_token;
+    console.log(response.data.access_token)
+    setAccessToken(response.data.access_token);
+
+    return response.data.access_token;
   } catch (error : any) {
     clearAuthData();
     throw new Error(error.response?.data?.detail || 'Session expired. Please log in again.');

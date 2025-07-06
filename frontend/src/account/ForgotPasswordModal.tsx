@@ -7,9 +7,9 @@ import Button from "../components/Button";
 import AuthAlert from "../components/AuthAlert";
 import Form from "../components/Form";
 import TextInput from "../components/TextInput";
-import { requestPasswordReset } from "./authApi.ts";
+import { requestPasswordReset } from "./accountApi.ts";
 import Modal from "../components/Modal";
-import { validateForgotPassword } from "./authValidation.ts";
+import { validateForgotPassword } from "../auth/authValidation.ts";
 
 interface ForgotPasswordModalProps {
   open: boolean;

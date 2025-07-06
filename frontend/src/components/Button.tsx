@@ -35,7 +35,8 @@ const Button = ({
   rel,
   ...rest // capture any extra props
 }: ButtonProps) => {
-  const baseClass = `btn ${className} fw-bold rounded-pill`;
+  const closeClass = className?.includes('btn-close');
+  const baseClass = `btn ${className} ${closeClass ? '' : 'fw-bold rounded-pill'}`;
 
   // React Router Link
   if (to) {

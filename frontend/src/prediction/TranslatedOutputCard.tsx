@@ -1,5 +1,8 @@
 import Card from "../components/Card";
 import CardIconButton from "../components/CardIconButton";
+import {getAccessToken} from "../auth/authApi.ts";
+import {useState} from "react";
+import {usePredictionHistory} from "./PredictionHistoryContext.tsx";
 
 interface TranslatedOutputCardProps {
   translatedText: string;
@@ -8,8 +11,46 @@ interface TranslatedOutputCardProps {
 
 const TranslatedOutputCard = ({
   translatedText,
-  setTranslatedText,
+  setTranslatedText
 }: TranslatedOutputCardProps) => {
+  const [isSaving, setIsSaving] = useState(false);
+  const { addHistoryItem } = usePredictionHistory();
+
+  const handleClear = async() => {
+      if (getAccessToken()) {
+          if (isSaving || translatedText.length === 0) {
+              return;
+          }
+
+          setIsSaving(true);
+
+          try {
+              await addHistoryItem(translatedText);
+
+              setTranslatedText("");
+          } catch (error) {
+              console.error("Failed to save prediction history:", error);
+              alert("Error: could not have history.")
+          } finally {
+              setIsSaving(false);
+          }
+      } else {
+          setTranslatedText("");
+      }
+  }
+
+  const handleUndo = () => {
+      if (translatedText.endsWith("space")) {
+        setTranslatedText(translatedText.substring(0, translatedText.length - "space".length));
+      } else if(translatedText.endsWith("del")) {
+        setTranslatedText(translatedText.substring(0, translatedText.length - "del".length));
+      } else if(translatedText.length > 0) {
+        setTranslatedText(translatedText.substring(0, translatedText.length - 1));
+      } else {
+        throw new Error("No text to be deleted.")
+      }
+  }
+
   return (
     <Card
       header={
@@ -20,23 +61,22 @@ const TranslatedOutputCard = ({
             <CardIconButton
               icon={"bi-arrow-90deg-left"}
               tooltip={"Undo"}
-              onClick={function (): void {
-                throw new Error("Function not implemented.");
-              }}
+              onClick={handleUndo}
+              disabled={translatedText.length === 0}
             />
 
             <CardIconButton
               icon={"bi-arrow-repeat"}
               tooltip={"Clear"}
-              onClick={function (): void {
-                setTranslatedText("");
-              }}
+              onClick={handleClear}
+              disabled={isSaving || translatedText.length === 0}
             />
 
             <CardIconButton
               icon={"bi-copy"}
-              tooltip={"copy"}
+              tooltip={"Copy"}
               onClick={() => navigator.clipboard.writeText(translatedText)}
+              disabled={translatedText.length === 0}
             />
           </span>
         </div>

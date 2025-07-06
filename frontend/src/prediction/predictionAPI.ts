@@ -1,5 +1,4 @@
 import axiosInstance from "../axiosConfig";
-import {getAuthHeader, isAccessTokenValid} from "../auth/authApi.ts";
 
 export interface PredictionResponse {
   prediction: string;   // The predicted text or label  
@@ -28,21 +27,58 @@ export const DEFAULT_PREDICTIONRESPONSE = {
   inferenceTimeMs: 0,
 }
 
+export interface PredictionHistoryResult {
+  user_id: string;
+  content: string;
+  id: number;
+  created_at: string;
+}
+
+/**
+ * Add to authenticated user's prediction history.
+ * @param data
+ */
+export const addPredictionHistory = async (data: string): Promise<string | void> => {
+  try {
+      const response = await axiosInstance.post<{ message: string }>(
+          '/account/add-prediction', {prediction_string: data});
+
+      if (response.status !== 200) {
+        return;
+      }
+      return data;
+  } catch (err: any) {
+    throw new Error(err.response?.data?.detail || "Prediction history update failed.");
+  }
+}
+
+export const getPredictionHistory = async (): Promise<PredictionHistoryResult[] | undefined> => {
+    try {
+      const response = await axiosInstance.get<PredictionHistoryResult[]>(
+          '/account/get-predictions');
+
+      if (response.status !== 200) {
+        return;
+      }
+
+      return response.data;
+    } catch (err: any) {
+      throw new Error(err.response?.data?.detail || "Failed to get prediction history");
+    }
+}
+
 /**
  * Send flattened landmarks to /predict and return the prediction stats.
  * @param landmarks Array of 63 numbers: [x0,y0,z0, x1,y1,z1, …, x20,y20,z20]
+ * @param token access token to be passed to PredictionResponse request.
  */
 export async function getHandPrediction(
-  landmarks: number[]
+  landmarks: number[], token: string | undefined
 ): Promise<PredictionResponse> {
   try {
-    // TODO: Optimize this :)
-    const token = await isAccessTokenValid();
-
     const response = await axiosInstance.post<PredictionResponse>(
       "/predict",
-      { landmarks },
-        token ? { headers: getAuthHeader() } : {}
+      { landmarks }, !token ? {} : {headers: {Authorization: `Bearer ${token}`}}
     );
     return response.data;
   } catch (err) {

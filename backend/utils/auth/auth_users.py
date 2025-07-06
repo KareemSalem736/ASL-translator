@@ -1,16 +1,13 @@
 import re
-from datetime import datetime, timezone
 from typing import Optional, Annotated
 
-import jwt
 from fastapi import Depends, status, HTTPException
-from jwt import InvalidTokenError
 
 from backend.database.database import User
 from backend.database.user_queries import database_create_user, get_user_email, get_user_username, \
     database_update_login_time
-from backend.models.auth_models import TokenData
-from backend.utils.auth.auth import get_password_hash, oauth2_scheme, verify_password, SECRET_ACCESS, ALGORITHM
+from backend.utils.auth.auth import get_password_hash, verify_password
+from backend.utils.auth.auth_tokens import get_current_token, get_token_data
 
 
 def check_user_exists(username):
@@ -63,37 +60,47 @@ def get_authenticated_user(identifier: str, password: str) -> Optional[User]:
     return user
 
 
-def get_current_user(token: Annotated[str, Depends(oauth2_scheme)]) -> User:
+def _get_user_from_request(token: Optional[str] = Depends(get_current_token)) -> Optional[User]:
     """
-    Get the current user from the oauth2 header.
+    Core function for getting an access token, validating it, and returning
+    a user.
     """
     credentials_exception = HTTPException(
         status_code=status.HTTP_401_UNAUTHORIZED,
         detail="Could not validate credentials",
-        headers={"WWW-Authenticate": "Bearer"},
-    )
-    # Try to extract the username from the jwt token.
-    try:
-        payload = jwt.decode(token, SECRET_ACCESS, algorithms=[ALGORITHM])
-        username: str = payload.get("sub")
-        exp: datetime = payload.get("exp")
+        headers={"WWW-Authenticate": "Bearer"})
 
-        # Determine if this token is expired.
-        if exp < datetime.now(timezone.utc):
-            raise HTTPException(
-                status_code=status.HTTP_401_UNAUTHORIZED,
-                detail="Token expired",
-                headers={"WWW-Authenticate": "Bearer"},
-            )
-        if username is None:
-            raise credentials_exception
-        token_data = TokenData(username=username)
-    except InvalidTokenError:
-        raise credentials_exception
+    # If no token data was found, return None.
+    if not token:
+        return None
+
+    # Extract data from the token and get the user from the data.
+    token_data = get_token_data(token, "access")
     user = get_user_username(token_data.username)
+
     if user is None:
         raise credentials_exception
+
     return user
+
+
+def get_current_user(current_user: User = Depends(_get_user_from_request)) -> User:
+    """
+    Get the current user from the oauth2 header.
+    """
+    if current_user is None:
+        raise HTTPException(
+            status_code=status.HTTP_401_UNAUTHORIZED,
+            detail="Not authenticated",
+            headers={"WWW-Authenticate": "Bearer"})
+    return current_user
+
+
+def get_current_user_optional(current_user: User = Depends(_get_user_from_request)) -> Optional[User]:
+    """
+    Optionally get the current user if the request has authorization data.
+    """
+    return current_user
 
 
 def get_current_active_user(current_user: Annotated[User, Depends(get_current_user)]) -> User:
@@ -102,4 +109,6 @@ def get_current_active_user(current_user: Annotated[User, Depends(get_current_us
     """
     if current_user.is_active:
         return current_user
-    raise HTTPException(status_code=400, detail="Inactive user")
+    raise HTTPException(
+        status_code=status.HTTP_403_FORBIDDEN,
+        detail="Inactive user")
